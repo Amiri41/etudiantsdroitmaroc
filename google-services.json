@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "600987420246",
+    "project_id": "etudiants-droit-maroc",
+    "storage_bucket": "etudiants-droit-maroc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:600987420246:android:2c7cf92ad08f117640ddf7",
+        "android_client_info": {
+          "package_name": "com.etudiantsdroitmaroc.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmrMX5F8-U6BRLZu_6kU7ZdNdUkmSiwJ8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
