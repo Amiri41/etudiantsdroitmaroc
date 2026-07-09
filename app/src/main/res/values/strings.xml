@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ÉTUDIANTS EN DROIT MAROC</string>
+
+    <string name="login_title">مرحبا بك</string>
+    <string name="login_subtitle">سجل الدخول باش تكمل دراستك القانونية</string>
+    <string name="login_with_google">تسجيل الدخول بحساب Google</string>
+
+    <string name="nav_home">الرئيسية</string>
+    <string name="nav_forum">المنتدى</string>
+    <string name="nav_chat">الدردشة</string>
+    <string name="nav_profile">حسابي</string>
+
+    <string name="section_private_law">القانون الخاص</string>
+    <string name="section_public_law">القانون العام</string>
+
+    <string name="downloaded">تم التحميل</string>
+    <string name="download_for_offline">تحميل للقراءة أوفلاين</string>
+    <string name="open_pdf">فتح الملف</string>
+
+    <string name="forum_new_post">منشور جديد</string>
+    <string name="chat_type_message">اكتب رسالة…</string>
+    <string name="online">متصل الآن</string>
+    <string name="offline">غير متصل</string>
+
+    <string name="profile_logout">تسجيل الخروج</string>
+</resources>

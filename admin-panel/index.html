@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة تحكم - ÉTUDIANTS EN DROIT MAROC</title>
+<style>
+  * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+  body { margin: 0; background: #F7F8FA; color: #1A1A1A; }
+  header { background: #0A1F3D; color: #F5B324; padding: 16px 20px; font-weight: bold; font-size: 18px; }
+  .container { max-width: 800px; margin: 20px auto; padding: 0 16px; }
+  .card { background: white; border-radius: 12px; padding: 18px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  h2 { margin-top: 0; color: #12305C; font-size: 16px; }
+  input, select, textarea, button { width: 100%; padding: 10px; margin-top: 6px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #E5E7EB; font-size: 14px; }
+  button { background: #F5B324; color: #0A1F3D; font-weight: bold; border: none; cursor: pointer; }
+  button:hover { opacity: 0.9; }
+  button.danger { background: #E14B4B; color: white; }
+  .pdf-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 13px; }
+  .subject-block { margin-bottom: 14px; }
+  .subject-title { font-weight: bold; color: #12305C; margin-bottom: 6px; }
+  #loginScreen { text-align: center; padding: 60px 20px; }
+  #progressText { font-size: 13px; color: #2E9E5B; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<header>⚖️ لوحة تحكم - ÉTUDIANTS EN DROIT MAROC</header>
+
+<div id="loginScreen" class="container">
+  <p>سجل الدخول بحساب Google ديالك (الأدمن) باش تقدر تزيد المحتوى</p>
+  <button onclick="loginWithGoogle()">تسجيل الدخول بـ Google</button>
+</div>
+
+<div id="adminPanel" class="container hidden">
+
+  <div class="card">
+    <h2>➕ زيادة مادة جديدة</h2>
+    <input id="subjectName" placeholder="اسم المادة (مثلا: القانون المدني)">
+    <select id="subjectCategory">
+      <option value="private">القانون الخاص</option>
+      <option value="public">القانون العام</option>
+    </select>
+    <input id="subjectOrder" type="number" placeholder="ترتيب العرض (رقم)" value="1">
+    <button onclick="addSubject()">حفظ المادة</button>
+  </div>
+
+  <div class="card">
+    <h2>📄 زيادة PDF لمادة</h2>
+    <select id="pdfSubjectSelect"></select>
+    <input id="pdfTitle" placeholder="عنوان الملف">
+    <input id="pdfFile" type="file" accept="application/pdf">
+    <button onclick="uploadPdf()">رفع وحفظ PDF</button>
+    <p id="progressText"></p>
+  </div>
+
+  <div class="card">
+    <h2>📚 المحتوى الحالي</h2>
+    <div id="contentList">جاري التحميل…</div>
+  </div>
+
+</div>
+
+<!-- Firebase SDK (compat - أبسط للاستعمال بلا build tools) -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+
+<!-- خاصك تزيد الإعدادات ديالك هنا (من Firebase Console > Project Settings) -->
+<script src="firebase-config.js"></script>
+
+<script>
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
+
+// ⚠️ بدل هاد الـ UID بالـ UID ديالك الحقيقي (من Firebase Console > Authentication)
+// باش غير نتا تقدر تدخل للوحة التحكم
+const ADMIN_UID = "REPLACE_WITH_YOUR_UID";
+
+function loginWithGoogle() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider).catch(err => alert("خطأ: " + err.message));
+}
+
+auth.onAuthStateChanged(user => {
+  if (user && (user.uid === ADMIN_UID || ADMIN_UID === "REPLACE_WITH_YOUR_UID")) {
+    document.getElementById("loginScreen").classList.add("hidden");
+    document.getElementById("adminPanel").classList.remove("hidden");
+    if (ADMIN_UID === "REPLACE_WITH_YOUR_UID") {
+      alert("تذكير: UID ديالك هو " + user.uid + " — بدلو فـ admin.js/index.html باش توصد الوصول على راسك فقط");
+    }
+    loadSubjectsIntoSelect();
+    loadContentList();
+  } else if (user) {
+    alert("هاد الحساب ماشي أدمن");
+    auth.signOut();
+  }
+});
+
+async function addSubject() {
+  const name = document.getElementById("subjectName").value.trim();
+  const category = document.getElementById("subjectCategory").value;
+  const order = parseInt(document.getElementById("subjectOrder").value) || 1;
+  if (!name) return alert("دخل اسم المادة");
+
+  const docRef = db.collection("subjects").doc();
+  await docRef.set({ id: docRef.id, name, category, orderIndex: order, iconName: "" });
+  alert("تمت إضافة المادة ✅");
+  document.getElementById("subjectName").value = "";
+  loadSubjectsIntoSelect();
+  loadContentList();
+}
+
+async function loadSubjectsIntoSelect() {
+  const select = document.getElementById("pdfSubjectSelect");
+  select.innerHTML = "";
+  const snapshot = await db.collection("subjects").orderBy("orderIndex").get();
+  snapshot.forEach(doc => {
+    const opt = document.createElement("option");
+    opt.value = doc.id;
+    opt.textContent = doc.data().name;
+    select.appendChild(opt);
+  });
+}
+
+async function uploadPdf() {
+  const subjectId = document.getElementById("pdfSubjectSelect").value;
+  const title = document.getElementById("pdfTitle").value.trim();
+  const file = document.getElementById("pdfFile").files[0];
+  const progressText = document.getElementById("progressText");
+
+  if (!subjectId) return alert("زيد مادة أولا");
+  if (!title || !file) return alert("دخل العنوان واختار ملف PDF");
+
+  const pdfId = db.collection("subjects").doc().id;
+  const storageRef = storage.ref(`pdfs/${subjectId}/${pdfId}.pdf`);
+  const uploadTask = storageRef.put(file);
+
+  uploadTask.on("state_changed", snap => {
+    const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+    progressText.textContent = `جاري الرفع… ${pct}%`;
+  }, err => {
+    alert("فشل الرفع: " + err.message);
+  }, async () => {
+    const url = await uploadTask.snapshot.ref.getDownloadURL();
+    await db.collection("subjects").doc(subjectId).collection("pdfs").doc(pdfId).set({
+      id: pdfId,
+      subjectId,
+      title,
+      storageUrl: url,
+      fileSizeKb: Math.round(file.size / 1024),
+      isNew: true,
+      uploadedAt: Date.now()
+    });
+    progressText.textContent = "تم الرفع بنجاح ✅";
+    document.getElementById("pdfTitle").value = "";
+    document.getElementById("pdfFile").value = "";
+    loadContentList();
+  });
+}
+
+async function loadContentList() {
+  const container = document.getElementById("contentList");
+  container.innerHTML = "";
+  const subjectsSnap = await db.collection("subjects").orderBy("orderIndex").get();
+
+  for (const subjectDoc of subjectsSnap.docs) {
+    const subject = subjectDoc.data();
+    const block = document.createElement("div");
+    block.className = "subject-block";
+    block.innerHTML = `<div class="subject-title">${subject.name} (${subject.category === 'private' ? 'خاص' : 'عام'})</div>`;
+
+    const pdfsSnap = await db.collection("subjects").doc(subjectDoc.id).collection("pdfs").get();
+    if (pdfsSnap.empty) {
+      block.innerHTML += `<div style="font-size:12px;color:#999;">ما كاينش PDFs بعد</div>`;
+    }
+    pdfsSnap.forEach(pdfDoc => {
+      const pdf = pdfDoc.data();
+      const row = document.createElement("div");
+      row.className = "pdf-row";
+      row.innerHTML = `
+        <span>📄 ${pdf.title} (${pdf.fileSizeKb} KB)</span>
+        <button class="danger" style="width:auto;padding:6px 12px;" onclick="deletePdf('${subjectDoc.id}','${pdfDoc.id}')">حذف</button>
+      `;
+      block.appendChild(row);
+    });
+
+    container.appendChild(block);
+  }
+}
+
+async function deletePdf(subjectId, pdfId) {
+  if (!confirm("متأكد بغيتي تحذف هاد الملف؟")) return;
+  await db.collection("subjects").doc(subjectId).collection("pdfs").doc(pdfId).delete();
+  try {
+    await storage.ref(`pdfs/${subjectId}/${pdfId}.pdf`).delete();
+  } catch (e) { /* الملف ممكن يكون تحذف من قبل */ }
+  loadContentList();
+}
+</script>
+
+</body>
+</html>

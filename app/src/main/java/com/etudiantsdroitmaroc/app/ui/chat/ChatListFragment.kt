@@ -1,0 +1,86 @@
+package com.etudiantsdroitmaroc.app.ui.chat
+
+import android.content.Intent
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.etudiantsdroitmaroc.app.data.model.ChatThread
+import com.etudiantsdroitmaroc.app.data.model.UserProfile
+import com.etudiantsdroitmaroc.app.data.remote.ChatRepository
+import com.etudiantsdroitmaroc.app.databinding.FragmentChatListBinding
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
+
+class ChatListFragment : Fragment() {
+
+    private var _binding: FragmentChatListBinding? = null
+    private val binding get() = _binding!!
+
+    private val repository = ChatRepository()
+    private lateinit var threadAdapter: ThreadAdapter
+    private lateinit var onlineAdapter: OnlineUserAdapter
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentChatListBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        onlineAdapter = OnlineUserAdapter(emptyList()) { user -> openThreadWith(user) }
+        binding.rvOnlineUsers.layoutManager =
+            androidx.recyclerview.widget.LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        binding.rvOnlineUsers.adapter = onlineAdapter
+
+        threadAdapter = ThreadAdapter(emptyList()) { thread -> openThread(thread) }
+        binding.rvThreads.layoutManager = LinearLayoutManager(context)
+        binding.rvThreads.adapter = threadAdapter
+
+        loadData()
+    }
+
+    private fun loadData() {
+        lifecycleScope.launch {
+            onlineAdapter.updateData(repository.getOnlineUsers())
+            threadAdapter.updateData(repository.getMyThreads())
+        }
+    }
+
+    private fun openThreadWith(user: UserProfile) {
+        lifecycleScope.launch {
+            val threadId = repository.getOrCreateThread(user.uid, user.name)
+            val intent = Intent(requireContext(), ChatActivity::class.java)
+            intent.putExtra("threadId", threadId)
+            intent.putExtra("otherName", user.name)
+            startActivity(intent)
+        }
+    }
+
+    private fun openThread(thread: ChatThread) {
+        val myUid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
+        val otherUid = thread.participantUids.firstOrNull { it != myUid } ?: ""
+        val otherName = thread.participantNames[otherUid] ?: "طالب"
+
+        val intent = Intent(requireContext(), ChatActivity::class.java)
+        intent.putExtra("threadId", thread.id)
+        intent.putExtra("otherName", otherName)
+        startActivity(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadData()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}

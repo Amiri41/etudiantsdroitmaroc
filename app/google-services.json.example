@@ -1,0 +1,20 @@
+{
+  "_comment": "هذا غير مثال توضيحي. حمل الملف الحقيقي ديالك من Firebase Console وحطو فـ app/google-services.json (بلا الاسم .example)",
+  "project_info": {
+    "project_number": "000000000000",
+    "project_id": "etudiants-droit-maroc",
+    "storage_bucket": "etudiants-droit-maroc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:000000000000:android:xxxxxxxxxxxxxxxx",
+        "android_client_info": { "package_name": "com.etudiantsdroitmaroc.app" }
+      },
+      "oauth_client": [],
+      "api_key": [ { "current_key": "REPLACE_ME" } ],
+      "services": {}
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.etudiantsdroitmaroc.app.ui.home.HomeFragment"
+        android:label="Home" />
+
+    <fragment
+        android:id="@+id/forumFragment"
+        android:name="com.etudiantsdroitmaroc.app.ui.forum.ForumFragment"
+        android:label="Forum" />
+
+    <fragment
+        android:id="@+id/chatListFragment"
+        android:name="com.etudiantsdroitmaroc.app.ui.chat.ChatListFragment"
+        android:label="Chat" />
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.etudiantsdroitmaroc.app.ui.profile.ProfileFragment"
+        android:label="Profile" />
+
+</navigation>
