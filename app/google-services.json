@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "600987420246-o6356d1mcv1gsiqcirv29kgmpe11il31.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.etudiantsdroitmaroc.app",
+            "certificate_hash": "04d01eb487e9f24b522239ea9d2e69f699b6e013"
+          }
+        },
+        {
           "client_id": "600987420246-gkr67054tloni0gnlvf7l71a3lstbajk.apps.googleusercontent.com",
           "client_type": 3
         }
