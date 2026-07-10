@@ -5,6 +5,7 @@ import android.content.Context
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.appopen.AppOpenAd
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
@@ -40,7 +41,7 @@ object AdManager {
                 override fun onAdLoaded(ad: InterstitialAd) {
                     interstitialAd = ad
                 }
-                override fun onAdFailedToLoad(error: AdError) {
+                override fun onAdFailedToLoad(error: LoadAdError) {
                     interstitialAd = null
                 }
             }
@@ -81,7 +82,7 @@ object AdManager {
                 override fun onAdLoaded(ad: RewardedAd) {
                     rewardedAd = ad
                 }
-                override fun onAdFailedToLoad(error: AdError) {
+                override fun onAdFailedToLoad(error: LoadAdError) {
                     rewardedAd = null
                 }
             }
@@ -113,7 +114,7 @@ object AdManager {
                 override fun onAdLoaded(ad: RewardedInterstitialAd) {
                     rewardedInterstitialAd = ad
                 }
-                override fun onAdFailedToLoad(error: AdError) {
+                override fun onAdFailedToLoad(error: LoadAdError) {
                     rewardedInterstitialAd = null
                 }
             }
@@ -130,7 +131,7 @@ object AdManager {
                 override fun onAdLoaded(ad: AppOpenAd) {
                     appOpenAd = ad
                 }
-                override fun onAdFailedToLoad(error: AdError) {
+                override fun onAdFailedToLoad(error: LoadAdError) {
                     appOpenAd = null
                 }
             }
