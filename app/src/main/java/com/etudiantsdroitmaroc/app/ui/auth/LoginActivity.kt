@@ -10,6 +10,7 @@ import com.etudiantsdroitmaroc.app.R
 import com.etudiantsdroitmaroc.app.data.remote.AuthRepository
 import com.etudiantsdroitmaroc.app.ui.MainActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes
 import com.google.android.gms.common.api.ApiException
 import kotlinx.coroutines.launch
 
@@ -29,11 +30,13 @@ class LoginActivity : AppCompatActivity() {
                     startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                     finish()
                 } else {
-                    Toast.makeText(this@LoginActivity, "فشل تسجيل الدخول، عاود المحاولة", Toast.LENGTH_SHORT).show()
+                    val errMsg = signInResult.exceptionOrNull()?.message ?: "غير معروف"
+                    Toast.makeText(this@LoginActivity, "فشل Firebase: $errMsg", Toast.LENGTH_LONG).show()
                 }
             }
         } catch (e: ApiException) {
-            Toast.makeText(this, "تم إلغاء تسجيل الدخول", Toast.LENGTH_SHORT).show()
+            val codeStr = GoogleSignInStatusCodes.getStatusCodeString(e.statusCode)
+            Toast.makeText(this, "خطأ Google [${e.statusCode}]: $codeStr", Toast.LENGTH_LONG).show()
         }
     }
 
