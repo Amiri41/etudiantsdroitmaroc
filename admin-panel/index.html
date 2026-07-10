@@ -77,6 +77,10 @@
 <script>
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+
+auth.getRedirectResult().catch(err => {
+  alert("خطأ فتسجيل الدخول: " + err.code + " - " + err.message);
+});
 const db = firebase.firestore();
 
 // ⚠️ بدل هاد الـ UID بالـ UID ديالك الحقيقي (من Firebase Console > Authentication)
@@ -85,7 +89,7 @@ const ADMIN_UID = "REPLACE_WITH_YOUR_UID";
 
 function loginWithGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).catch(err => alert("خطأ: " + err.message));
+  auth.signInWithRedirect(provider);
 }
 
 auth.onAuthStateChanged(user => {
