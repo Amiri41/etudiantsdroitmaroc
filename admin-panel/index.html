@@ -47,10 +47,15 @@
 
   <div class="card">
     <h2>📄 زيادة PDF لمادة</h2>
+    <p style="font-size:12px;color:#666;">
+      1. ارفع ملف الـ PDF لـ GitHub (فأي repo، مثلا فولدر <code>pdfs/</code>)<br>
+      2. افتح الملف فـ GitHub واضغط زر "Raw"<br>
+      3. انسخ الرابط من شريط العنوان (كيبدا بـ raw.githubusercontent.com) والصقو تحت
+    </p>
     <select id="pdfSubjectSelect"></select>
     <input id="pdfTitle" placeholder="عنوان الملف">
-    <input id="pdfFile" type="file" accept="application/pdf">
-    <button onclick="uploadPdf()">رفع وحفظ PDF</button>
+    <input id="pdfUrl" placeholder="الصق رابط GitHub Raw هنا">
+    <button onclick="addPdfLink()">حفظ PDF</button>
     <p id="progressText"></p>
   </div>
 
@@ -65,7 +70,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
 
 <!-- خاصك تزيد الإعدادات ديالك هنا (من Firebase Console > Project Settings) -->
 <script src="firebase-config.js"></script>
@@ -74,7 +78,6 @@
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-const storage = firebase.storage();
 
 // ⚠️ بدل هاد الـ UID بالـ UID ديالك الحقيقي (من Firebase Console > Authentication)
 // باش غير نتا تقدر تدخل للوحة التحكم
@@ -126,40 +129,32 @@ async function loadSubjectsIntoSelect() {
   });
 }
 
-async function uploadPdf() {
+async function addPdfLink() {
   const subjectId = document.getElementById("pdfSubjectSelect").value;
   const title = document.getElementById("pdfTitle").value.trim();
-  const file = document.getElementById("pdfFile").files[0];
+  const url = document.getElementById("pdfUrl").value.trim();
   const progressText = document.getElementById("progressText");
 
   if (!subjectId) return alert("زيد مادة أولا");
-  if (!title || !file) return alert("دخل العنوان واختار ملف PDF");
+  if (!title || !url) return alert("دخل العنوان والصق الرابط");
+  if (!url.includes("raw.githubusercontent.com") && !url.startsWith("https://")) {
+    return alert("الرابط خاصو يبدا بـ https://");
+  }
 
   const pdfId = db.collection("subjects").doc().id;
-  const storageRef = storage.ref(`pdfs/${subjectId}/${pdfId}.pdf`);
-  const uploadTask = storageRef.put(file);
-
-  uploadTask.on("state_changed", snap => {
-    const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
-    progressText.textContent = `جاري الرفع… ${pct}%`;
-  }, err => {
-    alert("فشل الرفع: " + err.message);
-  }, async () => {
-    const url = await uploadTask.snapshot.ref.getDownloadURL();
-    await db.collection("subjects").doc(subjectId).collection("pdfs").doc(pdfId).set({
-      id: pdfId,
-      subjectId,
-      title,
-      storageUrl: url,
-      fileSizeKb: Math.round(file.size / 1024),
-      isNew: true,
-      uploadedAt: Date.now()
-    });
-    progressText.textContent = "تم الرفع بنجاح ✅";
-    document.getElementById("pdfTitle").value = "";
-    document.getElementById("pdfFile").value = "";
-    loadContentList();
+  await db.collection("subjects").doc(subjectId).collection("pdfs").doc(pdfId).set({
+    id: pdfId,
+    subjectId,
+    title,
+    storageUrl: url,
+    fileSizeKb: 0,
+    isNew: true,
+    uploadedAt: Date.now()
   });
+  progressText.textContent = "تم الحفظ بنجاح ✅";
+  document.getElementById("pdfTitle").value = "";
+  document.getElementById("pdfUrl").value = "";
+  loadContentList();
 }
 
 async function loadContentList() {
@@ -195,9 +190,6 @@ async function loadContentList() {
 async function deletePdf(subjectId, pdfId) {
   if (!confirm("متأكد بغيتي تحذف هاد الملف؟")) return;
   await db.collection("subjects").doc(subjectId).collection("pdfs").doc(pdfId).delete();
-  try {
-    await storage.ref(`pdfs/${subjectId}/${pdfId}.pdf`).delete();
-  } catch (e) { /* الملف ممكن يكون تحذف من قبل */ }
   loadContentList();
 }
 </script>

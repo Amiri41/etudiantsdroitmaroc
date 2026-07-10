@@ -51,9 +51,18 @@ subjects/{subjectId}/pdfs/{pdfId}
   fileSizeKb: 850
 ```
 
-### 4. Firebase Storage
-- ارفع ملفات PDF لـ Firebase Storage
-- خذ الرابط العمومي (Download URL) وحطو فـ حقل `storageUrl`
+### 4. تخزين ملفات PDF (بلا Firebase Storage)
+
+⚠️ Firebase Storage دابا كيطلب ترقية لـ Blaze plan (يحتاج بطاقة بنكية). كبديل مجاني 100%، كنستعملو **GitHub** لتخزين ملفات PDF:
+
+1. زيد فولدر `pdfs/` فـ أي repo GitHub ديالك (يقدر يكون نفس repo ديال التطبيق)
+2. ارفع ملفات PDF ليه
+3. افتح كل ملف واضغط زر **"Raw"** - خذ الرابط من شريط العنوان (كيبدا بـ `raw.githubusercontent.com`)
+4. الصق هاد الرابط فحقل `storageUrl` (يدويا فـ Firestore، أو عبر لوحة التحكم `admin-panel/`)
+
+التطبيق كيقرا أي رابط HTTP مباشر، بلا ما يهمو منين جا.
+
+إلا فبعد بغيتي تستعمل Firebase Storage الحقيقي (بعد ما تكون عندك بطاقة وترقي لـ Blaze)، التطبيق غادي يخدم بلا تغيير فالكود.
 
 ### 5. GitHub Actions - إعداد Secret
 1. حول `google-services.json` لـ base64:
@@ -72,11 +81,11 @@ subjects/{subjectId}/pdfs/{pdfId}
 1. فتح `admin-panel/firebase-config.js` وبدل القيم بإعدادات مشروع Firebase ديالك (من Project Settings > زيد تطبيق ويب "</> Add app")
 2. حل `admin-panel/index.html` فالمتصفح (أو استضفه فـ Firebase Hosting المجاني)
 3. سجل الدخول بحساب Google، وغادي تبان ليك الـ UID ديالك فرسالة تنبيه
-4. دير هاد الـ UID فـ 3 أماكن:
+4. دور UID فمكان وحد:
    - `admin-panel/index.html` → `ADMIN_UID`
    - `firestore.rules` → كل `REPLACE_WITH_YOUR_UID`
-   - `storage.rules` → `REPLACE_WITH_YOUR_UID`
-5. طبق القواعد ديال `firestore.rules` و `storage.rules` فـ Firebase Console (Firestore > Rules, Storage > Rules)
+5. طبق القواعد ديال `firestore.rules` فـ Firebase Console (Firestore > Rules)
+   (`storage.rules` ماشي محتاجينها دابا حيت كنستعملو GitHub بدل Firebase Storage)
 6. دابا تقدر تزيد مواد، ترفع PDFs مباشرة، وتحذفهم - وغادي يبانو مباشرة فالتطبيق (بلا تحديث/بناء APK جديد)
 
 ### 7. إشعارات Push
