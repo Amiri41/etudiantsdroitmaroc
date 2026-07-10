@@ -85,7 +85,7 @@ const db = firebase.firestore();
 
 // ⚠️ بدل هاد الـ UID بالـ UID ديالك الحقيقي (من Firebase Console > Authentication)
 // باش غير نتا تقدر تدخل للوحة التحكم
-const ADMIN_UID = "REPLACE_WITH_YOUR_UID";
+const ADMIN_UID = "zcSE6F8cMTM68kgKHM1SrH5KnX33";
 
 function loginWithGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
@@ -93,12 +93,9 @@ function loginWithGoogle() {
 }
 
 auth.onAuthStateChanged(user => {
-  if (user && (user.uid === ADMIN_UID || ADMIN_UID === "REPLACE_WITH_YOUR_UID")) {
+  if (user && user.uid === ADMIN_UID) {
     document.getElementById("loginScreen").classList.add("hidden");
     document.getElementById("adminPanel").classList.remove("hidden");
-    if (ADMIN_UID === "REPLACE_WITH_YOUR_UID") {
-      alert("تذكير: UID ديالك هو " + user.uid + " — بدلو فـ admin.js/index.html باش توصد الوصول على راسك فقط");
-    }
     loadSubjectsIntoSelect();
     loadContentList();
   } else if (user) {
