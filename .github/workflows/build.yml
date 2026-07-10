@@ -25,9 +25,23 @@ jobs:
           gradle-version: '8.4'
 
       - name: Build Debug APK
-        run: gradle assembleDebug --stacktrace
+        id: build
+        continue-on-error: true
+        run: gradle assembleDebug --stacktrace > build_output.log 2>&1
+
+      - name: Show Kotlin compiler errors
+        if: always()
+        run: |
+          grep -n "^e: " build_output.log | while IFS= read -r line; do
+            echo "::error::$line"
+          done
+          if [ "${{ steps.build.outcome }}" = "failure" ]; then
+            echo "::error::البناء فشل - شوف الأخطاء فوق"
+            exit 1
+          fi
 
       - name: Upload APK
+        if: steps.build.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: etudiants-droit-maroc-debug
