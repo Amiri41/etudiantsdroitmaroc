@@ -44,8 +44,12 @@ class ForumFragment : Fragment() {
 
     private fun loadPosts() {
         lifecycleScope.launch {
-            val posts = repository.getPosts()
-            adapter.updateData(posts)
+            try {
+                val posts = repository.getPosts()
+                adapter.updateData(posts)
+            } catch (e: Exception) {
+                Toast.makeText(context, "خطأ Firestore: ${e.message}", Toast.LENGTH_LONG).show()
+            }
         }
     }
 

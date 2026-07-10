@@ -48,8 +48,12 @@ class ChatListFragment : Fragment() {
 
     private fun loadData() {
         lifecycleScope.launch {
-            onlineAdapter.updateData(repository.getOnlineUsers())
-            threadAdapter.updateData(repository.getMyThreads())
+            try {
+                onlineAdapter.updateData(repository.getOnlineUsers())
+                threadAdapter.updateData(repository.getMyThreads())
+            } catch (e: Exception) {
+                android.widget.Toast.makeText(context, "خطأ Firestore: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
+            }
         }
     }
 

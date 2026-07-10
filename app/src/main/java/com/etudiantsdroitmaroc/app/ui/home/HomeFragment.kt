@@ -63,10 +63,14 @@ class HomeFragment : Fragment() {
 
     private fun loadSubjects() {
         lifecycleScope.launch {
-            val snapshot = Firebase.firestore.collection("subjects").get().await()
-            val subjects: List<Subject> = snapshot.toObjects()
-            privateAdapter.updateData(subjects.filter { it.category == "private" })
-            publicAdapter.updateData(subjects.filter { it.category == "public" })
+            try {
+                val snapshot = Firebase.firestore.collection("subjects").get().await()
+                val subjects: List<Subject> = snapshot.toObjects()
+                privateAdapter.updateData(subjects.filter { it.category == "private" })
+                publicAdapter.updateData(subjects.filter { it.category == "public" })
+            } catch (e: Exception) {
+                android.widget.Toast.makeText(context, "خطأ Firestore: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
+            }
         }
     }
 

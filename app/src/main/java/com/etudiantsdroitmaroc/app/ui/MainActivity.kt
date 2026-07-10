@@ -13,8 +13,23 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        showLastCrashIfAny()
+
         val navController = findNavController(R.id.nav_host_fragment)
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)
         bottomNav.setupWithNavController(navController)
+    }
+
+    private fun showLastCrashIfAny() {
+        val file = java.io.File(filesDir, "last_crash.txt")
+        if (file.exists()) {
+            val content = file.readText()
+            file.delete()
+            androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("آخر انهيار ديال التطبيق")
+                .setMessage(content.take(2000))
+                .setPositiveButton("حسنا", null)
+                .show()
+        }
     }
 }
