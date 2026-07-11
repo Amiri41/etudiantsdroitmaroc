@@ -3,6 +3,11 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // المواد وملفات PDF: كلشي يقرا، غير الأدمن يكتب
+    // مؤقت: باش نقدر نشخص مشاكل الانهيار - نحيدوها من بعد
+    match /debug_logs/{logId} {
+      allow read, write: if true;
+    }
+
     match /subjects/{subjectId} {
       allow read: if true;
       allow write: if request.auth != null && request.auth.uid == "zcSE6F8cMTM68kgKHM1SrH5KnX33";

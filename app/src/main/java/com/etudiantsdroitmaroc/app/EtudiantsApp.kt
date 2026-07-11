@@ -15,13 +15,25 @@ class EtudiantsApp : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        // تسجيل أي انهيار غير متوقع فملف باش نقدر نشوفوه من بعد
+        // تسجيل أي انهيار غير متوقع + بعتو لـ Firestore باش نقدر نشوفوه بلا كمبيوتر
         val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             try {
                 val sw = StringWriter()
                 throwable.printStackTrace(PrintWriter(sw))
-                File(filesDir, "last_crash.txt").writeText(sw.toString())
+                val trace = sw.toString()
+                File(filesDir, "last_crash.txt").writeText(trace)
+
+                // Firestore عندو offline persistence، فالكتابة كتتخزن محليا وكتصيفط
+                // للسيرفر أوتوماتيكيا ملي يرجع الانترنت، حتى لو التطبيق سدم مباشرة بعدها
+                val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: "unknown"
+                Firebase.firestore.collection("debug_logs").document().set(
+                    mapOf(
+                        "uid" to uid,
+                        "trace" to trace.take(4000),
+                        "timestamp" to System.currentTimeMillis()
+                    )
+                )
             } catch (_: Exception) {
             }
             defaultHandler?.uncaughtException(thread, throwable)
