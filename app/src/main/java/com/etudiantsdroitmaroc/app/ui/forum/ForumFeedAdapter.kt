@@ -24,7 +24,9 @@ private const val AD_INTERVAL = 5 // إعلان واحد كل 5 منشورات
 class ForumFeedAdapter(
     private val context: Context,
     private var posts: List<Post>,
-    private val onLikeClick: (Post) -> Unit
+    private val onLikeClick: (Post) -> Unit,
+    private val onEditClick: (Post) -> Unit,
+    private val onDeleteClick: (Post) -> Unit
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -68,6 +70,26 @@ class ForumFeedAdapter(
         binding.tvLikesCount.text = post.likesCount.toString()
         binding.btnLike.setOnClickListener {
             onLikeClick(post)
+        }
+
+        val myUid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+        if (post.authorUid == myUid) {
+            binding.btnPostMenu.visibility = android.view.View.VISIBLE
+            binding.btnPostMenu.setOnClickListener { anchor ->
+                val popup = android.widget.PopupMenu(context, anchor)
+                popup.menu.add("تعديل")
+                popup.menu.add("حذف")
+                popup.setOnMenuItemClickListener { item ->
+                    when (item.title) {
+                        "تعديل" -> onEditClick(post)
+                        "حذف" -> onDeleteClick(post)
+                    }
+                    true
+                }
+                popup.show()
+            }
+        } else {
+            binding.btnPostMenu.visibility = android.view.View.GONE
         }
     }
 

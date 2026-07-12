@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.etudiantsdroitmaroc.app.data.model.Post
 import com.etudiantsdroitmaroc.app.data.remote.ForumRepository
 import com.etudiantsdroitmaroc.app.databinding.DialogNewPostBinding
 import com.etudiantsdroitmaroc.app.databinding.FragmentForumBinding
@@ -33,16 +34,21 @@ class ForumFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = ForumFeedAdapter(requireContext(), emptyList()) { post ->
-            lifecycleScope.launch {
-                try {
-                    repository.toggleLike(post.id)
-                    loadPosts()
-                } catch (e: Exception) {
-                    Toast.makeText(context, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
+        adapter = ForumFeedAdapter(
+            requireContext(), emptyList(),
+            onLikeClick = { post ->
+                lifecycleScope.launch {
+                    try {
+                        repository.toggleLike(post.id)
+                        loadPosts()
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
                 }
-            }
-        }
+            },
+            onEditClick = { post -> showEditPostDialog(post) },
+            onDeleteClick = { post -> confirmDeletePost(post) }
+        )
         binding.rvPosts.layoutManager = LinearLayoutManager(context)
         binding.rvPosts.adapter = adapter
 
@@ -86,6 +92,44 @@ class ForumFragment : Fragment() {
         }
 
         dialog.show()
+    }
+
+    private fun showEditPostDialog(post: Post) {
+        val dialogBinding = DialogNewPostBinding.inflate(LayoutInflater.from(context))
+        dialogBinding.etPostContent.setText(post.content)
+        dialogBinding.btnPublish.text = "حفظ التعديل"
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogBinding.root)
+            .create()
+
+        dialogBinding.btnPublish.setOnClickListener {
+            val content = dialogBinding.etPostContent.text?.toString()?.trim().orEmpty()
+            if (content.isEmpty()) return@setOnClickListener
+            lifecycleScope.launch {
+                val result = repository.updatePost(post.id, content)
+                if (result.isSuccess) {
+                    dialog.dismiss()
+                    loadPosts()
+                } else {
+                    Toast.makeText(context, "فشل التعديل", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+        dialog.show()
+    }
+
+    private fun confirmDeletePost(post: Post) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("حذف المنشور")
+            .setMessage("متأكد بغيتي تحذف هاد المنشور؟")
+            .setPositiveButton("حذف") { _, _ ->
+                lifecycleScope.launch {
+                    repository.deletePost(post.id)
+                    loadPosts()
+                }
+            }
+            .setNegativeButton("إلغاء", null)
+            .show()
     }
 
     override fun onDestroyView() {

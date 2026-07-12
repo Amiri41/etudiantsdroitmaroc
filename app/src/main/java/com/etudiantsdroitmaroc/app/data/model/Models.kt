@@ -77,6 +77,8 @@ data class UserProfile(
     var name: String = "",
     var email: String = "",
     var photoUrl: String = "",
+    var university: String = "",
+    var level: String = "",
     var isOnline: Boolean = false,
     var lastSeen: Long = System.currentTimeMillis()
 )

@@ -46,6 +46,24 @@
             android:textSize="14sp"
             android:textColor="@color/text_secondary" />
 
+        <TextView
+            android:id="@+id/tvUniversityLevel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:textSize="13sp"
+            android:textColor="@color/gold" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEditProfile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="تعديل البروفايل"
+            android:textAllCaps="false"
+            app:backgroundTint="@color/gold"
+            android:textColor="@color/navy_dark" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnPages"
             android:layout_width="match_parent"

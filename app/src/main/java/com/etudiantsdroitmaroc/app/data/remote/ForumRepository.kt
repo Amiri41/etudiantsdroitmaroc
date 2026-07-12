@@ -41,6 +41,24 @@ class ForumRepository {
         }
     }
 
+    suspend fun deletePost(postId: String): Result<Unit> {
+        return try {
+            firestore.collection("posts").document(postId).delete().await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun updatePost(postId: String, newContent: String): Result<Unit> {
+        return try {
+            firestore.collection("posts").document(postId).update("content", newContent).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     suspend fun toggleLike(postId: String): Boolean {
         val user = auth.currentUser ?: return false
         val likeRef = firestore.collection("posts").document(postId)
