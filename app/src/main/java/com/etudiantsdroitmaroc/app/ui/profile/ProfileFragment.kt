@@ -32,6 +32,10 @@ class ProfileFragment : Fragment() {
         binding.tvEmail.text = user?.email ?: ""
         user?.photoUrl?.let { Glide.with(this).load(it).into(binding.ivProfilePhoto) }
 
+        binding.btnPages.setOnClickListener {
+            startActivity(Intent(requireContext(), com.etudiantsdroitmaroc.app.ui.pages.PagesListActivity::class.java))
+        }
+
         binding.btnLogout.setOnClickListener {
             AuthRepository(requireContext()).signOut()
             startActivity(Intent(requireContext(), LoginActivity::class.java))

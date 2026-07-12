@@ -41,6 +41,30 @@ class ForumRepository {
         }
     }
 
+    suspend fun toggleLike(postId: String): Boolean {
+        val user = auth.currentUser ?: return false
+        val likeRef = firestore.collection("posts").document(postId)
+            .collection("likes").document(user.uid)
+        val postRef = firestore.collection("posts").document(postId)
+
+        val existing = likeRef.get().await()
+        return if (existing.exists()) {
+            likeRef.delete().await()
+            postRef.update("likesCount", com.google.firebase.firestore.FieldValue.increment(-1)).await()
+            false
+        } else {
+            likeRef.set(mapOf("likedAt" to System.currentTimeMillis())).await()
+            postRef.update("likesCount", com.google.firebase.firestore.FieldValue.increment(1)).await()
+            true
+        }
+    }
+
+    suspend fun isLikedByMe(postId: String): Boolean {
+        val user = auth.currentUser ?: return false
+        val doc = firestore.collection("posts").document(postId)
+            .collection("likes").document(user.uid).get().await()
+        return doc.exists()
+    }
     suspend fun getComments(postId: String): List<Comment> {
         val snapshot = firestore.collection("posts").document(postId)
             .collection("comments")

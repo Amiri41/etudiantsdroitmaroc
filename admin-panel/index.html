@@ -60,6 +60,25 @@
   </div>
 
   <div class="card">
+    <h2>📄 زيادة صفحة (من نحن، الخصوصية، روابط...)</h2>
+    <input id="pageTitle" placeholder="عنوان الصفحة (مثلا: من نحن)">
+    <select id="pageType">
+      <option value="text">نص (يبان جوا التطبيق)</option>
+      <option value="link">رابط خارجي (يفتح فالمتصفح)</option>
+    </select>
+    <textarea id="pageContent" placeholder="النص الكامل ديال الصفحة (إلا اخترتي 'نص')" rows="5"></textarea>
+    <input id="pageUrl" placeholder="الرابط (إلا اخترتي 'رابط') - مثلا https://facebook.com/...">
+    <input id="pageOrder" type="number" placeholder="ترتيب العرض" value="1">
+    <button onclick="addPage()">حفظ الصفحة</button>
+    <p id="pageProgressText"></p>
+  </div>
+
+  <div class="card">
+    <h2>📑 الصفحات الحالية</h2>
+    <div id="pagesList">جاري التحميل…</div>
+  </div>
+
+  <div class="card">
     <h2>📚 المحتوى الحالي</h2>
     <div id="contentList">جاري التحميل…</div>
   </div>
@@ -98,6 +117,7 @@ auth.onAuthStateChanged(user => {
     document.getElementById("adminPanel").classList.remove("hidden");
     loadSubjectsIntoSelect();
     loadContentList();
+    loadPagesList();
   } else if (user) {
     alert("هاد الحساب ماشي أدمن");
     auth.signOut();
@@ -192,6 +212,59 @@ async function deletePdf(subjectId, pdfId) {
   if (!confirm("متأكد بغيتي تحذف هاد الملف؟")) return;
   await db.collection("subjects").doc(subjectId).collection("pdfs").doc(pdfId).delete();
   loadContentList();
+}
+
+async function addPage() {
+  const title = document.getElementById("pageTitle").value.trim();
+  const type = document.getElementById("pageType").value;
+  const content = document.getElementById("pageContent").value.trim();
+  const url = document.getElementById("pageUrl").value.trim();
+  const order = parseInt(document.getElementById("pageOrder").value) || 1;
+  const progressText = document.getElementById("pageProgressText");
+
+  if (!title) return alert("دخل عنوان الصفحة");
+  if (type === "text" && !content) return alert("دخل محتوى الصفحة");
+  if (type === "link" && !url) return alert("دخل الرابط");
+
+  const docRef = db.collection("pages").doc();
+  await docRef.set({
+    id: docRef.id, title, type, content, url,
+    orderIndex: order, iconName: ""
+  });
+
+  progressText.textContent = "تم الحفظ ✅";
+  document.getElementById("pageTitle").value = "";
+  document.getElementById("pageContent").value = "";
+  document.getElementById("pageUrl").value = "";
+  loadPagesList();
+}
+
+async function loadPagesList() {
+  const container = document.getElementById("pagesList");
+  container.innerHTML = "";
+  const snapshot = await db.collection("pages").orderBy("orderIndex").get();
+
+  if (snapshot.empty) {
+    container.innerHTML = `<div style="font-size:12px;color:#999;">ما كاينش صفحات بعد</div>`;
+    return;
+  }
+
+  snapshot.forEach(doc => {
+    const page = doc.data();
+    const row = document.createElement("div");
+    row.className = "pdf-row";
+    row.innerHTML = `
+      <span>${page.type === 'link' ? '🔗' : '📄'} ${page.title}</span>
+      <button class="danger" style="width:auto;padding:6px 12px;" onclick="deletePage('${doc.id}')">حذف</button>
+    `;
+    container.appendChild(row);
+  });
+}
+
+async function deletePage(pageId) {
+  if (!confirm("متأكد بغيتي تحذف هاد الصفحة؟")) return;
+  await db.collection("pages").doc(pageId).delete();
+  loadPagesList();
 }
 </script>
 

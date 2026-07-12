@@ -33,7 +33,16 @@ class ForumFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = ForumFeedAdapter(requireContext(), emptyList())
+        adapter = ForumFeedAdapter(requireContext(), emptyList()) { post ->
+            lifecycleScope.launch {
+                try {
+                    repository.toggleLike(post.id)
+                    loadPosts()
+                } catch (e: Exception) {
+                    Toast.makeText(context, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
         binding.rvPosts.layoutManager = LinearLayoutManager(context)
         binding.rvPosts.adapter = adapter
 

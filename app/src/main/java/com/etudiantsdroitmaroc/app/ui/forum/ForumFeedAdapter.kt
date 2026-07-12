@@ -21,7 +21,11 @@ private const val AD_INTERVAL = 5 // إعلان واحد كل 5 منشورات
 /**
  * كيدمج المنشورات مع إعلان Native Advanced كل 5 منشورات، بحال فيسبوك/إنستغرام.
  */
-class ForumFeedAdapter(private val context: Context, private var posts: List<Post>) :
+class ForumFeedAdapter(
+    private val context: Context,
+    private var posts: List<Post>,
+    private val onLikeClick: (Post) -> Unit
+) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val loadedAds = mutableMapOf<Int, NativeAd>()
@@ -52,7 +56,7 @@ class ForumFeedAdapter(private val context: Context, private var posts: List<Pos
         binding.tvAuthorName.text = post.authorName
         binding.tvContent.text = post.content
         val relativeTime = DateUtils.getRelativeTimeSpanString(post.createdAt)
-        binding.tvMeta.text = "$relativeTime · ${post.likesCount} إعجاب · ${post.commentsCount} تعليق"
+        binding.tvMeta.text = "$relativeTime · ${post.commentsCount} تعليق"
         if (post.authorPhotoUrl.isNotEmpty()) {
             Glide.with(holder.itemView).load(post.authorPhotoUrl).into(binding.ivAuthorPhoto)
         }
@@ -60,6 +64,10 @@ class ForumFeedAdapter(private val context: Context, private var posts: List<Pos
             val intent = android.content.Intent(context, CommentsActivity::class.java)
             intent.putExtra("postId", post.id)
             context.startActivity(intent)
+        }
+        binding.tvLikesCount.text = post.likesCount.toString()
+        binding.btnLike.setOnClickListener {
+            onLikeClick(post)
         }
     }
 

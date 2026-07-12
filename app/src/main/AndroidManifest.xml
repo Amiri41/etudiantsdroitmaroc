@@ -51,6 +51,14 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.pages.PagesListActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.pages.PageDetailActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.forum.CommentsActivity"
             android:exported="false" />
 

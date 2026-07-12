@@ -62,7 +62,16 @@ data class ChatMessage(
     var seen: Boolean = false
 )
 
-/** بروفايل المستخدم */
+/** صفحة عامة (من نحن، الخصوصية، روابط...) - محتواها كامل قابل للتعديل من لوحة التحكم */
+data class AppPage(
+    var id: String = "",
+    var title: String = "",
+    var type: String = "text", // "text" أو "link"
+    var content: String = "",  // نص الصفحة (إلا type = text)
+    var url: String = "",      // رابط خارجي (إلا type = link)
+    var iconName: String = "",
+    var orderIndex: Int = 0
+)
 data class UserProfile(
     var uid: String = "",
     var name: String = "",

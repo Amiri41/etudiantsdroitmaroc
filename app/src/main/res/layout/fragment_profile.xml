@@ -47,10 +47,19 @@
             android:textColor="@color/text_secondary" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPages"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="صفحات إضافية (من نحن، الخصوصية، روابط)"
+            android:textAllCaps="false"
+            app:backgroundTint="@color/navy" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLogout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="14dp"
             android:text="@string/profile_logout"
             android:textAllCaps="false"
             app:backgroundTint="@color/red_accent" />
