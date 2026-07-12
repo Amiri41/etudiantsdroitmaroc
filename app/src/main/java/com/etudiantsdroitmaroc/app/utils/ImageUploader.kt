@@ -18,7 +18,7 @@ import java.io.File
  */
 object ImageUploader {
 
-    private const val IMGBB_API_KEY = "REPLACE_WITH_YOUR_IMGBB_KEY"
+    private const val IMGBB_API_KEY = "33ff99d34384ee94cc90e8465c8b5515"
     private val client = OkHttpClient()
 
     suspend fun uploadImage(context: Context, uri: Uri): Result<String> = withContext(Dispatchers.IO) {
