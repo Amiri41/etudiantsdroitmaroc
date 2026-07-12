@@ -58,6 +58,8 @@ data class ChatMessage(
     var id: String = "",
     var senderUid: String = "",
     var text: String = "",
+    var type: String = "text", // "text" أو "image"
+    var imageUrl: String = "",
     var sentAt: Long = System.currentTimeMillis(),
     var seen: Boolean = false
 )

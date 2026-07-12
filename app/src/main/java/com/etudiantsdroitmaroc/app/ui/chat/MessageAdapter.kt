@@ -24,16 +24,24 @@ class MessageAdapter(private var messages: List<ChatMessage>) :
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         val message = messages[position]
-        holder.binding.tvMessageText.text = message.text
-
         val isMine = message.senderUid == myUid
         holder.binding.rootContainer.gravity = if (isMine) Gravity.END else Gravity.START
-        holder.binding.tvMessageText.setBackgroundResource(
-            if (isMine) R.drawable.bg_bubble_me else R.drawable.bg_bubble_other
-        )
-        holder.binding.tvMessageText.setTextColor(
-            holder.itemView.context.getColor(if (isMine) R.color.white else R.color.text_primary)
-        )
+
+        if (message.type == "image" && message.imageUrl.isNotEmpty()) {
+            holder.binding.tvMessageText.visibility = android.view.View.GONE
+            holder.binding.ivMessageImage.visibility = android.view.View.VISIBLE
+            com.bumptech.glide.Glide.with(holder.itemView).load(message.imageUrl).into(holder.binding.ivMessageImage)
+        } else {
+            holder.binding.ivMessageImage.visibility = android.view.View.GONE
+            holder.binding.tvMessageText.visibility = android.view.View.VISIBLE
+            holder.binding.tvMessageText.text = message.text
+            holder.binding.tvMessageText.setBackgroundResource(
+                if (isMine) R.drawable.bg_bubble_me else R.drawable.bg_bubble_other
+            )
+            holder.binding.tvMessageText.setTextColor(
+                holder.itemView.context.getColor(if (isMine) R.color.white else R.color.text_primary)
+            )
+        }
     }
 
     override fun getItemCount() = messages.size

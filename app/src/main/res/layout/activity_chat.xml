@@ -29,11 +29,20 @@
         android:background="@color/white"
         android:gravity="center_vertical">
 
+        <ImageView
+            android:id="@+id/btnAttachImage"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:padding="6dp"
+            android:src="@drawable/ic_add"
+            app:tint="@color/navy" />
+
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etMessage"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_marginStart="4dp"
             android:hint="@string/chat_type_message"
             android:background="@drawable/bg_input_field"
             android:padding="10dp" />

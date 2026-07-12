@@ -69,6 +69,21 @@ class ChatRepository {
         return threadId
     }
 
+    suspend fun sendImageMessage(threadId: String, imageUrl: String) {
+        val message = ChatMessage(senderUid = myUid, type = "image", imageUrl = imageUrl)
+        val docRef = firestore.collection("chat_threads").document(threadId)
+            .collection("messages").document()
+        message.id = docRef.id
+        docRef.set(message).await()
+
+        firestore.collection("chat_threads").document(threadId).update(
+            mapOf(
+                "lastMessage" to "📷 صورة",
+                "lastMessageAt" to System.currentTimeMillis()
+            )
+        ).await()
+    }
+
     suspend fun sendMessage(threadId: String, text: String) {
         val message = ChatMessage(senderUid = myUid, text = text)
         val docRef = firestore.collection("chat_threads").document(threadId)
