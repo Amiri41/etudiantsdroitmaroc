@@ -59,7 +59,7 @@ class ProfileFragment : Fragment() {
     private fun loadProfile() {
         val user = FirebaseAuth.getInstance().currentUser ?: return
         binding.tvName.text = user.displayName ?: ""
-        binding.tvEmail.text = user.email ?: ""
+        // الإيميل خاص، ما كنعرضوش فالواجهة
         user.photoUrl?.let { Glide.with(this).load(it).into(binding.ivProfilePhoto) }
 
         lifecycleScope.launch {
