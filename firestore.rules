@@ -45,6 +45,11 @@ service cloud.firestore {
     match /users/{uid} {
       allow read: if request.auth != null;
       allow write: if request.auth != null && request.auth.uid == uid;
+
+      match /friends/{friendUid} {
+        allow read: if request.auth != null;
+        allow write: if request.auth != null && (request.auth.uid == uid || request.auth.uid == friendUid);
+      }
     }
 
     // الدردشة: غير المشاركين فالمحادثة يقدرو يقراو/يكتبو

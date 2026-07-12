@@ -51,6 +51,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.userprofile.UserProfileActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.profile.EditProfileActivity"
             android:exported="false" />
 

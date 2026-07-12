@@ -27,6 +27,31 @@ class ChatRepository {
         return snapshot.toObjects()
     }
 
+    suspend fun getUserProfile(uid: String): UserProfile? {
+        val doc = firestore.collection("users").document(uid).get().await()
+        return doc.toObject<UserProfile>()
+    }
+
+    suspend fun isFriend(otherUid: String): Boolean {
+        val doc = firestore.collection("users").document(myUid)
+            .collection("friends").document(otherUid).get().await()
+        return doc.exists()
+    }
+
+    /** إضافة صداقة متبادلة (مباشرة بلا طلب/قبول، للبساطة) */
+    suspend fun addFriend(otherUid: String) {
+        val batch = firestore.batch()
+        batch.set(
+            firestore.collection("users").document(myUid).collection("friends").document(otherUid),
+            mapOf("addedAt" to System.currentTimeMillis())
+        )
+        batch.set(
+            firestore.collection("users").document(otherUid).collection("friends").document(myUid),
+            mapOf("addedAt" to System.currentTimeMillis())
+        )
+        batch.commit().await()
+    }
+
     suspend fun getOrCreateThread(otherUid: String, otherName: String): String {
         val threadId = listOf(myUid, otherUid).sorted().joinToString("_")
         val docRef = firestore.collection("chat_threads").document(threadId)

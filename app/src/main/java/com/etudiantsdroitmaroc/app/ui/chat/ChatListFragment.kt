@@ -34,7 +34,7 @@ class ChatListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        onlineAdapter = OnlineUserAdapter(emptyList()) { user -> openThreadWith(user) }
+        onlineAdapter = OnlineUserAdapter(emptyList()) { user -> openUserProfile(user) }
         binding.rvOnlineUsers.layoutManager =
             androidx.recyclerview.widget.LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         binding.rvOnlineUsers.adapter = onlineAdapter
@@ -55,6 +55,12 @@ class ChatListFragment : Fragment() {
                 android.widget.Toast.makeText(context, "خطأ Firestore: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    private fun openUserProfile(user: UserProfile) {
+        val intent = Intent(requireContext(), com.etudiantsdroitmaroc.app.ui.userprofile.UserProfileActivity::class.java)
+        intent.putExtra("uid", user.uid)
+        startActivity(intent)
     }
 
     private fun openThreadWith(user: UserProfile) {
