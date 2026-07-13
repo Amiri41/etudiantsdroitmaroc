@@ -20,10 +20,10 @@ jobs:
       - name: Write service account key
         run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > "$RUNNER_TEMP/firebase-key.json"
 
-      - name: Deploy Firestore & Storage rules
+      - name: Deploy Firestore rules
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-key.json
-        run: npx firebase-tools deploy --only firestore:rules,storage --project etudiants-droit-maroc --non-interactive
+        run: npx firebase-tools deploy --only firestore:rules --project etudiants-droit-maroc --non-interactive
 
   build:
     runs-on: ubuntu-latest
