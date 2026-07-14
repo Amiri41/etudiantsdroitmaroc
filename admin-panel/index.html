@@ -46,6 +46,24 @@
   </div>
 
   <div class="card">
+    <h2>📢 بانر إعلان/تنبيه (يبان ملي يحل المستخدم التطبيق)</h2>
+    <select id="annType">
+      <option value="promo">إعلان / عرض</option>
+      <option value="update">تحديث جديد متوفر</option>
+    </select>
+    <input id="annTitle" placeholder="العنوان">
+    <textarea id="annMessage" placeholder="النص" rows="3"></textarea>
+    <input id="annImageInput" type="file" accept="image/*">
+    <img id="annImagePreview" class="hidden" style="max-width:120px;border-radius:8px;margin-bottom:10px;" />
+    <input id="annLink" placeholder="رابط (اختياري) - يفتح ملي يضغط المستخدم على البانر">
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;">
+      <input type="checkbox" id="annActive" style="width:auto;margin:0;"> نشط (يبان للمستخدمين)
+    </label>
+    <button onclick="saveAnnouncement()">حفظ ونشر</button>
+    <p id="annProgressText"></p>
+  </div>
+
+  <div class="card">
     <h2>📄 زيادة PDF لمادة</h2>
     <p style="font-size:12px;color:#666;">
       1. ارفع ملف الـ PDF لـ GitHub (فأي repo، مثلا فولدر <code>pdfs/</code>)<br>
@@ -121,11 +139,66 @@ auth.onAuthStateChanged(user => {
     loadSubjectsIntoSelect();
     loadContentList();
     loadPagesList();
+    loadAnnouncement();
   } else if (user) {
     alert("هاد الحساب ماشي أدمن");
     auth.signOut();
   }
 });
+
+document.getElementById("annImageInput").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  const preview = document.getElementById("annImagePreview");
+  if (!file) { preview.classList.add("hidden"); return; }
+  preview.src = URL.createObjectURL(file);
+  preview.classList.remove("hidden");
+});
+
+async function loadAnnouncement() {
+  const doc = await db.collection("app_announcement").doc("current").get();
+  if (!doc.exists) return;
+  const d = doc.data();
+  document.getElementById("annType").value = d.type || "promo";
+  document.getElementById("annTitle").value = d.title || "";
+  document.getElementById("annMessage").value = d.message || "";
+  document.getElementById("annLink").value = d.linkUrl || "";
+  document.getElementById("annActive").checked = !!d.active;
+  if (d.imageUrl) {
+    const preview = document.getElementById("annImagePreview");
+    preview.src = d.imageUrl;
+    preview.classList.remove("hidden");
+  }
+}
+
+async function saveAnnouncement() {
+  const progressText = document.getElementById("annProgressText");
+  const title = document.getElementById("annTitle").value.trim();
+  const message = document.getElementById("annMessage").value.trim();
+  if (!title || !message) return alert("دخل العنوان والنص");
+
+  let imageUrl = document.getElementById("annImagePreview").src || "";
+  if (imageUrl.startsWith("blob:")) imageUrl = "";
+  const imageFile = document.getElementById("annImageInput").files[0];
+  if (imageFile) {
+    progressText.textContent = "كنرفعو الصورة...";
+    try {
+      imageUrl = await uploadCoverImage(imageFile);
+    } catch (e) {
+      return alert("فشل رفع الصورة: " + e.message);
+    }
+  }
+
+  await db.collection("app_announcement").doc("current").set({
+    type: document.getElementById("annType").value,
+    title,
+    message,
+    imageUrl,
+    linkUrl: document.getElementById("annLink").value.trim(),
+    active: document.getElementById("annActive").checked,
+    updatedAt: Date.now()
+  });
+  progressText.textContent = "تم النشر بنجاح ✅";
+}
 
 async function addSubject() {
   const name = document.getElementById("subjectName").value.trim();

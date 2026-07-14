@@ -85,3 +85,14 @@ data class UserProfile(
     var isOnline: Boolean = false,
     var lastSeen: Long = System.currentTimeMillis()
 )
+
+/** بانر/إعلان كيتحكم فيه الأدمين، كيبان للمستخدم ملي يحل التطبيق */
+data class AppAnnouncement(
+    var type: String = "promo", // "promo" أو "update"
+    var title: String = "",
+    var message: String = "",
+    var imageUrl: String = "",
+    var linkUrl: String = "",
+    var active: Boolean = false,
+    var updatedAt: Long = 0
+)
