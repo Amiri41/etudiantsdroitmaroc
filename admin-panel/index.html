@@ -55,6 +55,9 @@
     <select id="pdfSubjectSelect"></select>
     <input id="pdfTitle" placeholder="عنوان الملف">
     <input id="pdfUrl" placeholder="الصق رابط GitHub Raw هنا">
+    <label style="font-size:12px;color:#666;">صورة الغلاف (اختياري)</label>
+    <input id="pdfCoverInput" type="file" accept="image/*">
+    <img id="pdfCoverPreview" class="hidden" style="max-width:100px;border-radius:8px;margin-bottom:10px;" />
     <button onclick="addPdfLink()">حفظ PDF</button>
     <p id="progressText"></p>
   </div>
@@ -150,6 +153,28 @@ async function loadSubjectsIntoSelect() {
   });
 }
 
+document.getElementById("pdfCoverInput").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  const preview = document.getElementById("pdfCoverPreview");
+  if (!file) { preview.classList.add("hidden"); return; }
+  preview.src = URL.createObjectURL(file);
+  preview.classList.remove("hidden");
+});
+
+const IMGBB_API_KEY = "33ff99d34384ee94cc90e8465c8b5515";
+
+async function uploadCoverImage(file) {
+  const formData = new FormData();
+  formData.append("image", file);
+  const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+    method: "POST",
+    body: formData
+  });
+  const json = await res.json();
+  if (!json.success) throw new Error("فشل رفع صورة الغلاف");
+  return json.data.url;
+}
+
 async function addPdfLink() {
   const subjectId = document.getElementById("pdfSubjectSelect").value;
   const title = document.getElementById("pdfTitle").value.trim();
@@ -162,12 +187,24 @@ async function addPdfLink() {
     return alert("الرابط خاصو يبدا بـ https://");
   }
 
+  let coverImageUrl = "";
+  const coverFile = document.getElementById("pdfCoverInput").files[0];
+  if (coverFile) {
+    progressText.textContent = "كنرفعو صورة الغلاف...";
+    try {
+      coverImageUrl = await uploadCoverImage(coverFile);
+    } catch (e) {
+      return alert("فشل رفع صورة الغلاف: " + e.message);
+    }
+  }
+
   const pdfId = db.collection("subjects").doc().id;
   await db.collection("subjects").doc(subjectId).collection("pdfs").doc(pdfId).set({
     id: pdfId,
     subjectId,
     title,
     storageUrl: url,
+    coverImageUrl,
     fileSizeKb: 0,
     isNew: true,
     uploadedAt: Date.now()
@@ -175,6 +212,8 @@ async function addPdfLink() {
   progressText.textContent = "تم الحفظ بنجاح ✅";
   document.getElementById("pdfTitle").value = "";
   document.getElementById("pdfUrl").value = "";
+  document.getElementById("pdfCoverInput").value = "";
+  document.getElementById("pdfCoverPreview").classList.add("hidden");
   loadContentList();
 }
 
@@ -197,8 +236,11 @@ async function loadContentList() {
       const pdf = pdfDoc.data();
       const row = document.createElement("div");
       row.className = "pdf-row";
+      const coverHtml = pdf.coverImageUrl
+        ? `<img src="${pdf.coverImageUrl}" style="width:28px;height:28px;border-radius:4px;object-fit:cover;margin-left:6px;">`
+        : "📄";
       row.innerHTML = `
-        <span>📄 ${pdf.title} (${pdf.fileSizeKb} KB)</span>
+        <span style="display:flex;align-items:center;">${coverHtml} ${pdf.title} (${pdf.fileSizeKb} KB)</span>
         <button class="danger" style="width:auto;padding:6px 12px;" onclick="deletePdf('${subjectDoc.id}','${pdfDoc.id}')">حذف</button>
       `;
       block.appendChild(row);

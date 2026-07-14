@@ -3,6 +3,7 @@ package com.etudiantsdroitmaroc.app.ui.subject
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.etudiantsdroitmaroc.app.R
 import com.etudiantsdroitmaroc.app.data.model.PdfDocument
 import com.etudiantsdroitmaroc.app.databinding.ItemPdfBinding
@@ -24,6 +25,17 @@ class PdfAdapter(
     override fun onBindViewHolder(holder: PdfViewHolder, position: Int) {
         val pdf = pdfs[position]
         holder.binding.tvPdfTitle.text = pdf.title
+
+        if (pdf.coverImageUrl.isNotBlank()) {
+            Glide.with(holder.binding.ivPdfCover.context)
+                .load(pdf.coverImageUrl)
+                .placeholder(R.drawable.ic_pdf)
+                .error(R.drawable.ic_pdf)
+                .centerCrop()
+                .into(holder.binding.ivPdfCover)
+        } else {
+            holder.binding.ivPdfCover.setImageResource(R.drawable.ic_pdf)
+        }
 
         val downloaded = isDownloaded(pdf.id)
         holder.binding.ivDownloadStatus.setImageResource(
