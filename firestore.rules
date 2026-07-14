@@ -2,8 +2,6 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // المواد وملفات PDF: كلشي يقرا، غير الأدمن يكتب
-    // مؤقت: باش نقدر نشخص مشاكل الانهيار - نحيدوها من بعد
     match /debug_logs/{logId} {
       allow read, write: if true;
     }
@@ -23,11 +21,10 @@ service cloud.firestore {
       }
     }
 
-    // المنتدى: كل مستخدم مسجل يقدر يقرا وينشر
     match /posts/{postId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null && request.auth.uid == request.resource.data.authorUid;
-      allow update: if request.auth != null; // للعدادات (likes/comments)
+      allow update: if request.auth != null;
       allow delete: if request.auth != null && request.auth.uid == resource.data.authorUid;
 
       match /comments/{commentId} {
@@ -41,7 +38,6 @@ service cloud.firestore {
       }
     }
 
-    // البروفايلات: كل واحد يعدل غير البروفايل ديالو، والكل يقرا (باش تبان لائحة المتصلين)
     match /users/{uid} {
       allow read: if request.auth != null;
       allow write: if request.auth != null && request.auth.uid == uid;
@@ -52,10 +48,10 @@ service cloud.firestore {
       }
     }
 
-    // الدردشة: غير المشاركين فالمحادثة يقدرو يقراو/يكتبو
     match /chat_threads/{threadId} {
-      allow read, write: if request.auth != null && request.auth.uid in resource.data.participantUids;
+      allow read: if request.auth != null && (resource == null || request.auth.uid in resource.data.participantUids);
       allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && request.auth.uid in resource.data.participantUids;
 
       match /messages/{messageId} {
         allow read, create: if request.auth != null;
