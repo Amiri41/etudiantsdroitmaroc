@@ -19,8 +19,8 @@ private const val CHANNEL_ID = "etudiants_general"
 
 /**
  * كيستقبل الإشعارات (رسالة جديدة، منشور جديد...).
- * ملاحظة: الإرسال ديال الإشعارات خاصو Cloud Function من جهة السيرفر
- * (موضح فـ README) - هاد الملف كيدير غير الاستقبال والعرض فالهاتف.
+ * الإرسال كيتم عبر Cloudflare Worker (بديل مجاني لـ Cloud Functions) - شوف PushNotifier.kt.
+ * هاد الملف كيدير الاستقبال والعرض فالهاتف.
  */
 class NotificationService : FirebaseMessagingService() {
 

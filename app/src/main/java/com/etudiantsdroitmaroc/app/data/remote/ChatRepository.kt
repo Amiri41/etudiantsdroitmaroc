@@ -3,6 +3,7 @@ package com.etudiantsdroitmaroc.app.data.remote
 import com.etudiantsdroitmaroc.app.data.model.ChatMessage
 import com.etudiantsdroitmaroc.app.data.model.ChatThread
 import com.etudiantsdroitmaroc.app.data.model.UserProfile
+import com.etudiantsdroitmaroc.app.utils.PushNotifier
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
@@ -69,6 +70,22 @@ class ChatRepository {
         return threadId
     }
 
+    private suspend fun notifyOtherParticipant(threadId: String, previewText: String) {
+        try {
+            val threadDoc = firestore.collection("chat_threads").document(threadId).get().await()
+            val thread = threadDoc.toObject<ChatThread>() ?: return
+            val otherUid = thread.participantUids.firstOrNull { it != myUid } ?: return
+
+            val otherUserDoc = firestore.collection("users").document(otherUid).get().await()
+            val fcmToken = otherUserDoc.getString("fcmToken") ?: return
+
+            val myName = auth.currentUser?.displayName ?: "رسالة جديدة"
+            PushNotifier.sendNotification(fcmToken, myName, previewText)
+        } catch (e: Exception) {
+            // ما تكسرش الإرسال العادي إلا فشل الإشعار
+        }
+    }
+
     suspend fun sendImageMessage(threadId: String, imageUrl: String) {
         val message = ChatMessage(senderUid = myUid, type = "image", imageUrl = imageUrl)
         val docRef = firestore.collection("chat_threads").document(threadId)
@@ -82,6 +99,8 @@ class ChatRepository {
                 "lastMessageAt" to System.currentTimeMillis()
             )
         ).await()
+
+        notifyOtherParticipant(threadId, "📷 صورة")
     }
 
     suspend fun sendMessage(threadId: String, text: String) {
@@ -97,6 +116,8 @@ class ChatRepository {
                 "lastMessageAt" to System.currentTimeMillis()
             )
         ).await()
+
+        notifyOtherParticipant(threadId, text)
     }
 
     suspend fun getMessages(threadId: String): List<ChatMessage> {
