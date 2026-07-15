@@ -10,8 +10,10 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.etudiantsdroitmaroc.app.data.model.UserProfile
 import com.etudiantsdroitmaroc.app.data.remote.AuthRepository
+import com.etudiantsdroitmaroc.app.data.remote.ChatRepository
 import com.etudiantsdroitmaroc.app.databinding.FragmentProfileBinding
 import com.etudiantsdroitmaroc.app.ui.auth.LoginActivity
+import com.etudiantsdroitmaroc.app.ui.friends.FriendRequestsActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
@@ -42,6 +44,12 @@ class ProfileFragment : Fragment() {
             startActivity(Intent(requireContext(), com.etudiantsdroitmaroc.app.ui.pages.PagesListActivity::class.java))
         }
 
+        binding.btnFriendRequests.setOnClickListener {
+            startActivity(Intent(requireContext(), FriendRequestsActivity::class.java))
+        }
+
+        loadFriendRequestsCount()
+
         binding.btnLogout.setOnClickListener {
             AuthRepository(requireContext()).signOut()
             startActivity(Intent(requireContext(), LoginActivity::class.java))
@@ -54,6 +62,17 @@ class ProfileFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         loadProfile()
+        loadFriendRequestsCount()
+    }
+
+    private fun loadFriendRequestsCount() {
+        lifecycleScope.launch {
+            try {
+                val count = ChatRepository().getIncomingRequestsCount()
+                binding.btnFriendRequests.text = if (count > 0) "طلبات الصداقة ($count)" else "طلبات الصداقة"
+            } catch (_: Exception) {
+            }
+        }
     }
 
     private fun loadProfile() {

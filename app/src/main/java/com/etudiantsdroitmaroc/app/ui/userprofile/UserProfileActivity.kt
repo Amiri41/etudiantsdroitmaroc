@@ -69,6 +69,12 @@ class UserProfileActivity : AppCompatActivity() {
             if (isFriend) {
                 binding.btnAddFriend.text = "أصدقاء ✓"
                 binding.btnAddFriend.isEnabled = false
+                return@launch
+            }
+            val pending = repository.hasPendingRequestTo(targetUid)
+            if (pending) {
+                binding.btnAddFriend.text = "طلب الصداقة مرسل ⏳"
+                binding.btnAddFriend.isEnabled = false
             }
         }
     }
@@ -76,10 +82,10 @@ class UserProfileActivity : AppCompatActivity() {
     private fun addFriend() {
         lifecycleScope.launch {
             try {
-                repository.addFriend(targetUid)
-                binding.btnAddFriend.text = "أصدقاء ✓"
+                repository.sendFriendRequest(targetUid)
+                binding.btnAddFriend.text = "طلب الصداقة مرسل ⏳"
                 binding.btnAddFriend.isEnabled = false
-                Toast.makeText(this@UserProfileActivity, "تمت إضافة الصديق ✅", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@UserProfileActivity, "تم بعث طلب الصداقة ✅", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
                 Toast.makeText(this@UserProfileActivity, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
             }

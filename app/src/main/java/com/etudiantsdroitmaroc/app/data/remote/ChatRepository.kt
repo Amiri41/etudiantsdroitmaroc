@@ -2,6 +2,7 @@ package com.etudiantsdroitmaroc.app.data.remote
 
 import com.etudiantsdroitmaroc.app.data.model.ChatMessage
 import com.etudiantsdroitmaroc.app.data.model.ChatThread
+import com.etudiantsdroitmaroc.app.data.model.FriendRequest
 import com.etudiantsdroitmaroc.app.data.model.UserProfile
 import com.etudiantsdroitmaroc.app.utils.PushNotifier
 import com.google.firebase.auth.FirebaseAuth
@@ -39,7 +40,7 @@ class ChatRepository {
         return doc.exists()
     }
 
-    /** إضافة صداقة متبادلة (مباشرة بلا طلب/قبول، للبساطة) */
+    /** إضافة صداقة متبادلة (كتنعمل غير من داخل acceptFriendRequest بعد القبول) */
     suspend fun addFriend(otherUid: String) {
         val batch = firestore.batch()
         batch.set(
@@ -51,6 +52,61 @@ class ChatRepository {
             mapOf("addedAt" to System.currentTimeMillis())
         )
         batch.commit().await()
+    }
+
+    /** بحال فيسبوك: كنبعتو طلب صداقة، ماشي صداقة مباشرة */
+    suspend fun sendFriendRequest(otherUid: String) {
+        val myProfile = getUserProfile(myUid)
+        val request = FriendRequest(
+            fromUid = myUid,
+            fromName = myProfile?.name ?: (auth.currentUser?.displayName ?: ""),
+            fromPhoto = myProfile?.photoUrl ?: ""
+        )
+        firestore.collection("users").document(otherUid)
+            .collection("incoming_requests").document(myUid)
+            .set(request).await()
+
+        try {
+            val otherDoc = firestore.collection("users").document(otherUid).get().await()
+            val fcmToken = otherDoc.getString("fcmToken")
+            if (!fcmToken.isNullOrBlank()) {
+                PushNotifier.sendNotification(fcmToken, request.fromName, "بعث ليك طلب صداقة 👋")
+            }
+        } catch (_: Exception) { }
+    }
+
+    /** واش كاين طلب صداقة معلق مني للشخص هادا */
+    suspend fun hasPendingRequestTo(otherUid: String): Boolean {
+        val doc = firestore.collection("users").document(otherUid)
+            .collection("incoming_requests").document(myUid).get().await()
+        return doc.exists()
+    }
+
+    suspend fun getIncomingRequests(): List<FriendRequest> {
+        val snapshot = firestore.collection("users").document(myUid)
+            .collection("incoming_requests")
+            .get().await()
+        return snapshot.toObjects()
+    }
+
+    suspend fun acceptFriendRequest(fromUid: String) {
+        addFriend(fromUid)
+        firestore.collection("users").document(myUid)
+            .collection("incoming_requests").document(fromUid).delete().await()
+    }
+
+    suspend fun declineFriendRequest(fromUid: String) {
+        firestore.collection("users").document(myUid)
+            .collection("incoming_requests").document(fromUid).delete().await()
+    }
+
+    suspend fun getIncomingRequestsCount(): Int {
+        return try {
+            firestore.collection("users").document(myUid)
+                .collection("incoming_requests").get().await().size()
+        } catch (e: Exception) {
+            0
+        }
     }
 
     suspend fun getOrCreateThread(otherUid: String, otherName: String): String {

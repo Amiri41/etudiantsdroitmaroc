@@ -96,3 +96,11 @@ data class AppAnnouncement(
     var active: Boolean = false,
     var updatedAt: Long = 0
 )
+
+/** طلب صداقة معلق (بحال فيسبوك: طلب → قبول/رفض) */
+data class FriendRequest(
+    var fromUid: String = "",
+    var fromName: String = "",
+    var fromPhoto: String = "",
+    var timestamp: Long = System.currentTimeMillis()
+)
