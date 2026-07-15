@@ -130,10 +130,14 @@ class ChatRepository {
     }
 
     suspend fun getOnlineUsers(): List<UserProfile> {
+        // فحالة انهيار التطبيق (بلا onStop)، isOnline يقدر يبقى true غلط -
+        // فنزيدو فلترة زيادة بـ lastSeen (آخر 90 ثانية) كحماية إضافية
+        val recentThreshold = System.currentTimeMillis() - 90_000L
         val snapshot = firestore.collection("users")
             .whereEqualTo("isOnline", true)
             .get()
             .await()
-        return snapshot.toObjects<UserProfile>().filter { it.uid != myUid }
+        return snapshot.toObjects<UserProfile>()
+            .filter { it.uid != myUid && it.lastSeen >= recentThreshold }
     }
 }

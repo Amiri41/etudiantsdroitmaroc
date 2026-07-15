@@ -53,5 +53,9 @@ class EtudiantsApp : Application() {
         com.etudiantsdroitmaroc.app.utils.AdManager.loadInterstitial(this)
         com.etudiantsdroitmaroc.app.utils.AdManager.loadRewarded(this)
         com.etudiantsdroitmaroc.app.utils.AdManager.loadAppOpenAd(this)
+
+        // تتبع حالة "متصل الآن" بدقة (كيتحدث ملي التطبيق يبان/يخبى، مع نبضة كل 30 ثانية)
+        androidx.lifecycle.ProcessLifecycleOwner.get().lifecycle
+            .addObserver(com.etudiantsdroitmaroc.app.utils.PresenceManager)
     }
 }
