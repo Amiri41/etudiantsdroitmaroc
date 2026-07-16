@@ -29,6 +29,12 @@ class MainActivity : AppCompatActivity() {
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)
         bottomNav.setupWithNavController(navController)
 
+        // كنعلمو PeriodicAdManager واش المستخدم فصفحة "البداية" (الهوم) باش يحبس الإعلان فيها
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            com.etudiantsdroitmaroc.app.utils.PeriodicAdManager
+                .setOnHomeScreen(destination.id == R.id.homeFragment)
+        }
+
         showLastCrashIfAny()
         checkAnnouncement()
     }
