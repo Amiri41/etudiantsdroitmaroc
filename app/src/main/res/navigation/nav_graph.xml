@@ -15,6 +15,11 @@
         android:label="Forum" />
 
     <fragment
+        android:id="@+id/friendsFragment"
+        android:name="com.etudiantsdroitmaroc.app.ui.friends.FriendsFragment"
+        android:label="Friends" />
+
+    <fragment
         android:id="@+id/chatListFragment"
         android:name="com.etudiantsdroitmaroc.app.ui.chat.ChatListFragment"
         android:label="Chat" />

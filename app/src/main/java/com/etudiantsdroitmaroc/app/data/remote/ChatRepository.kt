@@ -109,6 +109,37 @@ class ChatRepository {
         }
     }
 
+    suspend fun removeFriend(otherUid: String) {
+        val batch = firestore.batch()
+        batch.delete(firestore.collection("users").document(myUid).collection("friends").document(otherUid))
+        batch.delete(firestore.collection("users").document(otherUid).collection("friends").document(myUid))
+        batch.commit().await()
+    }
+
+    suspend fun getAllUsers(): List<UserProfile> {
+        val snapshot = firestore.collection("users").get().await()
+        return snapshot.toObjects<UserProfile>().filter { it.uid != myUid }
+    }
+
+    suspend fun getMyFriendsUids(): Set<String> {
+        val snapshot = firestore.collection("users").document(myUid)
+            .collection("friends").get().await()
+        return snapshot.documents.map { it.id }.toSet()
+    }
+
+    suspend fun getMyFriends(): List<UserProfile> {
+        val friendUids = getMyFriendsUids()
+        if (friendUids.isEmpty()) return emptyList()
+        return friendUids.mapNotNull { uid ->
+            try {
+                firestore.collection("users").document(uid).get().await()
+                    .toObject(UserProfile::class.java)
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
+
     suspend fun getOrCreateThread(otherUid: String, otherName: String): String {
         val threadId = listOf(myUid, otherUid).sorted().joinToString("_")
         val docRef = firestore.collection("chat_threads").document(threadId)

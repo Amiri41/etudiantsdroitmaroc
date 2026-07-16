@@ -9,6 +9,10 @@
         android:icon="@drawable/ic_forum"
         android:title="@string/nav_forum" />
     <item
+        android:id="@+id/friendsFragment"
+        android:icon="@drawable/ic_friends"
+        android:title="@string/nav_friends" />
+    <item
         android:id="@+id/chatListFragment"
         android:icon="@drawable/ic_chat"
         android:title="@string/nav_chat" />
