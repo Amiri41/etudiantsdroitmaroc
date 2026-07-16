@@ -59,6 +59,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.forum.GroupChatActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.profile.EditProfileActivity"
             android:exported="false" />
 

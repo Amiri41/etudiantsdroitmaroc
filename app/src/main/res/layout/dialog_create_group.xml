@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="إنشاء مجموعة جديدة"
+            android:textStyle="bold"
+            android:textSize="17sp"
+            android:textColor="@color/navy_dark"
+            android:layout_marginBottom="14dp" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/ivGroupIconPreview"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_forum"
+            app:civ_border_width="2dp"
+            app:civ_border_color="@color/gold" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPickIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="6dp"
+            android:text="اختيار شعار المجموعة"
+            android:textAllCaps="false"
+            style="@style/Widget.MaterialComponents.Button.TextButton" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etGroupName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="اسم المجموعة"
+            android:padding="12dp"
+            android:background="@drawable/bg_input_field" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etGroupDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:hint="الوصف والهدف من المجموعة"
+            android:minLines="3"
+            android:gravity="top"
+            android:padding="12dp"
+            android:background="@drawable/bg_input_field" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCreateGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="إنشاء المجموعة"
+            android:textAllCaps="false"
+            app:backgroundTint="@color/gold"
+            android:textColor="@color/navy_dark" />
+
+    </LinearLayout>
+</ScrollView>

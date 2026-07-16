@@ -110,3 +110,27 @@ data class FriendRequest(
     var fromPhoto: String = "",
     var timestamp: Long = System.currentTimeMillis()
 )
+
+/** مجموعة/مجتمع فالمنتدى (بحال مجموعات واتساب) */
+data class ForumGroup(
+    var id: String = "",
+    var name: String = "",
+    var description: String = "",
+    var iconUrl: String = "",
+    var creatorUid: String = "",
+    var creatorName: String = "",
+    var memberUids: List<String> = emptyList(),
+    var createdAt: Long = System.currentTimeMillis()
+)
+
+/** رسالة داخل مجموعة (فيها اسم المرسل، بخلاف الدردشة الفردية) */
+data class GroupMessage(
+    var id: String = "",
+    var senderUid: String = "",
+    var senderName: String = "",
+    var senderPhoto: String = "",
+    var text: String = "",
+    var type: String = "text", // "text" أو "image"
+    var imageUrl: String = "",
+    var sentAt: Long = System.currentTimeMillis()
+)

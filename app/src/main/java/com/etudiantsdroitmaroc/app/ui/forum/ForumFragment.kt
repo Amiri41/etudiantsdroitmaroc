@@ -2,18 +2,26 @@ package com.etudiantsdroitmaroc.app.ui.forum
 
 import android.app.AlertDialog
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
+import com.etudiantsdroitmaroc.app.data.model.ForumGroup
 import com.etudiantsdroitmaroc.app.data.model.Post
 import com.etudiantsdroitmaroc.app.data.remote.ForumRepository
+import com.etudiantsdroitmaroc.app.data.remote.GroupRepository
+import com.etudiantsdroitmaroc.app.databinding.DialogCreateGroupBinding
 import com.etudiantsdroitmaroc.app.databinding.DialogNewPostBinding
 import com.etudiantsdroitmaroc.app.databinding.FragmentForumBinding
+import com.etudiantsdroitmaroc.app.utils.ImageUploader
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 class ForumFragment : Fragment() {
@@ -22,8 +30,21 @@ class ForumFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val repository = ForumRepository()
+    private val groupRepository = GroupRepository()
     private lateinit var adapter: ForumFeedAdapter
+    private lateinit var groupAdapter: GroupAdapter
     private var allPosts: List<Post> = emptyList()
+    private var pickedGroupIconUri: Uri? = null
+    private var groupIconPreviewCallback: ((Uri) -> Unit)? = null
+
+    private val pickGroupIconLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            pickedGroupIconUri = uri
+            groupIconPreviewCallback?.invoke(uri)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -54,6 +75,17 @@ class ForumFragment : Fragment() {
         binding.rvPosts.adapter = adapter
 
         binding.fabNewPost.setOnClickListener { showNewPostDialog() }
+
+        groupAdapter = GroupAdapter(
+            emptyList(),
+            isMember = { it.memberUids.contains(FirebaseAuth.getInstance().currentUser?.uid) },
+            onOpen = { openGroupChat(it) },
+            onJoin = { joinGroup(it) }
+        )
+        binding.rvGroups.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        binding.rvGroups.adapter = groupAdapter
+        binding.btnCreateGroup.setOnClickListener { showCreateGroupDialog() }
+        loadGroups()
 
         com.etudiantsdroitmaroc.app.utils.BannerAdHelper.attach(requireContext(), binding.bannerAdContainer)
 
@@ -153,6 +185,79 @@ class ForumFragment : Fragment() {
             }
             .setNegativeButton("إلغاء", null)
             .show()
+    }
+
+    private fun loadGroups() {
+        lifecycleScope.launch {
+            try {
+                groupAdapter.updateData(groupRepository.getGroups())
+            } catch (e: Exception) {
+                Toast.makeText(context, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun joinGroup(group: ForumGroup) {
+        lifecycleScope.launch {
+            try {
+                groupRepository.joinGroup(group.id)
+                Toast.makeText(context, "انضميتي لمجموعة ${group.name} ✅", Toast.LENGTH_SHORT).show()
+                loadGroups()
+            } catch (e: Exception) {
+                Toast.makeText(context, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun openGroupChat(group: ForumGroup) {
+        val myUid = FirebaseAuth.getInstance().currentUser?.uid
+        val intent = Intent(requireContext(), GroupChatActivity::class.java)
+        intent.putExtra("groupId", group.id)
+        intent.putExtra("groupName", group.name)
+        intent.putExtra("groupIcon", group.iconUrl)
+        intent.putExtra("isAdmin", group.creatorUid == myUid)
+        startActivity(intent)
+    }
+
+    private fun showCreateGroupDialog() {
+        pickedGroupIconUri = null
+        val dialogBinding = DialogCreateGroupBinding.inflate(LayoutInflater.from(context))
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogBinding.root)
+            .create()
+
+        groupIconPreviewCallback = { uri ->
+            Glide.with(this).load(uri).into(dialogBinding.ivGroupIconPreview)
+        }
+
+        dialogBinding.btnPickIcon.setOnClickListener { pickGroupIconLauncher.launch("image/*") }
+
+        dialogBinding.btnCreateGroup.setOnClickListener {
+            val name = dialogBinding.etGroupName.text?.toString()?.trim().orEmpty()
+            val description = dialogBinding.etGroupDescription.text?.toString()?.trim().orEmpty()
+            if (name.isEmpty() || description.isEmpty()) {
+                Toast.makeText(context, "دخل اسم ووصف المجموعة", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            lifecycleScope.launch {
+                var iconUrl = ""
+                val iconUri = pickedGroupIconUri
+                if (iconUri != null) {
+                    val result = ImageUploader.uploadImage(requireContext(), iconUri)
+                    iconUrl = result.getOrNull() ?: ""
+                }
+                try {
+                    groupRepository.createGroup(name, description, iconUrl)
+                    dialog.dismiss()
+                    Toast.makeText(context, "تم إنشاء المجموعة ✅", Toast.LENGTH_SHORT).show()
+                    loadGroups()
+                } catch (e: Exception) {
+                    Toast.makeText(context, "فشل إنشاء المجموعة: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        dialog.show()
     }
 
     override fun onDestroyView() {
