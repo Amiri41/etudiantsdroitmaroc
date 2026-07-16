@@ -55,6 +55,8 @@ class ForumFragment : Fragment() {
 
         binding.fabNewPost.setOnClickListener { showNewPostDialog() }
 
+        com.etudiantsdroitmaroc.app.utils.BannerAdHelper.attach(requireContext(), binding.bannerAdContainer)
+
         binding.etSearch.addTextChangedListener(object : android.text.TextWatcher {
             override fun afterTextChanged(s: android.text.Editable?) {
                 filterPosts(s?.toString().orEmpty())

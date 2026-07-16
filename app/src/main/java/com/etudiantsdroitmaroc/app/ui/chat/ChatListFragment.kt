@@ -36,6 +36,8 @@ class ChatListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        com.etudiantsdroitmaroc.app.utils.BannerAdHelper.attach(requireContext(), binding.bannerAdContainer)
+
         onlineAdapter = OnlineUserAdapter(emptyList()) { user -> openUserProfile(user) }
         binding.rvOnlineUsers.layoutManager =
             androidx.recyclerview.widget.LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)

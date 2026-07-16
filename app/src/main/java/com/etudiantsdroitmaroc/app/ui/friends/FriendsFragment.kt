@@ -38,6 +38,8 @@ class FriendsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.rvPeople.layoutManager = LinearLayoutManager(context)
 
+        com.etudiantsdroitmaroc.app.utils.BannerAdHelper.attach(requireContext(), binding.bannerAdContainer)
+
         binding.chipGroupFilter.setOnCheckedStateChangeListener { _, checkedIds ->
             binding.etSearch.setText("")
             when (checkedIds.firstOrNull()) {
