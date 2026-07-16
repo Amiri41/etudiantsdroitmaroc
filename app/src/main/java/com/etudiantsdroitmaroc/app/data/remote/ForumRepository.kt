@@ -92,14 +92,16 @@ class ForumRepository {
         return snapshot.toObjects()
     }
 
-    suspend fun addComment(postId: String, content: String): Result<Unit> {
+    suspend fun addComment(postId: String, content: String, imageUrl: String = ""): Result<Unit> {
         val user = auth.currentUser ?: return Result.failure(Exception("خاصك تسجل الدخول"))
         return try {
             val comment = Comment(
                 postId = postId,
                 authorUid = user.uid,
                 authorName = user.displayName ?: "",
-                content = content
+                authorPhotoUrl = user.photoUrl?.toString() ?: "",
+                content = content,
+                imageUrl = imageUrl
             )
             val docRef = firestore.collection("posts").document(postId)
                 .collection("comments").document()

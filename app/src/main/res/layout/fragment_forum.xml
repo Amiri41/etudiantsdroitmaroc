@@ -13,11 +13,23 @@
         app:title="@string/nav_forum"
         app:titleTextColor="@color/gold" />
 
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/etSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:layout_margin="10dp"
+        android:hint="ابحث فالمنتدى..."
+        android:drawableStart="@drawable/ic_search"
+        android:drawablePadding="8dp"
+        android:padding="10dp"
+        android:background="@drawable/bg_input_field" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvPosts"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="?attr/actionBarSize"
+        android:layout_marginTop="128dp"
         android:padding="8dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

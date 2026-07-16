@@ -46,7 +46,9 @@ data class Comment(
     var postId: String = "",
     var authorUid: String = "",
     var authorName: String = "",
+    var authorPhotoUrl: String = "",
     var content: String = "",
+    var imageUrl: String = "",
     var createdAt: Long = System.currentTimeMillis()
 )
 

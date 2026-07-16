@@ -23,6 +23,8 @@ class ChatListFragment : Fragment() {
     private val repository = ChatRepository()
     private lateinit var threadAdapter: ThreadAdapter
     private lateinit var onlineAdapter: OnlineUserAdapter
+    private var allThreads: List<ChatThread> = emptyList()
+    private val myUid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -43,14 +45,36 @@ class ChatListFragment : Fragment() {
         binding.rvThreads.layoutManager = LinearLayoutManager(context)
         binding.rvThreads.adapter = threadAdapter
 
+        binding.etSearch.addTextChangedListener(object : android.text.TextWatcher {
+            override fun afterTextChanged(s: android.text.Editable?) {
+                filterThreads(s?.toString().orEmpty())
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
         loadData()
+    }
+
+    private fun filterThreads(query: String) {
+        val filtered = if (query.isBlank()) {
+            allThreads
+        } else {
+            allThreads.filter { thread ->
+                val otherUid = thread.participantUids.firstOrNull { it != myUid } ?: ""
+                val otherName = thread.participantNames[otherUid] ?: ""
+                otherName.contains(query, ignoreCase = true)
+            }
+        }
+        threadAdapter.updateData(filtered)
     }
 
     private fun loadData() {
         lifecycleScope.launch {
             try {
                 onlineAdapter.updateData(repository.getOnlineUsers())
-                threadAdapter.updateData(repository.getMyThreads())
+                allThreads = repository.getMyThreads()
+                filterThreads(binding.etSearch.text?.toString().orEmpty())
             } catch (e: Exception) {
                 android.widget.Toast.makeText(context, "خطأ Firestore: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
             }

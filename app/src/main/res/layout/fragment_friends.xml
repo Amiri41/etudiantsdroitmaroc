@@ -13,6 +13,17 @@
         app:title="الأصدقاء"
         app:titleTextColor="@color/gold" />
 
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/etSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:hint="ابحث بالاسم..."
+        android:drawableStart="@drawable/ic_search"
+        android:drawablePadding="8dp"
+        android:padding="10dp"
+        android:background="@drawable/bg_input_field" />
+
     <com.google.android.material.chip.ChipGroup
         android:id="@+id/chipGroupFilter"
         android:layout_width="match_parent"

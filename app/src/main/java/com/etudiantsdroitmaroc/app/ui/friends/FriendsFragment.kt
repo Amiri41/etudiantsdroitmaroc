@@ -29,11 +29,17 @@ class FriendsFragment : Fragment() {
         return binding.root
     }
 
+    private var currentPeopleItems: List<PersonItem> = emptyList()
+    private var currentPeopleMode: PersonMode = PersonMode.SUGGESTION
+    private var currentRequests: List<FriendRequest> = emptyList()
+    private var isRequestsTab = false
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.rvPeople.layoutManager = LinearLayoutManager(context)
 
         binding.chipGroupFilter.setOnCheckedStateChangeListener { _, checkedIds ->
+            binding.etSearch.setText("")
             when (checkedIds.firstOrNull()) {
                 binding.chipAll.id -> loadSuggestions()
                 binding.chipFriends.id -> loadFriends()
@@ -41,7 +47,29 @@ class FriendsFragment : Fragment() {
             }
         }
 
+        binding.etSearch.addTextChangedListener(object : android.text.TextWatcher {
+            override fun afterTextChanged(s: android.text.Editable?) {
+                applySearchFilter(s?.toString().orEmpty())
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
         loadSuggestions()
+    }
+
+    private fun applySearchFilter(query: String) {
+        if (isRequestsTab) {
+            val filtered = if (query.isBlank()) currentRequests
+                else currentRequests.filter { it.fromName.contains(query, ignoreCase = true) }
+            val adapter = FriendRequestAdapter(filtered, ::acceptRequest, ::declineRequest)
+            binding.rvPeople.adapter = adapter
+            binding.tvEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
+        } else {
+            val filtered = if (query.isBlank()) currentPeopleItems
+                else currentPeopleItems.filter { it.profile.name.contains(query, ignoreCase = true) }
+            bindPeopleAdapter(filtered, currentPeopleMode)
+        }
     }
 
     override fun onResume() {
@@ -101,6 +129,16 @@ class FriendsFragment : Fragment() {
     }
 
     private fun showPeople(items: List<PersonItem>, mode: PersonMode) {
+        isRequestsTab = false
+        currentPeopleItems = items
+        currentPeopleMode = mode
+        val query = binding.etSearch.text?.toString().orEmpty()
+        val filtered = if (query.isBlank()) items
+            else items.filter { it.profile.name.contains(query, ignoreCase = true) }
+        bindPeopleAdapter(filtered, mode)
+    }
+
+    private fun bindPeopleAdapter(items: List<PersonItem>, mode: PersonMode) {
         val adapter = PeopleAdapter(
             items,
             mode,
@@ -142,13 +180,18 @@ class FriendsFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 val requests = repository.getIncomingRequests()
+                isRequestsTab = true
+                currentRequests = requests
+                val query = binding.etSearch.text?.toString().orEmpty()
+                val filtered = if (query.isBlank()) requests
+                    else requests.filter { it.fromName.contains(query, ignoreCase = true) }
                 val adapter = FriendRequestAdapter(
-                    requests,
+                    filtered,
                     onAccept = { acceptRequest(it) },
                     onDecline = { declineRequest(it) }
                 )
                 binding.rvPeople.adapter = adapter
-                binding.tvEmpty.visibility = if (requests.isEmpty()) View.VISIBLE else View.GONE
+                binding.tvEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
             } catch (e: Exception) {
                 Toast.makeText(context, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
             }

@@ -36,6 +36,17 @@
         android:background="@color/divider"
         android:layout_marginTop="8dp" />
 
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/etSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:hint="ابحث فالمحادثات..."
+        android:drawableStart="@drawable/ic_search"
+        android:drawablePadding="8dp"
+        android:padding="10dp"
+        android:background="@drawable/bg_input_field" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvThreads"
         android:layout_width="match_parent"

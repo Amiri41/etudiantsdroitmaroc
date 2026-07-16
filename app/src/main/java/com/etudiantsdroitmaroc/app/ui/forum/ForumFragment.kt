@@ -23,6 +23,7 @@ class ForumFragment : Fragment() {
 
     private val repository = ForumRepository()
     private lateinit var adapter: ForumFeedAdapter
+    private var allPosts: List<Post> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -54,14 +55,34 @@ class ForumFragment : Fragment() {
 
         binding.fabNewPost.setOnClickListener { showNewPostDialog() }
 
+        binding.etSearch.addTextChangedListener(object : android.text.TextWatcher {
+            override fun afterTextChanged(s: android.text.Editable?) {
+                filterPosts(s?.toString().orEmpty())
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
         loadPosts()
+    }
+
+    private fun filterPosts(query: String) {
+        val filtered = if (query.isBlank()) {
+            allPosts
+        } else {
+            allPosts.filter {
+                it.content.contains(query, ignoreCase = true) ||
+                    it.authorName.contains(query, ignoreCase = true)
+            }
+        }
+        adapter.updateData(filtered)
     }
 
     private fun loadPosts() {
         lifecycleScope.launch {
             try {
-                val posts = repository.getPosts()
-                adapter.updateData(posts)
+                allPosts = repository.getPosts()
+                filterPosts(binding.etSearch.text?.toString().orEmpty())
             } catch (e: Exception) {
                 Toast.makeText(context, "خطأ Firestore: ${e.message}", Toast.LENGTH_LONG).show()
             }
