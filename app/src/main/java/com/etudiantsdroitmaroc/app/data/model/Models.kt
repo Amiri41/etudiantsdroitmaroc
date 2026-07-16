@@ -6,7 +6,11 @@ import com.google.firebase.firestore.PropertyName
 data class Subject(
     var id: String = "",
     var name: String = "",
-    var category: String = "", // "private" أو "public"
+    var category: String = "", // "private" أو "public" (احتفظنا بيه للتوافق القديم)
+    var section: String = "private", // "private" | "public" | "master" | "phd" | "general"
+    var semester: Int = 0, // 1-6 (خاص غير بـ private/public)، 0 = ماكاينش (ماستر/دكتوراه/عام)
+    @get:PropertyName("active") @set:PropertyName("active")
+    var active: Boolean = true,
     var iconName: String = "",
     var orderIndex: Int = 0
 )

@@ -1,5 +1,6 @@
 package com.etudiantsdroitmaroc.app.ui.home
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -19,15 +20,14 @@ import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import android.content.Intent
 
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var privateAdapter: SubjectAdapter
-    private lateinit var publicAdapter: SubjectAdapter
+    private lateinit var subjectAdapter: SubjectAdapter
+    private var allSubjects: List<Subject> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -41,14 +41,12 @@ class HomeFragment : Fragment() {
 
         setupBannerAd()
 
-        privateAdapter = SubjectAdapter(emptyList()) { openSubject(it) }
-        publicAdapter = SubjectAdapter(emptyList()) { openSubject(it) }
+        subjectAdapter = SubjectAdapter(emptyList()) { openSubject(it) }
+        binding.rvSubjects.layoutManager = GridLayoutManager(context, 2)
+        binding.rvSubjects.adapter = subjectAdapter
 
-        binding.rvPrivateLaw.layoutManager = GridLayoutManager(context, 2)
-        binding.rvPrivateLaw.adapter = privateAdapter
-
-        binding.rvPublicLaw.layoutManager = GridLayoutManager(context, 2)
-        binding.rvPublicLaw.adapter = publicAdapter
+        binding.chipGroupSection.setOnCheckedStateChangeListener { _, _ -> applyFilters() }
+        binding.chipGroupSemester.setOnCheckedStateChangeListener { _, _ -> applyFilters() }
 
         loadSubjects()
     }
@@ -65,13 +63,47 @@ class HomeFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 val snapshot = Firebase.firestore.collection("subjects").get().await()
-                val subjects: List<Subject> = snapshot.toObjects()
-                privateAdapter.updateData(subjects.filter { it.category == "private" })
-                publicAdapter.updateData(subjects.filter { it.category == "public" })
+                allSubjects = snapshot.toObjects<Subject>().filter { it.active }
+                applyFilters()
             } catch (e: Exception) {
                 android.widget.Toast.makeText(context, "خطأ Firestore: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    private fun currentSection(): String = when (binding.chipGroupSection.checkedChipId) {
+        binding.chipPrivate.id -> "private"
+        binding.chipPublic.id -> "public"
+        binding.chipMaster.id -> "master"
+        binding.chipPhd.id -> "phd"
+        binding.chipGeneral.id -> "general"
+        else -> "private"
+    }
+
+    private fun currentSemester(): Int = when (binding.chipGroupSemester.checkedChipId) {
+        binding.chipS1.id -> 1
+        binding.chipS2.id -> 2
+        binding.chipS3.id -> 3
+        binding.chipS4.id -> 4
+        binding.chipS5.id -> 5
+        binding.chipS6.id -> 6
+        else -> 1
+    }
+
+    private fun applyFilters() {
+        val section = currentSection()
+        val needsSemester = section == "private" || section == "public"
+        binding.semesterScroll.visibility = if (needsSemester) View.VISIBLE else View.GONE
+
+        val filtered = if (needsSemester) {
+            val semester = currentSemester()
+            allSubjects.filter { it.section == section && it.semester == semester }
+        } else {
+            allSubjects.filter { it.section == section }
+        }
+
+        subjectAdapter.updateData(filtered.sortedBy { it.orderIndex })
+        binding.tvEmptySubjects.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
     }
 
     private fun openSubject(subject: Subject) {

@@ -30,40 +30,131 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Banner Ad -->
             <FrameLayout
                 android:id="@+id/bannerAdContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/section_private_law"
-                android:textColor="@color/navy"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvPrivateLaw"
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false" />
+                app:singleSelection="true"
+                app:selectionRequired="true"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipPrivate"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="@string/section_private_law" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipPublic"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/section_public_law" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipMaster"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ماستر" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipPhd"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="دكتوراه" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipGeneral"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="مواضيع قانونية عامة" />
+
+            </com.google.android.material.chip.ChipGroup>
+
+            <HorizontalScrollView
+                android:id="@+id/semesterScroll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:layout_marginBottom="14dp">
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroupSemester"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:singleSelection="true"
+                    app:selectionRequired="true"
+                    app:chipSpacingHorizontal="6dp">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipS1"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:text="الفصل 1" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipS2"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="الفصل 2" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipS3"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="الفصل 3" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipS4"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="الفصل 4" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipS5"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="الفصل 5" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipS6"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="الفصل 6" />
+
+                </com.google.android.material.chip.ChipGroup>
+            </HorizontalScrollView>
 
             <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/tvEmptySubjects"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="@string/section_public_law"
-                android:textColor="@color/navy"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginTop="30dp"
+                android:gravity="center"
+                android:text="ماكاينش مواد حاليا فهاد القسم"
+                android:textColor="@color/text_secondary"
+                android:visibility="gone" />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvPublicLaw"
+                android:id="@+id/rvSubjects"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false" />

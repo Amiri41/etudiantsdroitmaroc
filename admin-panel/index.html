@@ -37,10 +37,24 @@
   <div class="card">
     <h2>➕ زيادة مادة جديدة</h2>
     <input id="subjectName" placeholder="اسم المادة (مثلا: القانون المدني)">
-    <select id="subjectCategory">
+    <select id="subjectSection" onchange="toggleSemesterField()">
       <option value="private">القانون الخاص</option>
       <option value="public">القانون العام</option>
+      <option value="master">ماستر</option>
+      <option value="phd">دكتوراه</option>
+      <option value="general">مواضيع قانونية عامة</option>
     </select>
+    <select id="subjectSemester">
+      <option value="1">الفصل 1</option>
+      <option value="2">الفصل 2</option>
+      <option value="3">الفصل 3</option>
+      <option value="4">الفصل 4</option>
+      <option value="5">الفصل 5</option>
+      <option value="6">الفصل 6</option>
+    </select>
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;">
+      <input type="checkbox" id="subjectActive" checked style="width:auto;margin:0;"> نشطة (تبان فالتطبيق)
+    </label>
     <input id="subjectOrder" type="number" placeholder="ترتيب العرض (رقم)" value="1">
     <button onclick="addSubject()">حفظ المادة</button>
   </div>
@@ -140,6 +154,7 @@ auth.onAuthStateChanged(user => {
     loadContentList();
     loadPagesList();
     loadAnnouncement();
+    toggleSemesterField();
   } else if (user) {
     alert("هاد الحساب ماشي أدمن");
     auth.signOut();
@@ -200,14 +215,32 @@ async function saveAnnouncement() {
   progressText.textContent = "تم النشر بنجاح ✅";
 }
 
+function toggleSemesterField() {
+  const section = document.getElementById("subjectSection").value;
+  const needsSemester = section === "private" || section === "public";
+  document.getElementById("subjectSemester").style.display = needsSemester ? "block" : "none";
+}
+
 async function addSubject() {
   const name = document.getElementById("subjectName").value.trim();
-  const category = document.getElementById("subjectCategory").value;
+  const section = document.getElementById("subjectSection").value;
+  const needsSemester = section === "private" || section === "public";
+  const semester = needsSemester ? parseInt(document.getElementById("subjectSemester").value) : 0;
+  const active = document.getElementById("subjectActive").checked;
   const order = parseInt(document.getElementById("subjectOrder").value) || 1;
   if (!name) return alert("دخل اسم المادة");
 
   const docRef = db.collection("subjects").doc();
-  await docRef.set({ id: docRef.id, name, category, orderIndex: order, iconName: "" });
+  await docRef.set({
+    id: docRef.id,
+    name,
+    category: section, // للتوافق مع الكود القديم
+    section,
+    semester,
+    active,
+    orderIndex: order,
+    iconName: ""
+  });
   alert("تمت إضافة المادة ✅");
   document.getElementById("subjectName").value = "";
   loadSubjectsIntoSelect();
@@ -290,6 +323,11 @@ async function addPdfLink() {
   loadContentList();
 }
 
+async function toggleSubjectActive(subjectId, newActive) {
+  await db.collection("subjects").doc(subjectId).update({ active: newActive });
+  loadContentList();
+}
+
 async function loadContentList() {
   const container = document.getElementById("contentList");
   container.innerHTML = "";
@@ -299,7 +337,17 @@ async function loadContentList() {
     const subject = subjectDoc.data();
     const block = document.createElement("div");
     block.className = "subject-block";
-    block.innerHTML = `<div class="subject-title">${subject.name} (${subject.category === 'private' ? 'خاص' : 'عام'})</div>`;
+
+    const sectionLabels = { private: "القانون الخاص", public: "القانون العام", master: "ماستر", phd: "دكتوراه", general: "مواضيع عامة" };
+    const sectionLabel = sectionLabels[subject.section || subject.category] || subject.category;
+    const semesterLabel = (subject.semester && subject.semester > 0) ? ` - الفصل ${subject.semester}` : "";
+    const isActive = subject.active !== false;
+
+    block.innerHTML = `
+      <div class="subject-title" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>${subject.name} (${sectionLabel}${semesterLabel}) ${isActive ? '' : '⛔ معطلة'}</span>
+        <button style="width:auto;padding:4px 10px;font-size:12px;" onclick="toggleSubjectActive('${subjectDoc.id}', ${!isActive})">${isActive ? 'تعطيل' : 'تفعيل'}</button>
+      </div>`;
 
     const pdfsSnap = await db.collection("subjects").doc(subjectDoc.id).collection("pdfs").get();
     if (pdfsSnap.empty) {
