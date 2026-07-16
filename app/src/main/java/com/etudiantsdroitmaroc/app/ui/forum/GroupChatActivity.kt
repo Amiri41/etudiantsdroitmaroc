@@ -45,7 +45,12 @@ class GroupChatActivity : AppCompatActivity() {
         }
         binding.toolbar.setNavigationOnClickListener { finish() }
 
-        adapter = GroupMessageAdapter(emptyList(), isAdmin) { message -> confirmDelete(message) }
+        adapter = GroupMessageAdapter(
+            emptyList(),
+            isAdmin,
+            onLongPressDelete = { message -> confirmDelete(message) },
+            onClickAvatar = { message -> openSenderProfile(message) }
+        )
         binding.rvMessages.layoutManager = LinearLayoutManager(this)
         binding.rvMessages.adapter = adapter
 
@@ -89,6 +94,12 @@ class GroupChatActivity : AppCompatActivity() {
             repository.sendGroupImageMessage(groupId, url)
             loadMessages()
         }
+    }
+
+    private fun openSenderProfile(message: com.etudiantsdroitmaroc.app.data.model.GroupMessage) {
+        val intent = android.content.Intent(this, com.etudiantsdroitmaroc.app.ui.userprofile.UserProfileActivity::class.java)
+        intent.putExtra("uid", message.senderUid)
+        startActivity(intent)
     }
 
     private fun confirmDelete(message: GroupMessage) {

@@ -14,7 +14,8 @@ import com.google.firebase.auth.FirebaseAuth
 class GroupMessageAdapter(
     private var messages: List<GroupMessage>,
     private val isAdmin: Boolean,
-    private val onLongPressDelete: (GroupMessage) -> Unit
+    private val onLongPressDelete: (GroupMessage) -> Unit,
+    private val onClickAvatar: (GroupMessage) -> Unit
 ) : RecyclerView.Adapter<GroupMessageAdapter.VH>() {
 
     private val myUid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
@@ -32,6 +33,16 @@ class GroupMessageAdapter(
 
         holder.binding.tvSenderName.text = if (isMine) "أنت" else message.senderName
         holder.binding.tvSenderName.visibility = if (isMine) View.GONE else View.VISIBLE
+
+        holder.binding.ivSenderAvatar.visibility = if (isMine) View.INVISIBLE else View.VISIBLE
+        if (message.senderPhoto.isNotEmpty()) {
+            Glide.with(holder.itemView).load(message.senderPhoto).into(holder.binding.ivSenderAvatar)
+        } else {
+            holder.binding.ivSenderAvatar.setImageResource(R.drawable.ic_profile)
+        }
+        holder.binding.ivSenderAvatar.setOnClickListener {
+            if (!isMine) onClickAvatar(message)
+        }
 
         holder.binding.rootContainer.gravity = if (isMine) Gravity.END else Gravity.START
 
