@@ -57,5 +57,10 @@ class EtudiantsApp : Application() {
         // تتبع حالة "متصل الآن" بدقة (كيتحدث ملي التطبيق يبان/يخبى، مع نبضة كل 30 ثانية)
         androidx.lifecycle.ProcessLifecycleOwner.get().lifecycle
             .addObserver(com.etudiantsdroitmaroc.app.utils.PresenceManager)
+
+        // إعلان كل 8 دقايق مادام المستخدم نشيط فالتطبيق (بلا ما يبان مباشرة عند الفتح)
+        com.etudiantsdroitmaroc.app.utils.PeriodicAdManager.init(this)
+        androidx.lifecycle.ProcessLifecycleOwner.get().lifecycle
+            .addObserver(com.etudiantsdroitmaroc.app.utils.PeriodicAdManager)
     }
 }

@@ -34,8 +34,19 @@ class ChatActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         threadId = intent.getStringExtra("threadId") ?: return
-        binding.toolbar.title = intent.getStringExtra("otherName") ?: ""
+        val otherUid = intent.getStringExtra("otherUid") ?: ""
+        binding.tvOtherName.text = intent.getStringExtra("otherName") ?: ""
         binding.toolbar.setNavigationOnClickListener { finish() }
+
+        if (otherUid.isNotEmpty()) {
+            Firebase.firestore.collection("users").document(otherUid).get()
+                .addOnSuccessListener { doc ->
+                    val photoUrl = doc.getString("photoUrl")
+                    if (!photoUrl.isNullOrEmpty()) {
+                        com.bumptech.glide.Glide.with(this).load(photoUrl).into(binding.ivOtherAvatar)
+                    }
+                }
+        }
 
         adapter = MessageAdapter(emptyList())
         binding.rvMessages.layoutManager = LinearLayoutManager(this)

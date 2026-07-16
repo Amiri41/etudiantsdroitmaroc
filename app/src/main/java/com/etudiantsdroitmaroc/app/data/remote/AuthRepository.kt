@@ -37,15 +37,21 @@ class AuthRepository(private val context: Context) {
             val result = auth.signInWithCredential(credential).await()
             val user = result.user ?: return Result.failure(Exception("فشل تسجيل الدخول"))
 
-            // حفظ/تحديث البروفايل فـ Firestore
+            val userDocRef = firestore.collection("users").document(user.uid)
+            val existingDoc = userDocRef.get().await()
+            val existingPhoto = existingDoc.getString("photoUrl")
+
+            // ما نبدلوش الصورة المخصصة اللي رفعها المستخدم بيده - غير أول مرة كنحطو صورة Google
+            val photoToUse = if (!existingPhoto.isNullOrEmpty()) existingPhoto else (user.photoUrl?.toString() ?: "")
+
             val profile = UserProfile(
                 uid = user.uid,
                 name = user.displayName ?: "",
                 email = user.email ?: "",
-                photoUrl = user.photoUrl?.toString() ?: "",
+                photoUrl = photoToUse,
                 isOnline = true
             )
-            firestore.collection("users").document(user.uid).set(profile).await()
+            userDocRef.set(profile).await()
 
             // الاشتراك فـ topic عام باش يوصلو إشعارات (منشورات جديدة، تحديثات...)
             com.google.firebase.messaging.FirebaseMessaging.getInstance()

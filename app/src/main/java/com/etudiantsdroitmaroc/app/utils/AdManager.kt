@@ -72,6 +72,27 @@ object AdManager {
         interstitialAd?.show(activity) ?: onDismissed()
     }
 
+    /** كتبان بلا شرط عدد الانتقالات (كتستعمل من PeriodicAdManager كل 8 دقايق) */
+    fun showInterstitialForced(activity: Activity, onDismissed: () -> Unit = {}) {
+        val ad = interstitialAd
+        if (ad == null) {
+            onDismissed()
+            return
+        }
+        ad.fullScreenContentCallback = object : FullScreenContentCallback() {
+            override fun onAdDismissedFullScreenContent() {
+                interstitialAd = null
+                loadInterstitial(activity)
+                onDismissed()
+            }
+            override fun onAdFailedToShowFullScreenContent(error: AdError) {
+                interstitialAd = null
+                onDismissed()
+            }
+        }
+        ad.show(activity)
+    }
+
     // ---------- Rewarded ----------
 
     fun loadRewarded(context: Context) {

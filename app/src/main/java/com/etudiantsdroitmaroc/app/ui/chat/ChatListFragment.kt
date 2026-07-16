@@ -69,6 +69,7 @@ class ChatListFragment : Fragment() {
             val intent = Intent(requireContext(), ChatActivity::class.java)
             intent.putExtra("threadId", threadId)
             intent.putExtra("otherName", user.name)
+            intent.putExtra("otherUid", user.uid)
             startActivity(intent)
         }
     }
@@ -81,6 +82,7 @@ class ChatListFragment : Fragment() {
         val intent = Intent(requireContext(), ChatActivity::class.java)
         intent.putExtra("threadId", thread.id)
         intent.putExtra("otherName", otherName)
+        intent.putExtra("otherUid", otherUid)
         startActivity(intent)
     }
 

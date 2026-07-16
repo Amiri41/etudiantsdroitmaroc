@@ -98,6 +98,7 @@ class UserProfileActivity : AppCompatActivity() {
             val intent = Intent(this@UserProfileActivity, ChatActivity::class.java)
             intent.putExtra("threadId", threadId)
             intent.putExtra("otherName", targetName)
+            intent.putExtra("otherUid", targetUid)
             startActivity(intent)
         }
     }
