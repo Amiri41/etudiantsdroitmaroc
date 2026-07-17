@@ -76,6 +76,12 @@ service cloud.firestore {
       allow write: if request.auth != null && request.auth.uid == "zcSE6F8cMTM68kgKHM1SrH5KnX33";
     }
 
+    // فيديوهات تعليمية (يوتيوب) كيتحكم فيها الأدمين
+    match /videos/{videoId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == "zcSE6F8cMTM68kgKHM1SrH5KnX33";
+    }
+
     // مجموعات المنتدى (بحال مجموعات واتساب) - كل واحد يقدر ينشئ، منشئها هو الأدمين ديالها
     match /forum_groups/{groupId} {
       allow read: if true;

@@ -63,6 +63,14 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.videos.VideosListActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.videos.VideoPlayerActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.profile.EditProfileActivity"
             android:exported="false" />
 

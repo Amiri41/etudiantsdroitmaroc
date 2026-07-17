@@ -48,6 +48,10 @@ class HomeFragment : Fragment() {
         binding.chipGroupSection.setOnCheckedStateChangeListener { _, _ -> applyFilters() }
         binding.chipGroupSemester.setOnCheckedStateChangeListener { _, _ -> applyFilters() }
 
+        binding.btnVideos.setOnClickListener {
+            startActivity(Intent(requireContext(), com.etudiantsdroitmaroc.app.ui.videos.VideosListActivity::class.java))
+        }
+
         loadSubjects()
     }
 

@@ -137,3 +137,16 @@ data class GroupMessage(
     var imageUrl: String = "",
     var sentAt: Long = System.currentTimeMillis()
 )
+
+/** فيديو تعليمي (يوتيوب) كيتحكم فيه الأدمين */
+data class VideoLesson(
+    var id: String = "",
+    var title: String = "",
+    var description: String = "",
+    var youtubeId: String = "",
+    var thumbnailUrl: String = "",
+    @get:PropertyName("active") @set:PropertyName("active")
+    var active: Boolean = true,
+    var orderIndex: Int = 0,
+    var createdAt: Long = System.currentTimeMillis()
+)
