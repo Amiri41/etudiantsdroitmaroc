@@ -36,6 +36,7 @@ data class Post(
     var authorPhotoUrl: String = "",
     var subjectId: String = "", // فارغ = منتدى عام
     var content: String = "",
+    var imageUrl: String = "",
     var likesCount: Int = 0,
     var commentsCount: Int = 0,
     var createdAt: Long = System.currentTimeMillis()

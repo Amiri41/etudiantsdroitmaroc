@@ -23,14 +23,15 @@ class ForumRepository {
         return snapshot.toObjects()
     }
 
-    suspend fun createPost(content: String): Result<Unit> {
+    suspend fun createPost(content: String, imageUrl: String = ""): Result<Unit> {
         val user = auth.currentUser ?: return Result.failure(Exception("خاصك تسجل الدخول"))
         return try {
             val post = Post(
                 authorUid = user.uid,
                 authorName = user.displayName ?: "",
                 authorPhotoUrl = user.photoUrl?.toString() ?: "",
-                content = content
+                content = content,
+                imageUrl = imageUrl
             )
             val docRef = firestore.collection("posts").document()
             post.id = docRef.id

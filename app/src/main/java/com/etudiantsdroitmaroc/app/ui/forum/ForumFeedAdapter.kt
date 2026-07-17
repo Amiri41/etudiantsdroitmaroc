@@ -62,6 +62,13 @@ class ForumFeedAdapter(
         if (post.authorPhotoUrl.isNotEmpty()) {
             Glide.with(holder.itemView).load(post.authorPhotoUrl).into(binding.ivAuthorPhoto)
         }
+
+        if (post.imageUrl.isNotEmpty()) {
+            binding.ivPostImage.visibility = android.view.View.VISIBLE
+            Glide.with(holder.itemView).load(post.imageUrl).into(binding.ivPostImage)
+        } else {
+            binding.ivPostImage.visibility = android.view.View.GONE
+        }
         val openAuthorProfile = android.view.View.OnClickListener {
             val intent = android.content.Intent(context, com.etudiantsdroitmaroc.app.ui.userprofile.UserProfileActivity::class.java)
             intent.putExtra("uid", post.authorUid)

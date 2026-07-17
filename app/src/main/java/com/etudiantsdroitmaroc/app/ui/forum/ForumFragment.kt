@@ -36,6 +36,17 @@ class ForumFragment : Fragment() {
     private var allPosts: List<Post> = emptyList()
     private var pickedGroupIconUri: Uri? = null
     private var groupIconPreviewCallback: ((Uri) -> Unit)? = null
+    private var pickedPostImageUri: Uri? = null
+    private var postImagePreviewCallback: ((Uri) -> Unit)? = null
+
+    private val pickPostImageLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            pickedPostImageUri = uri
+            postImagePreviewCallback?.invoke(uri)
+        }
+    }
 
     private val pickGroupIconLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
@@ -124,19 +135,32 @@ class ForumFragment : Fragment() {
     }
 
     private fun showNewPostDialog() {
+        pickedPostImageUri = null
         val dialogBinding = DialogNewPostBinding.inflate(LayoutInflater.from(context))
         val dialog = AlertDialog.Builder(requireContext())
             .setView(dialogBinding.root)
             .create()
 
+        postImagePreviewCallback = { uri ->
+            dialogBinding.ivPostImagePreview.visibility = View.VISIBLE
+            Glide.with(this).load(uri).into(dialogBinding.ivPostImagePreview)
+        }
+        dialogBinding.btnPickPostImage.setOnClickListener { pickPostImageLauncher.launch("image/*") }
+
         dialogBinding.btnPublish.setOnClickListener {
             val content = dialogBinding.etPostContent.text?.toString()?.trim().orEmpty()
-            if (content.isEmpty()) {
-                Toast.makeText(context, "اكتب شي حاجة قبل النشر", Toast.LENGTH_SHORT).show()
+            if (content.isEmpty() && pickedPostImageUri == null) {
+                Toast.makeText(context, "اكتب شي حاجة أو زيد صورة قبل النشر", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             lifecycleScope.launch {
-                val result = repository.createPost(content)
+                var imageUrl = ""
+                val imageUri = pickedPostImageUri
+                if (imageUri != null) {
+                    val uploadResult = ImageUploader.uploadImage(requireContext(), imageUri)
+                    imageUrl = uploadResult.getOrNull() ?: ""
+                }
+                val result = repository.createPost(content, imageUrl)
                 if (result.isSuccess) {
                     dialog.dismiss()
                     loadPosts()
