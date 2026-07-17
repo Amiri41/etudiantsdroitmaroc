@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="اختار خلفية الدردشة"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@color/navy_dark"
+        android:layout_marginBottom="16dp" />
+
+    <GridLayout
+        android:id="@+id/colorGrid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="4"
+        android:rowCount="2">
+
+        <View android:id="@+id/colorDefault" android:layout_width="60dp" android:layout_height="60dp" android:layout_margin="6dp" android:background="@color/off_white" android:tag="#F7F8FA" />
+        <View android:id="@+id/color1" android:layout_width="60dp" android:layout_height="60dp" android:layout_margin="6dp" android:background="#D1E7DD" android:tag="#D1E7DD" />
+        <View android:id="@+id/color2" android:layout_width="60dp" android:layout_height="60dp" android:layout_margin="6dp" android:background="#FCE4EC" android:tag="#FCE4EC" />
+        <View android:id="@+id/color3" android:layout_width="60dp" android:layout_height="60dp" android:layout_margin="6dp" android:background="#E3F2FD" android:tag="#E3F2FD" />
+        <View android:id="@+id/color4" android:layout_width="60dp" android:layout_height="60dp" android:layout_margin="6dp" android:background="#FFF3CD" android:tag="#FFF3CD" />
+        <View android:id="@+id/color5" android:layout_width="60dp" android:layout_height="60dp" android:layout_margin="6dp" android:background="#E0E0E0" android:tag="#E0E0E0" />
+        <View android:id="@+id/color6" android:layout_width="60dp" android:layout_height="60dp" android:layout_margin="6dp" android:background="#0A1F3D" android:tag="#0A1F3D" />
+        <View android:id="@+id/color7" android:layout_width="60dp" android:layout_height="60dp" android:layout_margin="6dp" android:background="#F5B324" android:tag="#F5B324" />
+
+    </GridLayout>
+
+</LinearLayout>

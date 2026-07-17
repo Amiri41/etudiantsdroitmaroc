@@ -30,7 +30,7 @@
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="رفض"
+        android:text="حذف"
         android:textAllCaps="false"
         android:textColor="@color/red_accent" />
 
@@ -39,7 +39,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
-        android:text="قبول"
+        android:text="تأكيد"
         android:textAllCaps="false"
         app:backgroundTint="@color/gold"
         android:textColor="@color/navy_dark" />

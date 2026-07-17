@@ -21,12 +21,16 @@ class ChatRepository {
     private val myUid get() = auth.currentUser?.uid.orEmpty()
 
     suspend fun getMyThreads(): List<ChatThread> {
+        val blocked = getBlockedUids()
         val snapshot = firestore.collection("chat_threads")
             .whereArrayContains("participantUids", myUid)
             .orderBy("lastMessageAt", Query.Direction.DESCENDING)
             .get()
             .await()
-        return snapshot.toObjects()
+        return snapshot.toObjects<ChatThread>().filter { thread ->
+            val otherUid = thread.participantUids.firstOrNull { it != myUid }
+            otherUid == null || !blocked.contains(otherUid)
+        }
     }
 
     suspend fun getUserProfile(uid: String): UserProfile? {
@@ -117,8 +121,9 @@ class ChatRepository {
     }
 
     suspend fun getAllUsers(): List<UserProfile> {
+        val blocked = getBlockedUids()
         val snapshot = firestore.collection("users").get().await()
-        return snapshot.toObjects<UserProfile>().filter { it.uid != myUid }
+        return snapshot.toObjects<UserProfile>().filter { it.uid != myUid && !blocked.contains(it.uid) }
     }
 
     suspend fun getMyFriendsUids(): Set<String> {
@@ -138,6 +143,34 @@ class ChatRepository {
                 null
             }
         }
+    }
+
+    suspend fun blockUser(otherUid: String) {
+        firestore.collection("users").document(myUid)
+            .collection("blocked").document(otherUid)
+            .set(mapOf("blockedAt" to System.currentTimeMillis())).await()
+    }
+
+    suspend fun unblockUser(otherUid: String) {
+        firestore.collection("users").document(myUid)
+            .collection("blocked").document(otherUid).delete().await()
+    }
+
+    suspend fun getBlockedUids(): Set<String> {
+        val snapshot = firestore.collection("users").document(myUid)
+            .collection("blocked").get().await()
+        return snapshot.documents.map { it.id }.toSet()
+    }
+
+    suspend fun clearChatMessages(threadId: String) {
+        val messages = firestore.collection("chat_threads").document(threadId)
+            .collection("messages").get().await()
+        val batch = firestore.batch()
+        messages.documents.forEach { batch.delete(it.reference) }
+        batch.commit().await()
+        firestore.collection("chat_threads").document(threadId)
+            .update(mapOf("lastMessage" to "", "lastMessageAt" to System.currentTimeMillis()))
+            .await()
     }
 
     suspend fun getOrCreateThread(otherUid: String, otherName: String): String {
@@ -220,11 +253,12 @@ class ChatRepository {
         // فحالة انهيار التطبيق (بلا onStop)، isOnline يقدر يبقى true غلط -
         // فنزيدو فلترة زيادة بـ lastSeen (آخر 90 ثانية) كحماية إضافية
         val recentThreshold = System.currentTimeMillis() - 90_000L
+        val blocked = getBlockedUids()
         val snapshot = firestore.collection("users")
             .whereEqualTo("isOnline", true)
             .get()
             .await()
         return snapshot.toObjects<UserProfile>()
-            .filter { it.uid != myUid && it.lastSeen >= recentThreshold }
+            .filter { it.uid != myUid && it.lastSeen >= recentThreshold && !blocked.contains(it.uid) }
     }
 }

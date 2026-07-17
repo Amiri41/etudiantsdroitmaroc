@@ -10,10 +10,9 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.etudiantsdroitmaroc.app.data.model.UserProfile
 import com.etudiantsdroitmaroc.app.data.remote.AuthRepository
-import com.etudiantsdroitmaroc.app.data.remote.ChatRepository
+import com.etudiantsdroitmaroc.app.databinding.DialogPromoteServiceBinding
 import com.etudiantsdroitmaroc.app.databinding.FragmentProfileBinding
 import com.etudiantsdroitmaroc.app.ui.auth.LoginActivity
-import com.etudiantsdroitmaroc.app.ui.friends.FriendRequestsActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
@@ -47,11 +46,9 @@ class ProfileFragment : Fragment() {
             startActivity(Intent(requireContext(), com.etudiantsdroitmaroc.app.ui.pages.PagesListActivity::class.java))
         }
 
-        binding.btnFriendRequests.setOnClickListener {
-            startActivity(Intent(requireContext(), FriendRequestsActivity::class.java))
+        binding.btnPromoteService.setOnClickListener {
+            showPromoteServiceDialog()
         }
-
-        loadFriendRequestsCount()
 
         binding.btnLogout.setOnClickListener {
             AuthRepository(requireContext()).signOut()
@@ -65,17 +62,46 @@ class ProfileFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         loadProfile()
-        loadFriendRequestsCount()
     }
 
-    private fun loadFriendRequestsCount() {
-        lifecycleScope.launch {
+    private fun showPromoteServiceDialog() {
+        val dialogBinding = DialogPromoteServiceBinding.inflate(LayoutInflater.from(context))
+        val dialog = android.app.AlertDialog.Builder(requireContext())
+            .setView(dialogBinding.root)
+            .create()
+
+        dialogBinding.btnSendPromoteRequest.setOnClickListener {
+            val serviceName = dialogBinding.etServiceName.text?.toString()?.trim().orEmpty()
+            val description = dialogBinding.etServiceDescription.text?.toString()?.trim().orEmpty()
+            val contact = dialogBinding.etContactInfo.text?.toString()?.trim().orEmpty()
+
+            if (serviceName.isEmpty() || description.isEmpty() || contact.isEmpty()) {
+                android.widget.Toast.makeText(context, "عبي جميع الخانات", android.widget.Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val emailBody = """
+                اسم الخدمة: $serviceName
+                الوصف: $description
+                التواصل: $contact
+            """.trimIndent()
+
+            val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
+                data = android.net.Uri.parse("mailto:")
+                putExtra(Intent.EXTRA_EMAIL, arrayOf("wamiri459@gmail.com"))
+                putExtra(Intent.EXTRA_SUBJECT, "طلب ترويج خدمة - $serviceName")
+                putExtra(Intent.EXTRA_TEXT, emailBody)
+            }
+
             try {
-                val count = ChatRepository().getIncomingRequestsCount()
-                binding.btnFriendRequests.text = if (count > 0) "طلبات الصداقة ($count)" else "طلبات الصداقة"
-            } catch (_: Exception) {
+                startActivity(emailIntent)
+                dialog.dismiss()
+            } catch (e: Exception) {
+                android.widget.Toast.makeText(context, "ماكاينش تطبيق إيميل مثبت", android.widget.Toast.LENGTH_SHORT).show()
             }
         }
+
+        dialog.show()
     }
 
     private fun loadProfile() {

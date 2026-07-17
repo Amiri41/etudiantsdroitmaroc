@@ -64,11 +64,11 @@
             android:textColor="@color/navy_dark" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnFriendRequests"
+            android:id="@+id/btnPromoteService"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
-            android:text="طلبات الصداقة"
+            android:text="📢 روّج خدمتك معنا"
             android:textAllCaps="false"
             app:backgroundTint="@color/navy" />
 

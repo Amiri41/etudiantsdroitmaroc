@@ -21,6 +21,7 @@ class ChatActivity : AppCompatActivity() {
     private val repository = ChatRepository()
     private lateinit var adapter: MessageAdapter
     private lateinit var threadId: String
+    private var otherUid: String = ""
 
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
@@ -34,9 +35,12 @@ class ChatActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         threadId = intent.getStringExtra("threadId") ?: return
-        val otherUid = intent.getStringExtra("otherUid") ?: ""
+        otherUid = intent.getStringExtra("otherUid") ?: ""
         binding.tvOtherName.text = intent.getStringExtra("otherName") ?: ""
         binding.toolbar.setNavigationOnClickListener { finish() }
+        binding.btnChatMenu.setOnClickListener { showChatMenu() }
+
+        applySavedBackground()
 
         if (otherUid.isNotEmpty()) {
             Firebase.firestore.collection("users").document(otherUid).get()
@@ -91,5 +95,91 @@ class ChatActivity : AppCompatActivity() {
                 Toast.makeText(this@ChatActivity, "فشل رفع الصورة", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun showChatMenu() {
+        val popup = android.widget.PopupMenu(this, binding.btnChatMenu)
+        popup.menu.add("حظر المستخدم")
+        popup.menu.add("مسح المحادثة")
+        popup.menu.add("تغيير الخلفية")
+        popup.setOnMenuItemClickListener { item ->
+            when (item.title) {
+                "حظر المستخدم" -> confirmBlockUser()
+                "مسح المحادثة" -> confirmClearChat()
+                "تغيير الخلفية" -> showBackgroundPicker()
+            }
+            true
+        }
+        popup.show()
+    }
+
+    private fun confirmBlockUser() {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("حظر المستخدم")
+            .setMessage("ملي تحظرو، ما غاديش يبان ليك فلوائح المتصلين ولا المحادثات. متأكد؟")
+            .setPositiveButton("حظر") { _, _ ->
+                lifecycleScope.launch {
+                    repository.blockUser(otherUid)
+                    Toast.makeText(this@ChatActivity, "تم حظر المستخدم", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+            }
+            .setNegativeButton("إلغاء", null)
+            .show()
+    }
+
+    private fun confirmClearChat() {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("مسح المحادثة")
+            .setMessage("غادي يتمسح كل التاريخ ديال هاد المحادثة. متأكد؟")
+            .setPositiveButton("مسح") { _, _ ->
+                lifecycleScope.launch {
+                    repository.clearChatMessages(threadId)
+                    Toast.makeText(this@ChatActivity, "تم مسح المحادثة", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("إلغاء", null)
+            .show()
+    }
+
+    private fun showBackgroundPicker() {
+        val dialogView = layoutInflater.inflate(com.etudiantsdroitmaroc.app.R.layout.dialog_chat_background, null)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this).setView(dialogView).create()
+
+        val colorViews = listOf(
+            com.etudiantsdroitmaroc.app.R.id.colorDefault,
+            com.etudiantsdroitmaroc.app.R.id.color1,
+            com.etudiantsdroitmaroc.app.R.id.color2,
+            com.etudiantsdroitmaroc.app.R.id.color3,
+            com.etudiantsdroitmaroc.app.R.id.color4,
+            com.etudiantsdroitmaroc.app.R.id.color5,
+            com.etudiantsdroitmaroc.app.R.id.color6,
+            com.etudiantsdroitmaroc.app.R.id.color7
+        )
+        for (id in colorViews) {
+            val view = dialogView.findViewById<android.view.View>(id)
+            view.setOnClickListener {
+                val colorHex = it.tag as String
+                saveBackground(colorHex)
+                dialog.dismiss()
+            }
+        }
+        dialog.show()
+    }
+
+    private fun prefsKey() = "chat_bg_$threadId"
+
+    private fun saveBackground(colorHex: String) {
+        getSharedPreferences("chat_prefs", MODE_PRIVATE).edit()
+            .putString(prefsKey(), colorHex).apply()
+        applySavedBackground()
+    }
+
+    private fun applySavedBackground() {
+        val colorHex = getSharedPreferences("chat_prefs", MODE_PRIVATE)
+            .getString(prefsKey(), null) ?: return
+        try {
+            binding.rvMessages.setBackgroundColor(android.graphics.Color.parseColor(colorHex))
+        } catch (_: Exception) { }
     }
 }
