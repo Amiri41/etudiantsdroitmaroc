@@ -18,4 +18,14 @@ class VideosRepository {
             .await()
         return snapshot.toObjects<VideoLesson>().filter { it.active }
     }
+
+    suspend fun getVideosForSubject(subjectId: String): List<VideoLesson> {
+        val snapshot = firestore.collection("videos")
+            .whereEqualTo("subjectId", subjectId)
+            .get()
+            .await()
+        return snapshot.toObjects<VideoLesson>()
+            .filter { it.active }
+            .sortedBy { it.orderIndex }
+    }
 }

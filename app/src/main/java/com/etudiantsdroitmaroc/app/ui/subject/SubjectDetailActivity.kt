@@ -30,6 +30,13 @@ class SubjectDetailActivity : AppCompatActivity() {
         binding.toolbar.title = subjectName
         binding.toolbar.setNavigationOnClickListener { finish() }
 
+        binding.btnSubjectVideos.setOnClickListener {
+            val intent = Intent(this, com.etudiantsdroitmaroc.app.ui.videos.VideosListActivity::class.java)
+            intent.putExtra("subjectId", subjectId)
+            intent.putExtra("subjectName", subjectName)
+            startActivity(intent)
+        }
+
         repository = PdfRepository(this)
 
         adapter = PdfAdapter(

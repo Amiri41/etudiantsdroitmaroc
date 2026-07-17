@@ -14,6 +14,16 @@
         app:titleTextColor="@color/gold"
         app:navigationIcon="@drawable/ic_back" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSubjectVideos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="🎥 فيديوهات هاد المادة"
+        android:textAllCaps="false"
+        app:backgroundTint="@color/navy_dark"
+        android:textColor="@color/gold" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvPdfs"
         android:layout_width="match_parent"

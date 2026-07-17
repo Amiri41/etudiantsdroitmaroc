@@ -22,6 +22,10 @@ class VideosListActivity : AppCompatActivity() {
         binding = ActivityVideosListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val subjectId = intent.getStringExtra("subjectId")
+        val subjectName = intent.getStringExtra("subjectName")
+        binding.toolbar.title = if (!subjectName.isNullOrEmpty()) "🎥 فيديوهات: $subjectName" else "🎥 فيديوهات قانونية"
+
         binding.toolbar.setNavigationOnClickListener { finish() }
         com.etudiantsdroitmaroc.app.utils.BannerAdHelper.attach(this, binding.bannerAdContainer)
 
@@ -29,13 +33,17 @@ class VideosListActivity : AppCompatActivity() {
         binding.rvVideos.layoutManager = LinearLayoutManager(this)
         binding.rvVideos.adapter = adapter
 
-        loadVideos()
+        loadVideos(subjectId)
     }
 
-    private fun loadVideos() {
+    private fun loadVideos(subjectId: String?) {
         lifecycleScope.launch {
             try {
-                val videos = repository.getVideos()
+                val videos = if (!subjectId.isNullOrEmpty()) {
+                    repository.getVideosForSubject(subjectId)
+                } else {
+                    repository.getVideos()
+                }
                 adapter.updateData(videos)
                 binding.tvEmpty.visibility = if (videos.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
             } catch (e: Exception) {

@@ -138,9 +138,10 @@ data class GroupMessage(
     var sentAt: Long = System.currentTimeMillis()
 )
 
-/** فيديو تعليمي (يوتيوب) كيتحكم فيه الأدمين */
+/** فيديو تعليمي (يوتيوب) كيتحكم فيه الأدمين، مرتبط بمادة معينة */
 data class VideoLesson(
     var id: String = "",
+    var subjectId: String = "",
     var title: String = "",
     var description: String = "",
     var youtubeId: String = "",
