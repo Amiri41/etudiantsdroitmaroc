@@ -80,6 +80,8 @@ data class AppPage(
     var content: String = "",  // نص الصفحة (إلا type = text)
     var url: String = "",      // رابط خارجي (إلا type = link)
     var iconName: String = "",
+    @get:PropertyName("active") @set:PropertyName("active")
+    var active: Boolean = true,
     var orderIndex: Int = 0
 )
 data class UserProfile(

@@ -104,6 +104,9 @@
     <textarea id="pageContent" placeholder="النص الكامل ديال الصفحة (إلا اخترتي 'نص')" rows="5"></textarea>
     <input id="pageUrl" placeholder="الرابط (إلا اخترتي 'رابط') - مثلا https://facebook.com/...">
     <input id="pageOrder" type="number" placeholder="ترتيب العرض" value="1">
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;">
+      <input type="checkbox" id="pageActive" checked style="width:auto;margin:0;"> نشطة (تبان فالتطبيق)
+    </label>
     <button onclick="addPage()">حفظ الصفحة</button>
     <p id="pageProgressText"></p>
   </div>
@@ -383,6 +386,7 @@ async function addPage() {
   const content = document.getElementById("pageContent").value.trim();
   const url = document.getElementById("pageUrl").value.trim();
   const order = parseInt(document.getElementById("pageOrder").value) || 1;
+  const active = document.getElementById("pageActive").checked;
   const progressText = document.getElementById("pageProgressText");
 
   if (!title) return alert("دخل عنوان الصفحة");
@@ -391,7 +395,7 @@ async function addPage() {
 
   const docRef = db.collection("pages").doc();
   await docRef.set({
-    id: docRef.id, title, type, content, url,
+    id: docRef.id, title, type, content, url, active,
     orderIndex: order, iconName: ""
   });
 
@@ -399,6 +403,11 @@ async function addPage() {
   document.getElementById("pageTitle").value = "";
   document.getElementById("pageContent").value = "";
   document.getElementById("pageUrl").value = "";
+  loadPagesList();
+}
+
+async function toggleActivePage(pageId, newActive) {
+  await db.collection("pages").doc(pageId).update({ active: newActive });
   loadPagesList();
 }
 
@@ -414,11 +423,15 @@ async function loadPagesList() {
 
   snapshot.forEach(doc => {
     const page = doc.data();
+    const isActive = page.active !== false;
     const row = document.createElement("div");
     row.className = "pdf-row";
     row.innerHTML = `
-      <span>${page.type === 'link' ? '🔗' : '📄'} ${page.title}</span>
-      <button class="danger" style="width:auto;padding:6px 12px;" onclick="deletePage('${doc.id}')">حذف</button>
+      <span>${page.type === 'link' ? '🔗' : '📄'} ${page.title} ${isActive ? '' : '⛔ معطلة'}</span>
+      <span style="display:flex;gap:6px;">
+        <button style="width:auto;padding:6px 10px;font-size:12px;" onclick="toggleActivePage('${doc.id}', ${!isActive})">${isActive ? 'تعطيل' : 'تفعيل'}</button>
+        <button class="danger" style="width:auto;padding:6px 12px;" onclick="deletePage('${doc.id}')">حذف</button>
+      </span>
     `;
     container.appendChild(row);
   });

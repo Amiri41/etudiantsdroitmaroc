@@ -16,6 +16,6 @@ class PagesRepository {
             .orderBy("orderIndex", Query.Direction.ASCENDING)
             .get()
             .await()
-        return snapshot.toObjects()
+        return snapshot.toObjects<AppPage>().filter { it.active }
     }
 }

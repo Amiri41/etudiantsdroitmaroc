@@ -77,7 +77,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="صفحات إضافية (من نحن، الخصوصية، روابط)"
+            android:text="⚖️ تعرف على منصتنا"
             android:textAllCaps="false"
             app:backgroundTint="@color/navy" />
 
