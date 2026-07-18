@@ -11,11 +11,15 @@ import com.etudiantsdroitmaroc.app.data.remote.VideosRepository
 import com.etudiantsdroitmaroc.app.databinding.ActivityVideosListBinding
 import kotlinx.coroutines.launch
 
+private const val SECTION_PRIVATE = "private"
+private const val SECTION_PUBLIC = "public"
+private const val SECTION_MASTER = "master"
+private const val SECTION_PHD = "phd"
+
 class VideosListActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityVideosListBinding
     private val repository = VideosRepository()
-    private lateinit var adapter: VideoAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,23 +33,49 @@ class VideosListActivity : AppCompatActivity() {
         binding.toolbar.setNavigationOnClickListener { finish() }
         com.etudiantsdroitmaroc.app.utils.BannerAdHelper.attach(this, binding.bannerAdContainer)
 
-        adapter = VideoAdapter(emptyList()) { openVideo(it) }
+        if (!subjectId.isNullOrEmpty()) {
+            loadSingleSubjectVideos(subjectId)
+        } else {
+            loadGroupedVideos()
+        }
+    }
+
+    private fun loadSingleSubjectVideos(subjectId: String) {
+        val adapter = VideoAdapter(emptyList()) { openVideo(it) }
         binding.rvVideos.layoutManager = LinearLayoutManager(this)
         binding.rvVideos.adapter = adapter
 
-        loadVideos(subjectId)
-    }
-
-    private fun loadVideos(subjectId: String?) {
         lifecycleScope.launch {
             try {
-                val videos = if (!subjectId.isNullOrEmpty()) {
-                    repository.getVideosForSubject(subjectId)
-                } else {
-                    repository.getVideos()
-                }
+                val videos = repository.getVideosForSubject(subjectId)
                 adapter.updateData(videos)
                 binding.tvEmpty.visibility = if (videos.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
+            } catch (e: Exception) {
+                Toast.makeText(this@VideosListActivity, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun loadGroupedVideos() {
+        val sectionAdapter = VideoSectionAdapter(emptyList()) { openVideo(it) }
+        binding.rvVideos.layoutManager = LinearLayoutManager(this)
+        binding.rvVideos.adapter = sectionAdapter
+
+        lifecycleScope.launch {
+            try {
+                val grouped = repository.getVideoSectionsGroupedBySubject()
+                val sections = grouped.map { (subject, videos) ->
+                    val sectionLabel = when (subject.section) {
+                        SECTION_PRIVATE -> "القانون الخاص - الفصل ${subject.semester}"
+                        SECTION_PUBLIC -> "القانون العام - الفصل ${subject.semester}"
+                        SECTION_MASTER -> "ماستر"
+                        SECTION_PHD -> "دكتوراه"
+                        else -> "مواضيع قانونية عامة"
+                    }
+                    VideoSection(title = "$sectionLabel · ${subject.name}", videos = videos)
+                }
+                sectionAdapter.updateData(sections)
+                binding.tvEmpty.visibility = if (sections.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
             } catch (e: Exception) {
                 Toast.makeText(this@VideosListActivity, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
             }
