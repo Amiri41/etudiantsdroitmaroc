@@ -46,6 +46,15 @@ class ProfileFragment : Fragment() {
             startActivity(Intent(requireContext(), com.etudiantsdroitmaroc.app.ui.pages.PagesListActivity::class.java))
         }
 
+        binding.btnMyPosts.setOnClickListener {
+            val myUid = FirebaseAuth.getInstance().currentUser?.uid
+            if (myUid != null) {
+                val intent = Intent(requireContext(), com.etudiantsdroitmaroc.app.ui.userprofile.UserProfileActivity::class.java)
+                intent.putExtra("uid", myUid)
+                startActivity(intent)
+            }
+        }
+
         binding.btnPromoteService.setOnClickListener {
             showPromoteServiceDialog()
         }

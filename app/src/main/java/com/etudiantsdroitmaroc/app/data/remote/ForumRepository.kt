@@ -42,6 +42,14 @@ class ForumRepository {
         }
     }
 
+    suspend fun getPostsByUser(uid: String): List<Post> {
+        val snapshot = firestore.collection("posts")
+            .whereEqualTo("authorUid", uid)
+            .get()
+            .await()
+        return snapshot.toObjects<Post>().sortedByDescending { it.createdAt }
+    }
+
     suspend fun deletePost(postId: String): Result<Unit> {
         return try {
             firestore.collection("posts").document(postId).delete().await()

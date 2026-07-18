@@ -64,6 +64,15 @@
             android:textColor="@color/navy_dark" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnMyPosts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="📋 منشوراتي"
+            android:textAllCaps="false"
+            app:backgroundTint="@color/navy" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnPromoteService"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

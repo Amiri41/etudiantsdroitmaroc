@@ -5,10 +5,14 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.etudiantsdroitmaroc.app.data.model.Post
 import com.etudiantsdroitmaroc.app.data.remote.ChatRepository
+import com.etudiantsdroitmaroc.app.data.remote.ForumRepository
 import com.etudiantsdroitmaroc.app.databinding.ActivityUserProfileBinding
 import com.etudiantsdroitmaroc.app.ui.chat.ChatActivity
+import com.etudiantsdroitmaroc.app.ui.forum.ForumFeedAdapter
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -16,8 +20,10 @@ class UserProfileActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityUserProfileBinding
     private val repository = ChatRepository()
+    private val forumRepository = ForumRepository()
     private lateinit var targetUid: String
     private var targetName: String = ""
+    private lateinit var postsAdapter: ForumFeedAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,10 +40,73 @@ class UserProfileActivity : AppCompatActivity() {
             binding.btnMessage.visibility = android.view.View.GONE
         }
 
+        postsAdapter = ForumFeedAdapter(
+            this,
+            emptyList(),
+            onLikeClick = { post -> toggleLike(post) },
+            onEditClick = { post -> showEditPostDialog(post) },
+            onDeleteClick = { post -> confirmDeletePost(post) }
+        )
+        binding.rvUserPosts.layoutManager = LinearLayoutManager(this)
+        binding.rvUserPosts.adapter = postsAdapter
+
         loadProfile()
+        loadUserPosts()
 
         binding.btnAddFriend.setOnClickListener { addFriend() }
         binding.btnMessage.setOnClickListener { openChat() }
+    }
+
+    private fun loadUserPosts() {
+        lifecycleScope.launch {
+            try {
+                val posts = forumRepository.getPostsByUser(targetUid)
+                postsAdapter.updateData(posts)
+                binding.tvNoPosts.visibility = if (posts.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
+            } catch (e: Exception) {
+                Toast.makeText(this@UserProfileActivity, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun toggleLike(post: Post) {
+        lifecycleScope.launch {
+            forumRepository.toggleLike(post.id)
+            loadUserPosts()
+        }
+    }
+
+    private fun showEditPostDialog(post: Post) {
+        val editText = android.widget.EditText(this)
+        editText.setText(post.content)
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("تعديل المنشور")
+            .setView(editText)
+            .setPositiveButton("حفظ") { _, _ ->
+                val newContent = editText.text.toString().trim()
+                if (newContent.isNotEmpty()) {
+                    lifecycleScope.launch {
+                        forumRepository.updatePost(post.id, newContent)
+                        loadUserPosts()
+                    }
+                }
+            }
+            .setNegativeButton("إلغاء", null)
+            .show()
+    }
+
+    private fun confirmDeletePost(post: Post) {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("حذف المنشور")
+            .setMessage("متأكد بغيتي تحذف هاد المنشور؟")
+            .setPositiveButton("حذف") { _, _ ->
+                lifecycleScope.launch {
+                    forumRepository.deletePost(post.id)
+                    loadUserPosts()
+                }
+            }
+            .setNegativeButton("إلغاء", null)
+            .show()
     }
 
     private fun loadProfile() {
