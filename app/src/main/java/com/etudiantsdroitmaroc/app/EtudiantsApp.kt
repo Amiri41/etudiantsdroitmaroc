@@ -62,5 +62,10 @@ class EtudiantsApp : Application() {
         com.etudiantsdroitmaroc.app.utils.PeriodicAdManager.init(this)
         androidx.lifecycle.ProcessLifecycleOwner.get().lifecycle
             .addObserver(com.etudiantsdroitmaroc.app.utils.PeriodicAdManager)
+
+        // بانر الإعلان بشاشة كاملة كيتحكم فيه الأدمين (توقيت التكرار من لوحة التحكم)
+        com.etudiantsdroitmaroc.app.utils.AnnouncementManager.init(this)
+        androidx.lifecycle.ProcessLifecycleOwner.get().lifecycle
+            .addObserver(com.etudiantsdroitmaroc.app.utils.AnnouncementManager)
     }
 }

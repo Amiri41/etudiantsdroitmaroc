@@ -103,6 +103,7 @@ data class AppAnnouncement(
     var imageUrl: String = "",
     var linkUrl: String = "",
     var active: Boolean = false,
+    var intervalMinutes: Int = 0, // 0 = مرة وحدة بس، >0 = يتكرر كل X دقيقة مادام التطبيق نشيط
     var updatedAt: Long = 0
 )
 

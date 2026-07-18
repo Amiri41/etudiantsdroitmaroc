@@ -74,7 +74,7 @@
   </div>
 
   <div class="card">
-    <h2>📢 بانر إعلان/تنبيه (يبان ملي يحل المستخدم التطبيق)</h2>
+    <h2>📢 بانر إعلان شاشة كاملة (يبان ملي يحل المستخدم التطبيق)</h2>
     <select id="annType">
       <option value="promo">إعلان / عرض</option>
       <option value="update">تحديث جديد متوفر</option>
@@ -84,6 +84,8 @@
     <input id="annImageInput" type="file" accept="image/*">
     <img id="annImagePreview" class="hidden" style="max-width:120px;border-radius:8px;margin-bottom:10px;" />
     <input id="annLink" placeholder="رابط (اختياري) - يفتح ملي يضغط المستخدم على البانر">
+    <label style="font-size:12px;color:#666;">كل شحال من دقيقة يتكرر البانر (0 = مرة وحدة بس)</label>
+    <input id="annInterval" type="number" placeholder="مثلا: 15" value="0" min="0">
     <label style="display:flex;align-items:center;gap:8px;font-size:13px;">
       <input type="checkbox" id="annActive" style="width:auto;margin:0;"> نشط (يبان للمستخدمين)
     </label>
@@ -195,6 +197,7 @@ async function loadAnnouncement() {
   document.getElementById("annTitle").value = d.title || "";
   document.getElementById("annMessage").value = d.message || "";
   document.getElementById("annLink").value = d.linkUrl || "";
+  document.getElementById("annInterval").value = d.intervalMinutes || 0;
   document.getElementById("annActive").checked = !!d.active;
   if (d.imageUrl) {
     const preview = document.getElementById("annImagePreview");
@@ -227,6 +230,7 @@ async function saveAnnouncement() {
     message,
     imageUrl,
     linkUrl: document.getElementById("annLink").value.trim(),
+    intervalMinutes: parseInt(document.getElementById("annInterval").value) || 0,
     active: document.getElementById("annActive").checked,
     updatedAt: Date.now()
   });
