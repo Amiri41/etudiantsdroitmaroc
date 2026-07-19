@@ -82,6 +82,18 @@ service cloud.firestore {
       allow write: if request.auth != null && request.auth.uid == "zcSE6F8cMTM68kgKHM1SrH5KnX33";
     }
 
+    // فصول ديناميكية (خاص بـ private/public)
+    match /chapters/{chapterId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == "zcSE6F8cMTM68kgKHM1SrH5KnX33";
+    }
+
+    // إعدادات ظهور الأقسام الرئيسية
+    match /app_config/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == "zcSE6F8cMTM68kgKHM1SrH5KnX33";
+    }
+
     // مجموعات المنتدى (بحال مجموعات واتساب) - كل واحد يقدر ينشئ، منشئها هو الأدمين ديالها
     match /forum_groups/{groupId} {
       allow read: if true;

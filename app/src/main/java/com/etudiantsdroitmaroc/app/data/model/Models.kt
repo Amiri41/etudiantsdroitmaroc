@@ -8,11 +8,31 @@ data class Subject(
     var name: String = "",
     var category: String = "", // "private" أو "public" (احتفظنا بيه للتوافق القديم)
     var section: String = "private", // "private" | "public" | "master" | "phd" | "general"
-    var semester: Int = 0, // 1-6 (خاص غير بـ private/public)، 0 = ماكاينش (ماستر/دكتوراه/عام)
+    var semester: Int = 0, // قديم - احتفظنا بيه للتوافق، الفصول دابا ديناميكية عبر chapterId
+    var chapterId: String = "", // مرتبط بـ Chapter ديناميكي (خاص بـ private/public فقط)
     @get:PropertyName("active") @set:PropertyName("active")
     var active: Boolean = true,
     var iconName: String = "",
     var orderIndex: Int = 0
+)
+
+/** فصل ديناميكي (بدال S1-S6 الثابتة) - الأدمين كيسمي ويزيد ويحيد قد ما بغا */
+data class Chapter(
+    var id: String = "",
+    var section: String = "", // "private" أو "public"
+    var name: String = "", // مثلا "الفصل 1" - قابل للتسمية من الأدمين
+    var orderIndex: Int = 0,
+    @get:PropertyName("active") @set:PropertyName("active")
+    var active: Boolean = true
+)
+
+/** تحكم فظهور الأقسام الرئيسية الخمسة من الأدمين */
+data class AppSectionsConfig(
+    var showPrivate: Boolean = true,
+    var showPublic: Boolean = true,
+    var showVideos: Boolean = true,
+    var showMaster: Boolean = true,
+    var showPhd: Boolean = true
 )
 
 /** ملف PDF مرتبط بمادة */

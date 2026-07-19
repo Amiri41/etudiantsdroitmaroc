@@ -36,121 +36,35 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnVideos"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="14dp"
-                android:text="🎥 فيديوهات قانونية"
-                android:textAllCaps="false"
-                app:backgroundTint="@color/navy_dark"
-                android:textColor="@color/gold" />
-
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chipGroupSection"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:singleSelection="true"
-                app:selectionRequired="true"
-                android:layout_marginBottom="10dp">
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipPrivate"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:text="@string/section_private_law" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipPublic"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/section_public_law" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipMaster"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="ماستر" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipPhd"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="دكتوراه" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipGeneral"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="مواضيع قانونية عامة" />
-
-            </com.google.android.material.chip.ChipGroup>
-
             <HorizontalScrollView
-                android:id="@+id/semesterScroll"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:scrollbars="none"
-                android:layout_marginBottom="14dp">
+                android:layout_marginBottom="10dp">
 
                 <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/chipGroupSemester"
+                    android:id="@+id/chipGroupSection"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:singleSelection="true"
-                    app:selectionRequired="true"
-                    app:chipSpacingHorizontal="6dp">
+                    app:chipSpacingHorizontal="6dp" />
 
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipS1"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checked="true"
-                        android:text="الفصل 1" />
+            </HorizontalScrollView>
 
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipS2"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="الفصل 2" />
+            <HorizontalScrollView
+                android:id="@+id/chapterScroll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:layout_marginBottom="14dp"
+                android:visibility="gone">
 
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipS3"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="الفصل 3" />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipS4"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="الفصل 4" />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipS5"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="الفصل 5" />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipS6"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="الفصل 6" />
-
-                </com.google.android.material.chip.ChipGroup>
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroupChapter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:singleSelection="true"
+                    app:chipSpacingHorizontal="6dp" />
             </HorizontalScrollView>
 
             <TextView

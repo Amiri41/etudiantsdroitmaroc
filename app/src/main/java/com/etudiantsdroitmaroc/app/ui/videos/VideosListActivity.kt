@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.etudiantsdroitmaroc.app.data.model.VideoLesson
+import com.etudiantsdroitmaroc.app.data.remote.ChaptersRepository
 import com.etudiantsdroitmaroc.app.data.remote.VideosRepository
 import com.etudiantsdroitmaroc.app.databinding.ActivityVideosListBinding
 import kotlinx.coroutines.launch
@@ -20,6 +21,7 @@ class VideosListActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityVideosListBinding
     private val repository = VideosRepository()
+    private val chaptersRepository = ChaptersRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,11 +65,16 @@ class VideosListActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
+                val privateChapters = chaptersRepository.getChaptersForSection(SECTION_PRIVATE)
+                val publicChapters = chaptersRepository.getChaptersForSection(SECTION_PUBLIC)
+                val chapterNames = (privateChapters + publicChapters).associate { it.id to it.name }
+
                 val grouped = repository.getVideoSectionsGroupedBySubject()
                 val sections = grouped.map { (subject, videos) ->
+                    val chapterName = chapterNames[subject.chapterId] ?: ""
                     val sectionLabel = when (subject.section) {
-                        SECTION_PRIVATE -> "القانون الخاص - الفصل ${subject.semester}"
-                        SECTION_PUBLIC -> "القانون العام - الفصل ${subject.semester}"
+                        SECTION_PRIVATE -> "القانون الخاص - $chapterName"
+                        SECTION_PUBLIC -> "القانون العام - $chapterName"
                         SECTION_MASTER -> "ماستر"
                         SECTION_PHD -> "دكتوراه"
                         else -> "مواضيع قانونية عامة"

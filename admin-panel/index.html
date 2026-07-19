@@ -35,6 +35,40 @@
 <div id="adminPanel" class="container hidden">
 
   <div class="card">
+    <h2>🎛️ إظهار الأقسام الرئيسية فالتطبيق</h2>
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;">
+      <input type="checkbox" id="cfgShowPrivate" checked style="width:auto;margin:0;"> ⚖️ القانون الخاص
+    </label>
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:8px;">
+      <input type="checkbox" id="cfgShowPublic" checked style="width:auto;margin:0;"> 📜 القانون العام
+    </label>
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:8px;">
+      <input type="checkbox" id="cfgShowVideos" checked style="width:auto;margin:0;"> 🎥 فديوهات قانونية
+    </label>
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:8px;">
+      <input type="checkbox" id="cfgShowMaster" checked style="width:auto;margin:0;"> 🎓 بحوث الماستر
+    </label>
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:8px;">
+      <input type="checkbox" id="cfgShowPhd" checked style="width:auto;margin:0;"> 🏆 بحوث الدكتوراه
+    </label>
+    <button style="margin-top:14px;" onclick="saveSectionsConfig()">حفظ</button>
+    <p id="cfgProgressText"></p>
+  </div>
+
+  <div class="card">
+    <h2>📚 إدارة الفصول (ديناميكية)</h2>
+    <select id="chapterSectionSelect">
+      <option value="private">القانون الخاص</option>
+      <option value="public">القانون العام</option>
+    </select>
+    <input id="chapterName" placeholder="اسم الفصل (مثلا: الفصل 1)">
+    <input id="chapterOrder" type="number" placeholder="ترتيب العرض" value="1">
+    <button onclick="addChapter()">إضافة الفصل</button>
+    <p id="chapterProgressText"></p>
+    <div id="chaptersList" style="margin-top:10px;"></div>
+  </div>
+
+  <div class="card">
     <h2>➕ زيادة مادة جديدة</h2>
     <input id="subjectName" placeholder="اسم المادة (مثلا: القانون المدني)">
     <select id="subjectSection" onchange="toggleSemesterField()">
@@ -44,14 +78,7 @@
       <option value="phd">دكتوراه</option>
       <option value="general">مواضيع قانونية عامة</option>
     </select>
-    <select id="subjectSemester">
-      <option value="1">الفصل 1</option>
-      <option value="2">الفصل 2</option>
-      <option value="3">الفصل 3</option>
-      <option value="4">الفصل 4</option>
-      <option value="5">الفصل 5</option>
-      <option value="6">الفصل 6</option>
-    </select>
+    <select id="subjectChapter"></select>
     <label style="display:flex;align-items:center;gap:8px;font-size:13px;">
       <input type="checkbox" id="subjectActive" checked style="width:auto;margin:0;"> نشطة (تبان فالتطبيق)
     </label>
@@ -174,6 +201,8 @@ auth.onAuthStateChanged(user => {
     loadPagesList();
     loadVideosList();
     loadAnnouncement();
+    loadSectionsConfig();
+    loadChaptersList();
     toggleSemesterField();
   } else if (user) {
     alert("هاد الحساب ماشي أدمن");
@@ -237,20 +266,120 @@ async function saveAnnouncement() {
   progressText.textContent = "تم النشر بنجاح ✅";
 }
 
-function toggleSemesterField() {
+async function saveSectionsConfig() {
+  const progressText = document.getElementById("cfgProgressText");
+  await db.collection("app_config").doc("sections").set({
+    showPrivate: document.getElementById("cfgShowPrivate").checked,
+    showPublic: document.getElementById("cfgShowPublic").checked,
+    showVideos: document.getElementById("cfgShowVideos").checked,
+    showMaster: document.getElementById("cfgShowMaster").checked,
+    showPhd: document.getElementById("cfgShowPhd").checked
+  });
+  progressText.textContent = "تم الحفظ ✅";
+}
+
+async function loadSectionsConfig() {
+  const doc = await db.collection("app_config").doc("sections").get();
+  if (!doc.exists) return;
+  const d = doc.data();
+  document.getElementById("cfgShowPrivate").checked = d.showPrivate !== false;
+  document.getElementById("cfgShowPublic").checked = d.showPublic !== false;
+  document.getElementById("cfgShowVideos").checked = d.showVideos !== false;
+  document.getElementById("cfgShowMaster").checked = d.showMaster !== false;
+  document.getElementById("cfgShowPhd").checked = d.showPhd !== false;
+}
+
+async function addChapter() {
+  const section = document.getElementById("chapterSectionSelect").value;
+  const name = document.getElementById("chapterName").value.trim();
+  const order = parseInt(document.getElementById("chapterOrder").value) || 1;
+  const progressText = document.getElementById("chapterProgressText");
+  if (!name) return alert("دخل اسم الفصل");
+
+  const docRef = db.collection("chapters").doc();
+  await docRef.set({ id: docRef.id, section, name, orderIndex: order, active: true });
+  progressText.textContent = "تم الحفظ ✅";
+  document.getElementById("chapterName").value = "";
+  loadChaptersList();
+  loadChaptersIntoSubjectSelect();
+}
+
+async function toggleActiveChapter(chapterId, newActive) {
+  await db.collection("chapters").doc(chapterId).update({ active: newActive });
+  loadChaptersList();
+  loadChaptersIntoSubjectSelect();
+}
+
+async function deleteChapter(chapterId) {
+  if (!confirm("متأكد؟ المواد المرتبطة بهاد الفصل غادي تبقى بلا فصل ظاهر.")) return;
+  await db.collection("chapters").doc(chapterId).delete();
+  loadChaptersList();
+  loadChaptersIntoSubjectSelect();
+}
+
+async function loadChaptersList() {
+  const container = document.getElementById("chaptersList");
+  container.innerHTML = "";
+  const snapshot = await db.collection("chapters").orderBy("orderIndex").get();
+
+  if (snapshot.empty) {
+    container.innerHTML = `<div style="font-size:12px;color:#999;">ما كاينش فصول بعد</div>`;
+    return;
+  }
+
+  snapshot.forEach(doc => {
+    const ch = doc.data();
+    const isActive = ch.active !== false;
+    const sectionLabel = ch.section === "private" ? "خاص" : "عام";
+    const row = document.createElement("div");
+    row.className = "pdf-row";
+    row.innerHTML = `
+      <span>${ch.name} <span style="color:#888;font-size:11px;">(${sectionLabel})</span> ${isActive ? '' : '⛔'}</span>
+      <span style="display:flex;gap:6px;">
+        <button style="width:auto;padding:6px 10px;font-size:12px;" onclick="toggleActiveChapter('${doc.id}', ${!isActive})">${isActive ? 'تعطيل' : 'تفعيل'}</button>
+        <button class="danger" style="width:auto;padding:6px 12px;" onclick="deleteChapter('${doc.id}')">حذف</button>
+      </span>
+    `;
+    container.appendChild(row);
+  });
+}
+
+async function loadChaptersIntoSubjectSelect() {
   const section = document.getElementById("subjectSection").value;
-  const needsSemester = section === "private" || section === "public";
-  document.getElementById("subjectSemester").style.display = needsSemester ? "block" : "none";
+  const select = document.getElementById("subjectChapter");
+  select.innerHTML = "";
+  const needsChapter = section === "private" || section === "public";
+  document.getElementById("subjectChapter").style.display = needsChapter ? "block" : "none";
+  if (!needsChapter) return;
+
+  const snapshot = await db.collection("chapters").where("section", "==", section).orderBy("orderIndex").get();
+  snapshot.forEach(doc => {
+    const opt = document.createElement("option");
+    opt.value = doc.id;
+    opt.textContent = doc.data().name;
+    select.appendChild(opt);
+  });
+  if (select.options.length === 0) {
+    const opt = document.createElement("option");
+    opt.value = "";
+    opt.textContent = "-- زيد فصل أولا من فوق --";
+    select.appendChild(opt);
+  }
+}
+
+function toggleSemesterField() {
+  loadChaptersIntoSubjectSelect();
 }
 
 async function addSubject() {
   const name = document.getElementById("subjectName").value.trim();
   const section = document.getElementById("subjectSection").value;
-  const needsSemester = section === "private" || section === "public";
-  const semester = needsSemester ? parseInt(document.getElementById("subjectSemester").value) : 0;
+  const needsChapter = section === "private" || section === "public";
+  const chapterId = needsChapter ? document.getElementById("subjectChapter").value : "";
   const active = document.getElementById("subjectActive").checked;
   const order = parseInt(document.getElementById("subjectOrder").value) || 1;
   if (!name) return alert("دخل اسم المادة");
+  if (needsChapter && !chapterId) return alert("زيد فصل لهاد القسم أولا (من كارطة إدارة الفصول)");
 
   const docRef = db.collection("subjects").doc();
   await docRef.set({
@@ -258,7 +387,8 @@ async function addSubject() {
     name,
     category: section, // للتوافق مع الكود القديم
     section,
-    semester,
+    chapterId,
+    semester: 0,
     active,
     orderIndex: order,
     iconName: ""
@@ -358,6 +488,10 @@ async function loadContentList() {
   container.innerHTML = "";
   const subjectsSnap = await db.collection("subjects").orderBy("orderIndex").get();
 
+  const chaptersSnap = await db.collection("chapters").get();
+  const chapterNames = {};
+  chaptersSnap.forEach(doc => { chapterNames[doc.id] = doc.data().name; });
+
   for (const subjectDoc of subjectsSnap.docs) {
     const subject = subjectDoc.data();
     const block = document.createElement("div");
@@ -365,7 +499,8 @@ async function loadContentList() {
 
     const sectionLabels = { private: "القانون الخاص", public: "القانون العام", master: "ماستر", phd: "دكتوراه", general: "مواضيع عامة" };
     const sectionLabel = sectionLabels[subject.section || subject.category] || subject.category;
-    const semesterLabel = (subject.semester && subject.semester > 0) ? ` - الفصل ${subject.semester}` : "";
+    const chapterName = chapterNames[subject.chapterId];
+    const semesterLabel = chapterName ? ` - ${chapterName}` : "";
     const isActive = subject.active !== false;
 
     block.innerHTML = `
