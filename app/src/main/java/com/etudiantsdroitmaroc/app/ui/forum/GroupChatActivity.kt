@@ -45,6 +45,15 @@ class GroupChatActivity : AppCompatActivity() {
         }
         binding.toolbar.setNavigationOnClickListener { finish() }
 
+        if (isAdmin) {
+            binding.btnGroupSettings.visibility = android.view.View.VISIBLE
+            binding.btnGroupSettings.setOnClickListener {
+                val intent = android.content.Intent(this, GroupSettingsActivity::class.java)
+                intent.putExtra("groupId", groupId)
+                startActivity(intent)
+            }
+        }
+
         adapter = GroupMessageAdapter(
             emptyList(),
             isAdmin,

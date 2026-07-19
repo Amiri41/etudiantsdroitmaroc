@@ -2,6 +2,7 @@ package com.etudiantsdroitmaroc.app.data.remote
 
 import com.etudiantsdroitmaroc.app.data.model.ForumGroup
 import com.etudiantsdroitmaroc.app.data.model.GroupMessage
+import com.etudiantsdroitmaroc.app.data.model.UserProfile
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.Query
@@ -96,4 +97,48 @@ class GroupRepository {
     }
 
     fun isGroupAdmin(group: ForumGroup): Boolean = group.creatorUid == myUid
+
+    suspend fun getGroup(groupId: String): ForumGroup? {
+        return firestore.collection("forum_groups").document(groupId).get().await()
+            .toObject(ForumGroup::class.java)
+    }
+
+    suspend fun getGroupMembers(groupId: String): List<UserProfile> {
+        val group = getGroup(groupId) ?: return emptyList()
+        return group.memberUids.mapNotNull { uid ->
+            try {
+                firestore.collection("users").document(uid).get().await()
+                    .toObject(UserProfile::class.java)
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
+
+    /** الأدمين (منشئ المجموعة) فقط يقدر يعدل الاسم/الوصف/الصورة */
+    suspend fun updateGroupInfo(groupId: String, name: String, description: String, iconUrl: String) {
+        val updates = mutableMapOf<String, Any>(
+            "name" to name,
+            "description" to description
+        )
+        if (iconUrl.isNotEmpty()) updates["iconUrl"] = iconUrl
+        firestore.collection("forum_groups").document(groupId).update(updates).await()
+    }
+
+    /** الأدمين كيقدر يحيد أي عضو (حظر من المجموعة) */
+    suspend fun removeMember(groupId: String, uid: String) {
+        firestore.collection("forum_groups").document(groupId)
+            .update("memberUids", FieldValue.arrayRemove(uid))
+            .await()
+    }
+
+    /** حذف المجموعة كاملة (الأدمين فقط) - كيمسح الرسائل والمجموعة نفسها */
+    suspend fun deleteGroup(groupId: String) {
+        val messages = firestore.collection("forum_groups").document(groupId)
+            .collection("messages").get().await()
+        val batch = firestore.batch()
+        messages.documents.forEach { batch.delete(it.reference) }
+        batch.delete(firestore.collection("forum_groups").document(groupId))
+        batch.commit().await()
+    }
 }
