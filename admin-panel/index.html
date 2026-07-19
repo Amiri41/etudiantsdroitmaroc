@@ -330,6 +330,14 @@ async function deleteChapter(chapterId) {
   loadChaptersIntoSubjectSelect();
 }
 
+async function editChapter(chapterId, currentName) {
+  const newName = prompt("اسم الفصل الجديد:", currentName);
+  if (newName === null || !newName.trim()) return;
+  await db.collection("chapters").doc(chapterId).update({ name: newName.trim() });
+  loadChaptersList();
+  loadChaptersIntoSubjectSelect();
+}
+
 async function loadChaptersList() {
   const container = document.getElementById("chaptersList");
   container.innerHTML = "";
@@ -350,6 +358,7 @@ async function loadChaptersList() {
       <span>${ch.name} <span style="color:#888;font-size:11px;">(${sectionLabel})</span> ${isActive ? '' : '⛔'}</span>
       <span style="display:flex;gap:6px;">
         <button style="width:auto;padding:6px 10px;font-size:12px;" onclick="toggleActiveChapter('${doc.id}', ${!isActive})">${isActive ? 'تعطيل' : 'تفعيل'}</button>
+        <button style="width:auto;padding:6px 10px;font-size:12px;" onclick="editChapter('${doc.id}', '${ch.name.replace(/'/g, "\\'")}')">تعديل</button>
         <button class="danger" style="width:auto;padding:6px 12px;" onclick="deleteChapter('${doc.id}')">حذف</button>
       </span>
     `;
@@ -561,6 +570,34 @@ async function toggleSubjectActive(subjectId, newActive) {
   loadContentList();
 }
 
+async function editSubject(subjectId, currentName, currentOrder) {
+  const newName = prompt("اسم المادة الجديد:", currentName);
+  if (newName === null || !newName.trim()) return;
+  const newOrder = prompt("ترتيب العرض:", currentOrder);
+  await db.collection("subjects").doc(subjectId).update({
+    name: newName.trim(),
+    orderIndex: parseInt(newOrder) || currentOrder
+  });
+  loadContentList();
+}
+
+async function deleteSubject(subjectId, subjectName) {
+  if (!confirm(`متأكد بغيتي تحذف المادة "${subjectName}"؟ غادي يتحذف معاها كل الـ PDFs والفيديوهات المرتبطة بيها.`)) return;
+
+  const pdfsSnap = await db.collection("subjects").doc(subjectId).collection("pdfs").get();
+  const batch = db.batch();
+  pdfsSnap.forEach(doc => batch.delete(doc.ref));
+
+  const videosSnap = await db.collection("videos").where("subjectId", "==", subjectId).get();
+  videosSnap.forEach(doc => batch.delete(doc.ref));
+
+  batch.delete(db.collection("subjects").doc(subjectId));
+  await batch.commit();
+
+  loadContentList();
+  loadSubjectsIntoSelect();
+}
+
 async function loadContentList() {
   const container = document.getElementById("contentList");
   container.innerHTML = "";
@@ -582,9 +619,13 @@ async function loadContentList() {
     const isActive = subject.active !== false;
 
     block.innerHTML = `
-      <div class="subject-title" style="display:flex;justify-content:space-between;align-items:center;">
+      <div class="subject-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">
         <span>${subject.name} (${sectionLabel}${semesterLabel}) ${isActive ? '' : '⛔ معطلة'}</span>
-        <button style="width:auto;padding:4px 10px;font-size:12px;" onclick="toggleSubjectActive('${subjectDoc.id}', ${!isActive})">${isActive ? 'تعطيل' : 'تفعيل'}</button>
+        <span style="display:flex;gap:6px;">
+          <button style="width:auto;padding:4px 10px;font-size:12px;" onclick="toggleSubjectActive('${subjectDoc.id}', ${!isActive})">${isActive ? 'تعطيل' : 'تفعيل'}</button>
+          <button style="width:auto;padding:4px 10px;font-size:12px;" onclick="editSubject('${subjectDoc.id}', '${subject.name.replace(/'/g, "\\'")}', ${subject.orderIndex || 1})">تعديل</button>
+          <button class="danger" style="width:auto;padding:4px 10px;font-size:12px;" onclick="deleteSubject('${subjectDoc.id}', '${subject.name.replace(/'/g, "\\'")}')">حذف</button>
+        </span>
       </div>`;
 
     const pdfsSnap = await db.collection("subjects").doc(subjectDoc.id).collection("pdfs").get();
@@ -600,13 +641,23 @@ async function loadContentList() {
         : "📄";
       row.innerHTML = `
         <span style="display:flex;align-items:center;">${coverHtml} ${pdf.title} (${pdf.fileSizeKb} KB)</span>
-        <button class="danger" style="width:auto;padding:6px 12px;" onclick="deletePdf('${subjectDoc.id}','${pdfDoc.id}')">حذف</button>
+        <span style="display:flex;gap:6px;">
+          <button style="width:auto;padding:6px 10px;font-size:12px;" onclick="editPdf('${subjectDoc.id}','${pdfDoc.id}','${pdf.title.replace(/'/g, "\\'")}')">تعديل</button>
+          <button class="danger" style="width:auto;padding:6px 12px;" onclick="deletePdf('${subjectDoc.id}','${pdfDoc.id}')">حذف</button>
+        </span>
       `;
       block.appendChild(row);
     });
 
     container.appendChild(block);
   }
+}
+
+async function editPdf(subjectId, pdfId, currentTitle) {
+  const newTitle = prompt("عنوان الملف الجديد:", currentTitle);
+  if (newTitle === null || !newTitle.trim()) return;
+  await db.collection("subjects").doc(subjectId).collection("pdfs").doc(pdfId).update({ title: newTitle.trim() });
+  loadContentList();
 }
 
 async function deletePdf(subjectId, pdfId) {
@@ -673,6 +724,23 @@ async function deleteVideo(videoId) {
   loadVideosList();
 }
 
+async function editVideo(videoId, currentTitle, currentDescription) {
+  const newTitle = prompt("عنوان الفيديو الجديد:", currentTitle);
+  if (newTitle === null || !newTitle.trim()) return;
+  const newDescription = prompt("الوصف الجديد:", currentDescription || "");
+  const newUrl = prompt("رابط يوتيوب جديد (اسيب فارغ إلا ماكنتيش بغيتي تبدلو):", "");
+
+  const updates = { title: newTitle.trim(), description: (newDescription || "").trim() };
+  if (newUrl && newUrl.trim()) {
+    const youtubeId = extractYoutubeId(newUrl.trim());
+    if (!youtubeId) return alert("رابط يوتيوب غير صحيح");
+    updates.youtubeId = youtubeId;
+    updates.thumbnailUrl = `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
+  }
+  await db.collection("videos").doc(videoId).update(updates);
+  loadVideosList();
+}
+
 async function loadVideosList() {
   const container = document.getElementById("videosList");
   container.innerHTML = "";
@@ -701,6 +769,7 @@ async function loadVideosList() {
       </span>
       <span style="display:flex;gap:6px;">
         <button style="width:auto;padding:6px 10px;font-size:12px;" onclick="toggleActiveVideo('${doc.id}', ${!isActive})">${isActive ? 'تعطيل' : 'تفعيل'}</button>
+        <button style="width:auto;padding:6px 10px;font-size:12px;" onclick="editVideo('${doc.id}', '${video.title.replace(/'/g, "\\'")}', '${(video.description||'').replace(/'/g, "\\'")}')">تعديل</button>
         <button class="danger" style="width:auto;padding:6px 12px;" onclick="deleteVideo('${doc.id}')">حذف</button>
       </span>
     `;
@@ -739,6 +808,22 @@ async function toggleActivePage(pageId, newActive) {
   loadPagesList();
 }
 
+async function editPage(pageId, currentTitle, currentType, currentContent, currentUrl) {
+  const newTitle = prompt("عنوان الصفحة الجديد:", currentTitle);
+  if (newTitle === null || !newTitle.trim()) return;
+
+  if (currentType === "link") {
+    const newUrl = prompt("الرابط الجديد:", currentUrl || "");
+    if (newUrl === null || !newUrl.trim()) return;
+    await db.collection("pages").doc(pageId).update({ title: newTitle.trim(), url: newUrl.trim() });
+  } else {
+    const newContent = prompt("النص الجديد ديال الصفحة:", currentContent || "");
+    if (newContent === null) return;
+    await db.collection("pages").doc(pageId).update({ title: newTitle.trim(), content: newContent });
+  }
+  loadPagesList();
+}
+
 async function loadPagesList() {
   const container = document.getElementById("pagesList");
   container.innerHTML = "";
@@ -758,6 +843,7 @@ async function loadPagesList() {
       <span>${page.type === 'link' ? '🔗' : '📄'} ${page.title} ${isActive ? '' : '⛔ معطلة'}</span>
       <span style="display:flex;gap:6px;">
         <button style="width:auto;padding:6px 10px;font-size:12px;" onclick="toggleActivePage('${doc.id}', ${!isActive})">${isActive ? 'تعطيل' : 'تفعيل'}</button>
+        <button style="width:auto;padding:6px 10px;font-size:12px;" onclick="editPage('${doc.id}', '${page.title.replace(/'/g, "\\'")}', '${page.type}', '${(page.content||'').replace(/'/g, "\\'").replace(/\n/g, ' ')}', '${(page.url||'').replace(/'/g, "\\'")}')">تعديل</button>
         <button class="danger" style="width:auto;padding:6px 12px;" onclick="deletePage('${doc.id}')">حذف</button>
       </span>
     `;
