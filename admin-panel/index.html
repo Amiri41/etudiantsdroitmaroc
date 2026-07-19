@@ -69,7 +69,20 @@
   </div>
 
   <div class="card">
-    <h2>➕ زيادة مادة جديدة</h2>
+    <h2>📤 إرسال إشعار لجميع المستخدمين</h2>
+    <p style="font-size:12px;color:#666;margin-bottom:8px;">كيوصل كإشعار حتى للي التطبيق مسدود عندهم، والضغط عليه كيوديهم لصفحة احترافية بشاشة كاملة</p>
+    <select id="broadcastType">
+      <option value="promo">إعلان / عرض</option>
+      <option value="update">تحديث جديد</option>
+    </select>
+    <input id="broadcastTitle" placeholder="العنوان">
+    <textarea id="broadcastMessage" placeholder="النص" rows="3"></textarea>
+    <input id="broadcastImageInput" type="file" accept="image/*">
+    <img id="broadcastImagePreview" class="hidden" style="max-width:120px;border-radius:8px;margin-bottom:10px;" />
+    <input id="broadcastLink" placeholder="رابط (اختياري)">
+    <button onclick="sendBroadcast()">🚀 إرسال للجميع</button>
+    <p id="broadcastProgressText"></p>
+  </div>
     <input id="subjectName" placeholder="اسم المادة (مثلا: القانون المدني)">
     <select id="subjectSection" onchange="toggleSemesterField()">
       <option value="private">القانون الخاص</option>
@@ -369,6 +382,71 @@ async function loadChaptersIntoSubjectSelect() {
 
 function toggleSemesterField() {
   loadChaptersIntoSubjectSelect();
+}
+
+document.getElementById("broadcastImageInput").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  const preview = document.getElementById("broadcastImagePreview");
+  if (!file) { preview.classList.add("hidden"); return; }
+  preview.src = URL.createObjectURL(file);
+  preview.classList.remove("hidden");
+});
+
+const NOTIFY_WORKER_URL = "https://etudiants-notify.wamiri459.workers.dev";
+const NOTIFY_APP_SECRET = "etudiants-x9k2m4p7-secret-2026";
+
+async function sendBroadcast() {
+  const progressText = document.getElementById("broadcastProgressText");
+  const type = document.getElementById("broadcastType").value;
+  const title = document.getElementById("broadcastTitle").value.trim();
+  const message = document.getElementById("broadcastMessage").value.trim();
+  const linkUrl = document.getElementById("broadcastLink").value.trim();
+
+  if (!title || !message) return alert("دخل العنوان والنص");
+
+  let imageUrl = "";
+  const imageFile = document.getElementById("broadcastImageInput").files[0];
+  if (imageFile) {
+    progressText.textContent = "كنرفعو الصورة...";
+    try {
+      imageUrl = await uploadCoverImage(imageFile);
+    } catch (e) {
+      return alert("فشل رفع الصورة: " + e.message);
+    }
+  }
+
+  progressText.textContent = "كنبعتو الإشعار...";
+  try {
+    const res = await fetch(NOTIFY_WORKER_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-App-Secret": NOTIFY_APP_SECRET
+      },
+      body: JSON.stringify({
+        topic: "all_users",
+        title,
+        message,
+        data: {
+          kind: "broadcast_announcement",
+          type,
+          imageUrl,
+          linkUrl
+        }
+      })
+    });
+    const json = await res.json();
+    if (res.ok) {
+      progressText.textContent = "تم الإرسال بنجاح ✅";
+      document.getElementById("broadcastTitle").value = "";
+      document.getElementById("broadcastMessage").value = "";
+      document.getElementById("broadcastLink").value = "";
+    } else {
+      progressText.textContent = "خطأ: " + JSON.stringify(json);
+    }
+  } catch (e) {
+    progressText.textContent = "فشل الإرسال: " + e.message;
+  }
 }
 
 async function addSubject() {

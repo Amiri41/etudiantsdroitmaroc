@@ -42,6 +42,8 @@ class ChatActivity : AppCompatActivity() {
 
         applySavedBackground()
 
+        lifecycleScope.launch { repository.markThreadAsRead(threadId) }
+
         if (otherUid.isNotEmpty()) {
             Firebase.firestore.collection("users").document(otherUid).get()
                 .addOnSuccessListener { doc ->

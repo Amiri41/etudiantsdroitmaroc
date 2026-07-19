@@ -2,12 +2,17 @@ package com.etudiantsdroitmaroc.app.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.etudiantsdroitmaroc.app.R
+import com.etudiantsdroitmaroc.app.data.remote.ChatRepository
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var bottomNav: BottomNavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -17,7 +22,7 @@ class MainActivity : AppCompatActivity() {
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController = navHostFragment.navController
 
-        val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)
+        bottomNav = findViewById(R.id.bottom_nav)
         bottomNav.setupWithNavController(navController)
 
         // كنعلمو PeriodicAdManager واش المستخدم فصفحة "البداية" (الهوم) باش يحبس الإعلان فيها
@@ -27,6 +32,26 @@ class MainActivity : AppCompatActivity() {
         }
 
         showLastCrashIfAny()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateUnreadBadge()
+    }
+
+    private fun updateUnreadBadge() {
+        lifecycleScope.launch {
+            try {
+                val count = ChatRepository().getTotalUnreadCount()
+                val badge = bottomNav.getOrCreateBadge(R.id.chatListFragment)
+                if (count > 0) {
+                    badge.isVisible = true
+                    badge.number = count
+                } else {
+                    badge.isVisible = false
+                }
+            } catch (_: Exception) { }
+        }
     }
 
     private fun showLastCrashIfAny() {

@@ -79,7 +79,8 @@ data class ChatThread(
     var participantUids: List<String> = emptyList(),
     var participantNames: Map<String, String> = emptyMap(),
     var lastMessage: String = "",
-    var lastMessageAt: Long = System.currentTimeMillis()
+    var lastMessageAt: Long = System.currentTimeMillis(),
+    var unreadCounts: Map<String, Long> = emptyMap() // uid -> عدد الرسائل غير المقروءة
 )
 
 data class ChatMessage(

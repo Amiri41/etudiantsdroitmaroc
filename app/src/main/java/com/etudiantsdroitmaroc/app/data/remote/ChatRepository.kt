@@ -213,12 +213,15 @@ class ChatRepository {
         message.id = docRef.id
         docRef.set(message).await()
 
-        firestore.collection("chat_threads").document(threadId).update(
-            mapOf(
-                "lastMessage" to "📷 صورة",
-                "lastMessageAt" to System.currentTimeMillis()
-            )
-        ).await()
+        val otherUid = getOtherParticipantUid(threadId)
+        val updates = mutableMapOf<String, Any>(
+            "lastMessage" to "📷 صورة",
+            "lastMessageAt" to System.currentTimeMillis()
+        )
+        if (otherUid != null) {
+            updates["unreadCounts.$otherUid"] = com.google.firebase.firestore.FieldValue.increment(1)
+        }
+        firestore.collection("chat_threads").document(threadId).update(updates).await()
 
         notifyOtherParticipant(threadId, "📷 صورة")
     }
@@ -230,14 +233,42 @@ class ChatRepository {
         message.id = docRef.id
         docRef.set(message).await()
 
-        firestore.collection("chat_threads").document(threadId).update(
-            mapOf(
-                "lastMessage" to text,
-                "lastMessageAt" to System.currentTimeMillis()
-            )
-        ).await()
+        val otherUid = getOtherParticipantUid(threadId)
+        val updates = mutableMapOf<String, Any>(
+            "lastMessage" to text,
+            "lastMessageAt" to System.currentTimeMillis()
+        )
+        if (otherUid != null) {
+            updates["unreadCounts.$otherUid"] = com.google.firebase.firestore.FieldValue.increment(1)
+        }
+        firestore.collection("chat_threads").document(threadId).update(updates).await()
 
         notifyOtherParticipant(threadId, text)
+    }
+
+    private suspend fun getOtherParticipantUid(threadId: String): String? {
+        val doc = firestore.collection("chat_threads").document(threadId).get().await()
+        val thread = doc.toObject<ChatThread>() ?: return null
+        return thread.participantUids.firstOrNull { it != myUid }
+    }
+
+    /** كنصفرو العداد ملي المستخدم يفتح المحادثة */
+    suspend fun markThreadAsRead(threadId: String) {
+        try {
+            firestore.collection("chat_threads").document(threadId)
+                .update("unreadCounts.$myUid", 0L).await()
+        } catch (_: Exception) { }
+    }
+
+    suspend fun getTotalUnreadCount(): Int {
+        return try {
+            val snapshot = firestore.collection("chat_threads")
+                .whereArrayContains("participantUids", myUid)
+                .get().await()
+            snapshot.toObjects<ChatThread>().sumOf { (it.unreadCounts[myUid] ?: 0L).toInt() }
+        } catch (e: Exception) {
+            0
+        }
     }
 
     suspend fun getMessages(threadId: String): List<ChatMessage> {

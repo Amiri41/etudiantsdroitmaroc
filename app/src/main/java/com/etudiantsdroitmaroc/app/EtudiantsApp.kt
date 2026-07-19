@@ -67,5 +67,9 @@ class EtudiantsApp : Application() {
         com.etudiantsdroitmaroc.app.utils.AnnouncementManager.init(this)
         androidx.lifecycle.ProcessLifecycleOwner.get().lifecycle
             .addObserver(com.etudiantsdroitmaroc.app.utils.AnnouncementManager)
+
+        // كنشتركو فـ topic عام باش الأدمين يقدر يبعت إشعار لجميع المستخدمين مرة وحدة
+        com.google.firebase.messaging.FirebaseMessaging.getInstance()
+            .subscribeToTopic("all_users")
     }
 }

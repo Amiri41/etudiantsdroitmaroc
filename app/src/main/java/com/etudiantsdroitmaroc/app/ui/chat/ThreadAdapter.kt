@@ -42,6 +42,15 @@ class ThreadAdapter(
         holder.binding.tvTime.text = formatRelativeTime(thread.lastMessageAt)
         holder.binding.root.setOnClickListener { onClick(thread) }
 
+        val unread = thread.unreadCounts[myUid] ?: 0L
+        if (unread > 0) {
+            holder.binding.tvUnreadBadge.visibility = View.VISIBLE
+            holder.binding.tvUnreadBadge.text = if (unread > 99) "99+" else unread.toString()
+            holder.binding.tvName.setTypeface(null, android.graphics.Typeface.BOLD)
+        } else {
+            holder.binding.tvUnreadBadge.visibility = View.GONE
+        }
+
         holder.binding.ivAvatar.setImageResource(R.drawable.ic_profile)
         holder.binding.onlineDot.visibility = View.GONE
 
