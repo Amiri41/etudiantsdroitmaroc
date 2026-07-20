@@ -374,13 +374,23 @@ async function loadChaptersIntoSubjectSelect() {
   document.getElementById("subjectChapter").style.display = needsChapter ? "block" : "none";
   if (!needsChapter) return;
 
-  const snapshot = await db.collection("chapters").where("section", "==", section).orderBy("orderIndex").get();
-  snapshot.forEach(doc => {
-    const opt = document.createElement("option");
-    opt.value = doc.id;
-    opt.textContent = doc.data().name;
-    select.appendChild(opt);
-  });
+  try {
+    const snapshot = await db.collection("chapters").where("section", "==", section).get();
+    const chapters = [];
+    snapshot.forEach(doc => chapters.push({ id: doc.id, ...doc.data() }));
+    chapters.sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
+
+    chapters.forEach(ch => {
+      if (ch.active === false) return;
+      const opt = document.createElement("option");
+      opt.value = ch.id;
+      opt.textContent = ch.name;
+      select.appendChild(opt);
+    });
+  } catch (e) {
+    alert("خطأ فجلب الفصول: " + e.message);
+  }
+
   if (select.options.length === 0) {
     const opt = document.createElement("option");
     opt.value = "";
