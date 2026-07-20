@@ -14,4 +14,11 @@
         <item name="android:windowBackground">@drawable/splash_background</item>
         <item name="android:statusBarColor">@color/navy_dark</item>
     </style>
+
+    <style name="Theme.EtudiantsDroitMaroc.Fullscreen" parent="Theme.EtudiantsDroitMaroc">
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowBackground">@color/navy_dark</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Activity</item>
+        <item name="android:windowDisablePreview">true</item>
+    </style>
 </resources>

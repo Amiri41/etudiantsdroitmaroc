@@ -76,7 +76,8 @@
 
         <activity
             android:name=".ui.AnnouncementFullscreenActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.EtudiantsDroitMaroc.Fullscreen" />
 
         <activity
             android:name=".ui.profile.EditProfileActivity"
