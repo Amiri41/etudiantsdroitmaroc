@@ -192,7 +192,7 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
 auth.getRedirectResult().catch(err => {
-  alert("خطأ فتسجيل الدخول: " + err.code + " - " + err.message);
+  console.error("Redirect login error:", err);
 });
 const db = firebase.firestore();
 
@@ -202,7 +202,15 @@ const ADMIN_UID = "zcSE6F8cMTM68kgKHM1SrH5KnX33";
 
 function loginWithGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithRedirect(provider);
+  auth.signInWithPopup(provider).catch(err => {
+    console.error("Popup login error:", err);
+    if (err.code === "auth/popup-blocked" || err.code === "auth/cancelled-popup-request") {
+      // النافذة المنبثقة محجوبة - نجربو الطريقة البديلة (redirect)
+      auth.signInWithRedirect(provider);
+    } else {
+      alert("خطأ فتسجيل الدخول: " + err.code + "\n" + err.message);
+    }
+  });
 }
 
 auth.onAuthStateChanged(user => {
