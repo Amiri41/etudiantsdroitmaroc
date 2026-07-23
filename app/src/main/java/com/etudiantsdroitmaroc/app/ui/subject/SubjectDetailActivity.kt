@@ -45,7 +45,7 @@ class SubjectDetailActivity : AppCompatActivity() {
             onOpen = { openPdf(it) },
             onDownload = { downloadPdf(it) }
         )
-        binding.rvPdfs.layoutManager = LinearLayoutManager(this)
+        binding.rvPdfs.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         binding.rvPdfs.adapter = adapter
 
         loadPdfs(subjectId)
