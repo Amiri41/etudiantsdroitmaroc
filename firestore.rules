@@ -8,16 +8,16 @@ service cloud.firestore {
 
     match /pages/{pageId} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.uid == "zcSE6F8cMTM68kgKHM1SrH5KnX33";
+      allow write: if request.auth != null && request.auth.uid == "pndM3rNT9DRVCPxODaHFFnBO9jU2";
     }
 
     match /subjects/{subjectId} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.uid == "zcSE6F8cMTM68kgKHM1SrH5KnX33";
+      allow write: if request.auth != null && request.auth.uid == "pndM3rNT9DRVCPxODaHFFnBO9jU2";
 
       match /pdfs/{pdfId} {
         allow read: if true;
-        allow write: if request.auth != null && request.auth.uid == "zcSE6F8cMTM68kgKHM1SrH5KnX33";
+        allow write: if request.auth != null && request.auth.uid == "pndM3rNT9DRVCPxODaHFFnBO9jU2";
       }
     }
 
@@ -73,25 +73,25 @@ service cloud.firestore {
     // بانر/إعلان تحكم من الأدمين، يبان للمستخدمين ملي يحلو التطبيق
     match /app_announcement/{docId} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.uid == "zcSE6F8cMTM68kgKHM1SrH5KnX33";
+      allow write: if request.auth != null && request.auth.uid == "pndM3rNT9DRVCPxODaHFFnBO9jU2";
     }
 
     // فيديوهات تعليمية (يوتيوب) كيتحكم فيها الأدمين
     match /videos/{videoId} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.uid == "zcSE6F8cMTM68kgKHM1SrH5KnX33";
+      allow write: if request.auth != null && request.auth.uid == "pndM3rNT9DRVCPxODaHFFnBO9jU2";
     }
 
     // فصول ديناميكية (خاص بـ private/public)
     match /chapters/{chapterId} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.uid == "zcSE6F8cMTM68kgKHM1SrH5KnX33";
+      allow write: if request.auth != null && request.auth.uid == "pndM3rNT9DRVCPxODaHFFnBO9jU2";
     }
 
     // إعدادات ظهور الأقسام الرئيسية
     match /app_config/{docId} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.uid == "zcSE6F8cMTM68kgKHM1SrH5KnX33";
+      allow write: if request.auth != null && request.auth.uid == "pndM3rNT9DRVCPxODaHFFnBO9jU2";
     }
 
     // مجموعات المنتدى (بحال مجموعات واتساب) - كل واحد يقدر ينشئ، منشئها هو الأدمين ديالها
