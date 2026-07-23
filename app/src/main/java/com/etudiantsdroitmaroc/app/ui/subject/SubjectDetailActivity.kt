@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.etudiantsdroitmaroc.app.data.model.PdfDocument
 import com.etudiantsdroitmaroc.app.data.remote.PdfRepository
 import com.etudiantsdroitmaroc.app.databinding.ActivitySubjectDetailBinding
@@ -45,7 +45,7 @@ class SubjectDetailActivity : AppCompatActivity() {
             onOpen = { openPdf(it) },
             onDownload = { downloadPdf(it) }
         )
-        binding.rvPdfs.layoutManager = GridLayoutManager(this, 3)
+        binding.rvPdfs.layoutManager = LinearLayoutManager(this)
         binding.rvPdfs.adapter = adapter
 
         loadPdfs(subjectId)

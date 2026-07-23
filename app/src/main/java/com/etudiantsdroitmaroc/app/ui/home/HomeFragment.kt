@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.etudiantsdroitmaroc.app.data.model.AppSectionsConfig
 import com.etudiantsdroitmaroc.app.data.model.Chapter
 import com.etudiantsdroitmaroc.app.data.model.Subject
@@ -36,9 +37,9 @@ class HomeFragment : Fragment() {
     private val appConfigRepository = AppConfigRepository()
 
     private lateinit var subjectAdapter: SubjectAdapter
+    private lateinit var chapterRowAdapter: ChapterRowAdapter
     private var allSubjects: List<Subject> = emptyList()
     private var currentSection: String = "private"
-    private var currentChapterId: String = ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -55,6 +56,10 @@ class HomeFragment : Fragment() {
         subjectAdapter = SubjectAdapter(emptyList()) { openSubject(it) }
         binding.rvSubjects.layoutManager = GridLayoutManager(context, 2)
         binding.rvSubjects.adapter = subjectAdapter
+
+        chapterRowAdapter = ChapterRowAdapter(emptyList()) { openSubject(it) }
+        binding.rvChapters.layoutManager = LinearLayoutManager(context)
+        binding.rvChapters.adapter = chapterRowAdapter
 
         lifecycleScope.launch {
             val config = appConfigRepository.getSectionsConfig()
@@ -121,14 +126,12 @@ class HomeFragment : Fragment() {
                 allSubjects = snapshot.toObjects<Subject>().filter { it.active }
 
                 val needsChapters = currentSection == "private" || currentSection == "public"
-                binding.chapterScroll.visibility = if (needsChapters) View.VISIBLE else View.GONE
 
                 if (needsChapters) {
                     val chapters = chaptersRepository.getChaptersForSection(currentSection)
-                    buildChapterChips(chapters)
+                    applyChapterRows(chapters)
                 } else {
-                    currentChapterId = ""
-                    applyFilters()
+                    applyFlatSubjects()
                 }
             } catch (e: Exception) {
                 android.widget.Toast.makeText(context, "خطأ Firestore: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
@@ -136,39 +139,28 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun buildChapterChips(chapters: List<Chapter>) {
-        binding.chipGroupChapter.removeAllViews()
-
-        if (chapters.isEmpty()) {
-            currentChapterId = ""
-            applyFilters()
-            return
+    /** كنعرضو كل فصل بعنوانو والمواد ديالو مصفوفة أفقيا تحتو (بحال Netflix) */
+    private fun applyChapterRows(chapters: List<Chapter>) {
+        val rows = chapters.mapNotNull { chapter ->
+            val subjectsForChapter = allSubjects
+                .filter { it.section == currentSection && it.chapterId == chapter.id }
+                .sortedBy { it.orderIndex }
+            if (subjectsForChapter.isEmpty()) null else ChapterWithSubjects(chapter, subjectsForChapter)
         }
 
-        chapters.forEachIndexed { index, chapter ->
-            val chip = Chip(requireContext())
-            chip.text = chapter.name
-            chip.isCheckable = true
-            chip.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    currentChapterId = chapter.id
-                    applyFilters()
-                }
-            }
-            binding.chipGroupChapter.addView(chip)
-            if (index == 0) chip.isChecked = true
-        }
+        chapterRowAdapter.updateData(rows)
+        binding.rvChapters.visibility = View.VISIBLE
+        binding.rvSubjects.visibility = View.GONE
+        binding.tvEmptySubjects.visibility = if (rows.isEmpty()) View.VISIBLE else View.GONE
     }
 
-    private fun applyFilters() {
-        val needsChapter = currentSection == "private" || currentSection == "public"
-        val filtered = if (needsChapter) {
-            allSubjects.filter { it.section == currentSection && it.chapterId == currentChapterId }
-        } else {
-            allSubjects.filter { it.section == currentSection }
-        }
+    /** الأقسام اللي ماعندهاش فصول (ماستر/دكتوراه) كتبان بشكل شبكة عادية */
+    private fun applyFlatSubjects() {
+        val filtered = allSubjects.filter { it.section == currentSection }.sortedBy { it.orderIndex }
 
-        subjectAdapter.updateData(filtered.sortedBy { it.orderIndex })
+        subjectAdapter.updateData(filtered)
+        binding.rvSubjects.visibility = View.VISIBLE
+        binding.rvChapters.visibility = View.GONE
         binding.tvEmptySubjects.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
     }
 

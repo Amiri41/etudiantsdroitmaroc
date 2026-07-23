@@ -51,22 +51,6 @@
 
             </HorizontalScrollView>
 
-            <HorizontalScrollView
-                android:id="@+id/chapterScroll"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scrollbars="none"
-                android:layout_marginBottom="14dp"
-                android:visibility="gone">
-
-                <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/chipGroupChapter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:singleSelection="true"
-                    app:chipSpacingHorizontal="6dp" />
-            </HorizontalScrollView>
-
             <TextView
                 android:id="@+id/tvEmptySubjects"
                 android:layout_width="match_parent"
@@ -75,6 +59,13 @@
                 android:gravity="center"
                 android:text="ماكاينش مواد حاليا فهاد القسم"
                 android:textColor="@color/text_secondary"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvChapters"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
                 android:visibility="gone" />
 
             <androidx.recyclerview.widget.RecyclerView
