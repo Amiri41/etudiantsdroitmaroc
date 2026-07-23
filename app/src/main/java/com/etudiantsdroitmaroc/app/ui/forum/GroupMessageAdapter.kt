@@ -15,7 +15,8 @@ class GroupMessageAdapter(
     private var messages: List<GroupMessage>,
     private val isAdmin: Boolean,
     private val onLongPressDelete: (GroupMessage) -> Unit,
-    private val onClickAvatar: (GroupMessage) -> Unit
+    private val onClickAvatar: (GroupMessage) -> Unit,
+    private val onReportClick: (GroupMessage) -> Unit = {}
 ) : RecyclerView.Adapter<GroupMessageAdapter.VH>() {
 
     private val myUid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
@@ -66,7 +67,10 @@ class GroupMessageAdapter(
                 true
             }
         } else {
-            bubble.setOnLongClickListener(null)
+            bubble.setOnLongClickListener {
+                onReportClick(message)
+                true
+            }
         }
     }
 

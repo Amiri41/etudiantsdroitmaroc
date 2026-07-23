@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.etudiantsdroitmaroc.app.data.model.ChatMessage
 import com.etudiantsdroitmaroc.app.data.remote.ChatRepository
 import com.etudiantsdroitmaroc.app.databinding.ActivityChatBinding
+import com.etudiantsdroitmaroc.app.ui.moderation.ReportDialog
 import com.etudiantsdroitmaroc.app.utils.ImageUploader
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObjects
@@ -54,7 +55,13 @@ class ChatActivity : AppCompatActivity() {
                 }
         }
 
-        adapter = MessageAdapter(emptyList())
+        adapter = MessageAdapter(emptyList()) { message ->
+            ReportDialog.show(
+                this, lifecycleScope,
+                targetType = "message", targetId = message.id,
+                targetOwnerUid = otherUid, targetOwnerName = binding.tvOtherName.text.toString()
+            )
+        }
         binding.rvMessages.layoutManager = LinearLayoutManager(this)
         binding.rvMessages.adapter = adapter
 

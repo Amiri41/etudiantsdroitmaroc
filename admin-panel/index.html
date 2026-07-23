@@ -38,6 +38,11 @@
 <div id="adminPanel" class="container hidden">
 
   <div class="card">
+    <h2>🚨 الإبلاغات (Reports)</h2>
+    <div id="reportsList">جاري التحميل…</div>
+  </div>
+
+  <div class="card">
     <h2>🎛️ إظهار الأقسام الرئيسية فالتطبيق</h2>
     <label style="display:flex;align-items:center;gap:8px;font-size:13px;">
       <input type="checkbox" id="cfgShowPrivate" checked style="width:auto;margin:0;"> ⚖️ القانون الخاص
@@ -225,6 +230,7 @@ auth.onAuthStateChanged(user => {
     loadAnnouncement();
     loadSectionsConfig();
     loadChaptersList();
+    loadReportsList();
     toggleSemesterField();
   } else if (user) {
     alert("هاد الحساب ماشي أدمن");
@@ -874,6 +880,55 @@ async function deletePage(pageId) {
   if (!confirm("متأكد بغيتي تحذف هاد الصفحة؟")) return;
   await db.collection("pages").doc(pageId).delete();
   loadPagesList();
+}
+
+const TARGET_TYPE_LABEL = { post: "منشور", comment: "تعليق", message: "رسالة", user: "مستخدم" };
+
+async function loadReportsList() {
+  const container = document.getElementById("reportsList");
+  container.innerHTML = "جاري التحميل…";
+  const snapshot = await db.collection("reports").orderBy("createdAt", "desc").limit(100).get();
+
+  if (snapshot.empty) {
+    container.innerHTML = `<div style="font-size:12px;color:#999;">ما كاينش إبلاغات حاليا ✅</div>`;
+    return;
+  }
+
+  container.innerHTML = "";
+  snapshot.forEach(doc => {
+    const r = doc.data();
+    const isPending = r.status !== "reviewed";
+    const date = r.createdAt ? new Date(r.createdAt).toLocaleString("ar-MA") : "";
+    const row = document.createElement("div");
+    row.className = "pdf-row";
+    row.style.flexDirection = "column";
+    row.style.alignItems = "stretch";
+    row.style.gap = "6px";
+    row.innerHTML = `
+      <div style="display:flex;justify-content:space-between;">
+        <span style="font-weight:bold;">${isPending ? "🔴" : "✅"} ${TARGET_TYPE_LABEL[r.targetType] || r.targetType} — ${r.reason}</span>
+        <span style="font-size:11px;color:#999;">${date}</span>
+      </div>
+      <div style="font-size:12px;color:#555;">المُبلِغ: ${r.reporterName || "—"} · صاحب المحتوى: ${r.targetOwnerName || "—"} (${r.targetOwnerUid})</div>
+      ${r.extraDetails ? `<div style="font-size:12px;color:#333;">📝 ${r.extraDetails}</div>` : ""}
+      <div style="display:flex;gap:6px;">
+        ${isPending ? `<button style="width:auto;padding:6px 10px;font-size:12px;" onclick="markReportReviewed('${doc.id}')">تمت المراجعة</button>` : ""}
+        <button class="danger" style="width:auto;padding:6px 12px;font-size:12px;" onclick="deleteReport('${doc.id}')">حذف الإبلاغ</button>
+      </div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+async function markReportReviewed(reportId) {
+  await db.collection("reports").doc(reportId).update({ status: "reviewed" });
+  loadReportsList();
+}
+
+async function deleteReport(reportId) {
+  if (!confirm("متأكد بغيتي تحذف هاد الإبلاغ؟")) return;
+  await db.collection("reports").doc(reportId).delete();
+  loadReportsList();
 }
 </script>
 

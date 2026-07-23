@@ -15,11 +15,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.etudiantsdroitmaroc.app.data.model.ForumGroup
 import com.etudiantsdroitmaroc.app.data.model.Post
+import com.etudiantsdroitmaroc.app.data.remote.ChatRepository
 import com.etudiantsdroitmaroc.app.data.remote.ForumRepository
 import com.etudiantsdroitmaroc.app.data.remote.GroupRepository
 import com.etudiantsdroitmaroc.app.databinding.DialogCreateGroupBinding
 import com.etudiantsdroitmaroc.app.databinding.DialogNewPostBinding
 import com.etudiantsdroitmaroc.app.databinding.FragmentForumBinding
+import com.etudiantsdroitmaroc.app.ui.moderation.ReportDialog
 import com.etudiantsdroitmaroc.app.utils.ImageUploader
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
@@ -31,9 +33,11 @@ class ForumFragment : Fragment() {
 
     private val repository = ForumRepository()
     private val groupRepository = GroupRepository()
+    private val chatRepository = ChatRepository()
     private lateinit var adapter: ForumFeedAdapter
     private lateinit var groupAdapter: GroupAdapter
     private var allPosts: List<Post> = emptyList()
+    private var blockedUids: Set<String> = emptySet()
     private var pickedGroupIconUri: Uri? = null
     private var groupIconPreviewCallback: ((Uri) -> Unit)? = null
     private var pickedPostImageUri: Uri? = null
@@ -80,7 +84,19 @@ class ForumFragment : Fragment() {
                 }
             },
             onEditClick = { post -> showEditPostDialog(post) },
-            onDeleteClick = { post -> confirmDeletePost(post) }
+            onDeleteClick = { post -> confirmDeletePost(post) },
+            onReportClick = { post ->
+                ReportDialog.show(
+                    requireContext(), lifecycleScope,
+                    targetType = "post", targetId = post.id,
+                    targetOwnerUid = post.authorUid, targetOwnerName = post.authorName
+                )
+            },
+            onBlockClick = { post ->
+                ReportDialog.confirmBlock(
+                    requireContext(), lifecycleScope, post.authorUid, post.authorName
+                ) { loadPosts() }
+            }
         )
         binding.rvPosts.layoutManager = LinearLayoutManager(context)
         binding.rvPosts.adapter = adapter
@@ -126,7 +142,8 @@ class ForumFragment : Fragment() {
     private fun loadPosts() {
         lifecycleScope.launch {
             try {
-                allPosts = repository.getPosts()
+                blockedUids = chatRepository.getBlockedUids()
+                allPosts = repository.getPosts().filter { it.authorUid !in blockedUids }
                 filterPosts(binding.etSearch.text?.toString().orEmpty())
             } catch (e: Exception) {
                 Toast.makeText(context, "خطأ Firestore: ${e.message}", Toast.LENGTH_LONG).show()

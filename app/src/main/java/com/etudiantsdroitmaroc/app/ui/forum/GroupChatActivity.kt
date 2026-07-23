@@ -12,6 +12,7 @@ import com.bumptech.glide.Glide
 import com.etudiantsdroitmaroc.app.data.model.GroupMessage
 import com.etudiantsdroitmaroc.app.data.remote.GroupRepository
 import com.etudiantsdroitmaroc.app.databinding.ActivityGroupChatBinding
+import com.etudiantsdroitmaroc.app.ui.moderation.ReportDialog
 import com.etudiantsdroitmaroc.app.utils.ImageUploader
 import kotlinx.coroutines.launch
 
@@ -58,7 +59,14 @@ class GroupChatActivity : AppCompatActivity() {
             emptyList(),
             isAdmin,
             onLongPressDelete = { message -> confirmDelete(message) },
-            onClickAvatar = { message -> openSenderProfile(message) }
+            onClickAvatar = { message -> openSenderProfile(message) },
+            onReportClick = { message ->
+                ReportDialog.show(
+                    this, lifecycleScope,
+                    targetType = "message", targetId = message.id,
+                    targetOwnerUid = message.senderUid, targetOwnerName = message.senderName
+                )
+            }
         )
         binding.rvMessages.layoutManager = LinearLayoutManager(this)
         binding.rvMessages.adapter = adapter

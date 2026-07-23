@@ -10,7 +10,10 @@ import com.etudiantsdroitmaroc.app.data.model.ChatMessage
 import com.etudiantsdroitmaroc.app.databinding.ItemMessageBinding
 import com.google.firebase.auth.FirebaseAuth
 
-class MessageAdapter(private var messages: List<ChatMessage>) :
+class MessageAdapter(
+    private var messages: List<ChatMessage>,
+    private val onReportClick: (ChatMessage) -> Unit = {}
+) :
     RecyclerView.Adapter<MessageAdapter.VH>() {
 
     private val myUid = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
@@ -41,6 +44,13 @@ class MessageAdapter(private var messages: List<ChatMessage>) :
             holder.binding.tvMessageText.setTextColor(
                 holder.itemView.context.getColor(if (isMine) R.color.white else R.color.text_primary)
             )
+        }
+
+        if (!isMine) {
+            holder.binding.root.setOnLongClickListener {
+                onReportClick(message)
+                true
+            }
         }
     }
 

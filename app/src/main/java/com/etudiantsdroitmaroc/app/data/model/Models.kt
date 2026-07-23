@@ -173,3 +173,18 @@ data class VideoLesson(
     var orderIndex: Int = 0,
     var createdAt: Long = System.currentTimeMillis()
 )
+
+/** إبلاغ عن محتوى (منشور/تعليق/رسالة/مستخدم) - كيتخزن باش يشوفو الأدمين ويتخذ إجراء */
+data class Report(
+    var id: String = "",
+    var reporterUid: String = "",
+    var reporterName: String = "",
+    var targetType: String = "", // "post" | "comment" | "message" | "user"
+    var targetId: String = "",
+    var targetOwnerUid: String = "",
+    var targetOwnerName: String = "",
+    var reason: String = "",
+    var extraDetails: String = "",
+    var status: String = "pending", // "pending" | "reviewed"
+    var createdAt: Long = System.currentTimeMillis()
+)

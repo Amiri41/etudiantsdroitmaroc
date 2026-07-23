@@ -59,6 +59,12 @@ service cloud.firestore {
       }
     }
 
+    // إبلاغات عن محتوى/مستخدمين - أي مستخدم يقدر يبعت إبلاغ، وغير الأدمين يقدر يشوفهم ويديرهم
+    match /reports/{reportId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.reporterUid;
+      allow read, update, delete: if request.auth != null && request.auth.uid == "pndM3rNT9DRVCPxODaHFFnBO9jU2";
+    }
+
     match /chat_threads/{threadId} {
       allow read: if request.auth != null && (resource == null || request.auth.uid in resource.data.participantUids);
       allow create: if request.auth != null;

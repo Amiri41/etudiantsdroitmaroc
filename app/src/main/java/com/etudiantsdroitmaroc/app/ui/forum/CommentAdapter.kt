@@ -8,7 +8,10 @@ import com.bumptech.glide.Glide
 import com.etudiantsdroitmaroc.app.data.model.Comment
 import com.etudiantsdroitmaroc.app.databinding.ItemCommentBinding
 
-class CommentAdapter(private var comments: List<Comment>) :
+class CommentAdapter(
+    private var comments: List<Comment>,
+    private val onReportClick: (Comment) -> Unit = {}
+) :
     RecyclerView.Adapter<CommentAdapter.VH>() {
 
     inner class VH(val binding: ItemCommentBinding) : RecyclerView.ViewHolder(binding.root)
@@ -32,6 +35,12 @@ class CommentAdapter(private var comments: List<Comment>) :
             Glide.with(holder.itemView).load(comment.imageUrl).into(holder.binding.ivCommentImage)
         } else {
             holder.binding.ivCommentImage.visibility = View.GONE
+        }
+
+        val myUid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+        holder.binding.root.setOnLongClickListener {
+            if (comment.authorUid != myUid) onReportClick(comment)
+            true
         }
     }
 

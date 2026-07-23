@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.etudiantsdroitmaroc.app.data.remote.ForumRepository
 import com.etudiantsdroitmaroc.app.databinding.ActivityCommentsBinding
+import com.etudiantsdroitmaroc.app.ui.moderation.ReportDialog
 import com.etudiantsdroitmaroc.app.utils.ImageUploader
 import kotlinx.coroutines.launch
 
@@ -33,7 +34,13 @@ class CommentsActivity : AppCompatActivity() {
         postId = intent.getStringExtra("postId") ?: return
         binding.toolbar.setNavigationOnClickListener { finish() }
 
-        adapter = CommentAdapter(emptyList())
+        adapter = CommentAdapter(emptyList()) { comment ->
+            ReportDialog.show(
+                this, lifecycleScope,
+                targetType = "comment", targetId = comment.id,
+                targetOwnerUid = comment.authorUid, targetOwnerName = comment.authorName
+            )
+        }
         binding.rvComments.layoutManager = LinearLayoutManager(this)
         binding.rvComments.adapter = adapter
 

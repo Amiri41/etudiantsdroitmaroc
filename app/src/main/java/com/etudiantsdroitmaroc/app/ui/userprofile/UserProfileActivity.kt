@@ -13,6 +13,7 @@ import com.etudiantsdroitmaroc.app.data.remote.ForumRepository
 import com.etudiantsdroitmaroc.app.databinding.ActivityUserProfileBinding
 import com.etudiantsdroitmaroc.app.ui.chat.ChatActivity
 import com.etudiantsdroitmaroc.app.ui.forum.ForumFeedAdapter
+import com.etudiantsdroitmaroc.app.ui.moderation.ReportDialog
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -38,6 +39,24 @@ class UserProfileActivity : AppCompatActivity() {
             // ماشي منطقي تشوف "إضافة صديق" لراسك
             binding.btnAddFriend.visibility = android.view.View.GONE
             binding.btnMessage.visibility = android.view.View.GONE
+        } else {
+            binding.toolbar.menu.add("الإبلاغ عن المستخدم")
+            binding.toolbar.menu.add("حظر المستخدم")
+            binding.toolbar.setOnMenuItemClickListener { item ->
+                when (item.title) {
+                    "الإبلاغ عن المستخدم" -> {
+                        ReportDialog.show(
+                            this, lifecycleScope,
+                            targetType = "user", targetId = targetUid,
+                            targetOwnerUid = targetUid, targetOwnerName = targetName
+                        )
+                    }
+                    "حظر المستخدم" -> {
+                        ReportDialog.confirmBlock(this, lifecycleScope, targetUid, targetName) { finish() }
+                    }
+                }
+                true
+            }
         }
 
         postsAdapter = ForumFeedAdapter(
@@ -45,7 +64,17 @@ class UserProfileActivity : AppCompatActivity() {
             emptyList(),
             onLikeClick = { post -> toggleLike(post) },
             onEditClick = { post -> showEditPostDialog(post) },
-            onDeleteClick = { post -> confirmDeletePost(post) }
+            onDeleteClick = { post -> confirmDeletePost(post) },
+            onReportClick = { post ->
+                ReportDialog.show(
+                    this, lifecycleScope,
+                    targetType = "post", targetId = post.id,
+                    targetOwnerUid = post.authorUid, targetOwnerName = post.authorName
+                )
+            },
+            onBlockClick = { post ->
+                ReportDialog.confirmBlock(this, lifecycleScope, post.authorUid, post.authorName) { loadUserPosts() }
+            }
         )
         binding.rvUserPosts.layoutManager = LinearLayoutManager(this)
         binding.rvUserPosts.adapter = postsAdapter

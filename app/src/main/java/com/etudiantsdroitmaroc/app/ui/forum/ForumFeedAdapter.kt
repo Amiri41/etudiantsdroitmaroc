@@ -26,7 +26,9 @@ class ForumFeedAdapter(
     private var posts: List<Post>,
     private val onLikeClick: (Post) -> Unit,
     private val onEditClick: (Post) -> Unit,
-    private val onDeleteClick: (Post) -> Unit
+    private val onDeleteClick: (Post) -> Unit,
+    private val onReportClick: (Post) -> Unit,
+    private val onBlockClick: (Post) -> Unit
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -87,8 +89,8 @@ class ForumFeedAdapter(
         }
 
         val myUid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+        binding.btnPostMenu.visibility = android.view.View.VISIBLE
         if (post.authorUid == myUid) {
-            binding.btnPostMenu.visibility = android.view.View.VISIBLE
             binding.btnPostMenu.setOnClickListener { anchor ->
                 val popup = android.widget.PopupMenu(context, anchor)
                 popup.menu.add("تعديل")
@@ -103,7 +105,19 @@ class ForumFeedAdapter(
                 popup.show()
             }
         } else {
-            binding.btnPostMenu.visibility = android.view.View.GONE
+            binding.btnPostMenu.setOnClickListener { anchor ->
+                val popup = android.widget.PopupMenu(context, anchor)
+                popup.menu.add("إبلاغ")
+                popup.menu.add("حظر ${post.authorName}")
+                popup.setOnMenuItemClickListener { item ->
+                    when (item.title) {
+                        "إبلاغ" -> onReportClick(post)
+                        else -> onBlockClick(post)
+                    }
+                    true
+                }
+                popup.show()
+            }
         }
     }
 
