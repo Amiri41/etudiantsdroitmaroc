@@ -1,5 +1,6 @@
 package com.etudiantsdroitmaroc.app.utils
 
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -14,6 +15,7 @@ import org.json.JSONObject
  */
 object PushNotifier {
 
+    private const val TAG = "PushNotifier"
     private const val WORKER_URL = "https://etudiants-notify.wamiri459.workers.dev"
     private const val APP_SECRET = "etudiants-x9k2m4p7-secret-2026"
 
@@ -21,7 +23,10 @@ object PushNotifier {
 
     /** كيبعت إشعار بصفة صامتة (بلا ما يوقف التطبيق إلا فشل) */
     suspend fun sendNotification(toToken: String, title: String, message: String) {
-        if (toToken.isBlank()) return
+        if (toToken.isBlank()) {
+            Log.w(TAG, "ما بعتناش الإشعار: fcmToken فارغ (المستقبل ماعندوش توكن محفوظ)")
+            return
+        }
         withContext(Dispatchers.IO) {
             try {
                 val json = JSONObject().apply {
@@ -37,9 +42,13 @@ object PushNotifier {
                     .post(body)
                     .build()
 
-                client.newCall(request).execute().close()
+                client.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) {
+                        Log.e(TAG, "فشل الـ Worker: كود ${response.code} - ${response.body?.string()}")
+                    }
+                }
             } catch (e: Exception) {
-                // ما تكسرش التطبيق إلا فشل الإشعار، الرسالة ديما كتبعت مزيان
+                Log.e(TAG, "خطأ فبعث الإشعار: ${e.message}", e)
             }
         }
     }

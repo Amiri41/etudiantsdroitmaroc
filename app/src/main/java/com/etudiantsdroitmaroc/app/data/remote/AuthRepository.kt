@@ -51,7 +51,18 @@ class AuthRepository(private val context: Context) {
                 photoUrl = photoToUse,
                 isOnline = true
             )
-            userDocRef.set(profile).await()
+            // merge() ضروري: بلا merge، set() كان كيمسح fcmToken (ومعلومات أخرى بحال الجامعة/المستوى)
+            // كل مرة يدخل فيها المستخدم من جديد، لأن UserProfile ماعندهاش هاد الحقول
+            userDocRef.set(profile, com.google.firebase.firestore.SetOptions.merge()).await()
+
+            // نجيبو التوكن الحالي ونحفظوه ديركت - onNewToken() فـ NotificationService وحدو ماكافيش
+            // لأن الطوكن كيتخلق مرة وحدة ملي يبدا التطبيق (قبل تسجيل الدخول)، وماغاديش يتعاود
+            try {
+                val token = com.google.firebase.messaging.FirebaseMessaging.getInstance().token.await()
+                userDocRef.update("fcmToken", token).await()
+            } catch (e: Exception) {
+                // ما تكسرش تسجيل الدخول إلا فشل حفظ التوكن
+            }
 
             // الاشتراك فـ topic عام باش يوصلو إشعارات (منشورات جديدة، تحديثات...)
             com.google.firebase.messaging.FirebaseMessaging.getInstance()
