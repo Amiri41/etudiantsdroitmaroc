@@ -16,7 +16,7 @@ import com.etudiantsdroitmaroc.app.data.remote.AppConfigRepository
 import com.etudiantsdroitmaroc.app.data.remote.ChaptersRepository
 import com.etudiantsdroitmaroc.app.databinding.FragmentHomeBinding
 import com.etudiantsdroitmaroc.app.ui.subject.SubjectDetailActivity
-import com.etudiantsdroitmaroc.app.ui.videos.VideosListActivity
+import com.etudiantsdroitmaroc.app.ui.videos.VideosHomeActivity
 import com.etudiantsdroitmaroc.app.utils.AdIds
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
@@ -102,7 +102,7 @@ class HomeFragment : Fragment() {
 
             if (item.key == "videos") {
                 chip.setOnClickListener {
-                    startActivity(Intent(requireContext(), VideosListActivity::class.java))
+                    startActivity(Intent(requireContext(), VideosHomeActivity::class.java))
                 }
             } else {
                 if (firstContentChip == null) firstContentChip = chip

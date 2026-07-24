@@ -77,6 +77,33 @@
   </div>
 
   <div class="card">
+    <h2>🎥 فصول الفيديوهات (شجرة مستقلة تماما عن PDF)</h2>
+    <select id="videoChapterSectionSelect">
+      <option value="private">القانون الخاص</option>
+      <option value="public">القانون العام</option>
+    </select>
+    <input id="videoChapterName" placeholder="اسم الفصل (مثلا: الفصل 1)">
+    <input id="videoChapterOrder" type="number" placeholder="ترتيب العرض" value="1">
+    <button onclick="addVideoChapter()">إضافة فصل الفيديو</button>
+    <p id="videoChapterProgressText"></p>
+    <div id="videoChaptersList" style="margin-top:10px;"></div>
+  </div>
+
+  <div class="card">
+    <h2>🎥 مواد الفيديوهات (شجرة مستقلة تماما عن PDF)</h2>
+    <input id="videoSubjectName" placeholder="اسم مادة الفيديو (مثلا: مقدمة القانون المدني)">
+    <select id="videoSubjectSection" onchange="loadVideoChaptersIntoSelect()">
+      <option value="private">القانون الخاص</option>
+      <option value="public">القانون العام</option>
+    </select>
+    <select id="videoSubjectChapter"></select>
+    <input id="videoSubjectOrder" type="number" placeholder="ترتيب العرض" value="1">
+    <button onclick="addVideoSubject()">حفظ مادة الفيديو</button>
+    <p id="videoSubjectProgressText"></p>
+    <div id="videoSubjectsList" style="margin-top:10px;"></div>
+  </div>
+
+  <div class="card">
     <h2>📤 إرسال إشعار لجميع المستخدمين</h2>
     <p style="font-size:12px;color:#666;margin-bottom:8px;">كيوصل كإشعار حتى للي التطبيق مسدود عندهم، والضغط عليه كيوديهم لصفحة احترافية بشاشة كاملة</p>
     <select id="broadcastType">
@@ -120,7 +147,6 @@
     <p id="videoProgressText"></p>
     <div id="videosList" style="margin-top:10px;"></div>
   </div>
-
   <div class="card">
     <h2>📢 بانر إعلان شاشة كاملة (يبان ملي يحل المستخدم التطبيق)</h2>
     <select id="annType">
@@ -230,6 +256,10 @@ auth.onAuthStateChanged(user => {
     loadAnnouncement();
     loadSectionsConfig();
     loadChaptersList();
+    loadVideoChaptersList();
+    loadVideoChaptersIntoSelect();
+    loadVideoSubjectsList();
+    loadVideoSubjectsIntoVideoSelect();
     loadReportsList();
     toggleSemesterField();
   } else if (user) {
@@ -418,6 +448,200 @@ function toggleSemesterField() {
   loadChaptersIntoSubjectSelect();
 }
 
+/* ======================= شجرة الفيديوهات (مستقلة تماما عن PDF) ======================= */
+
+async function addVideoChapter() {
+  const section = document.getElementById("videoChapterSectionSelect").value;
+  const name = document.getElementById("videoChapterName").value.trim();
+  const order = parseInt(document.getElementById("videoChapterOrder").value) || 1;
+  const progressText = document.getElementById("videoChapterProgressText");
+  if (!name) return alert("دخل اسم الفصل");
+
+  const docRef = db.collection("videoChapters").doc();
+  await docRef.set({ id: docRef.id, section, name, orderIndex: order, active: true });
+  progressText.textContent = "تم الحفظ ✅";
+  document.getElementById("videoChapterName").value = "";
+  loadVideoChaptersList();
+  loadVideoChaptersIntoSelect();
+}
+
+async function toggleActiveVideoChapter(chapterId, newActive) {
+  await db.collection("videoChapters").doc(chapterId).update({ active: newActive });
+  loadVideoChaptersList();
+  loadVideoChaptersIntoSelect();
+}
+
+async function deleteVideoChapter(chapterId) {
+  if (!confirm("متأكد؟ مواد الفيديو المرتبطة بهاد الفصل غادي تبقى بلا فصل ظاهر.")) return;
+  await db.collection("videoChapters").doc(chapterId).delete();
+  loadVideoChaptersList();
+  loadVideoChaptersIntoSelect();
+}
+
+async function editVideoChapter(chapterId, currentName) {
+  const newName = prompt("اسم الفصل الجديد:", currentName);
+  if (newName === null || !newName.trim()) return;
+  await db.collection("videoChapters").doc(chapterId).update({ name: newName.trim() });
+  loadVideoChaptersList();
+  loadVideoChaptersIntoSelect();
+}
+
+async function loadVideoChaptersList() {
+  const container = document.getElementById("videoChaptersList");
+  container.innerHTML = "";
+  const snapshot = await db.collection("videoChapters").orderBy("orderIndex").get();
+
+  if (snapshot.empty) {
+    container.innerHTML = `<div style="font-size:12px;color:#999;">ما كاينش فصول فيديو بعد</div>`;
+    return;
+  }
+
+  snapshot.forEach(doc => {
+    const ch = doc.data();
+    const isActive = ch.active !== false;
+    const sectionLabel = ch.section === "private" ? "خاص" : "عام";
+    const row = document.createElement("div");
+    row.className = "pdf-row";
+    row.innerHTML = `
+      <span>${ch.name} <span style="color:#888;font-size:11px;">(${sectionLabel})</span> ${isActive ? '' : '⛔'}</span>
+      <span style="display:flex;gap:6px;">
+        <button style="width:auto;padding:6px 10px;font-size:12px;" onclick="toggleActiveVideoChapter('${doc.id}', ${!isActive})">${isActive ? 'تعطيل' : 'تفعيل'}</button>
+        <button style="width:auto;padding:6px 10px;font-size:12px;" onclick="editVideoChapter('${doc.id}', '${ch.name.replace(/'/g, "\\'")}')">تعديل</button>
+        <button class="danger" style="width:auto;padding:6px 12px;" onclick="deleteVideoChapter('${doc.id}')">حذف</button>
+      </span>
+    `;
+    container.appendChild(row);
+  });
+}
+
+async function loadVideoChaptersIntoSelect() {
+  const section = document.getElementById("videoSubjectSection").value;
+  const select = document.getElementById("videoSubjectChapter");
+  select.innerHTML = "";
+
+  try {
+    const snapshot = await db.collection("videoChapters").where("section", "==", section).get();
+    const chapters = [];
+    snapshot.forEach(doc => chapters.push({ id: doc.id, ...doc.data() }));
+    chapters.sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
+
+    chapters.forEach(ch => {
+      if (ch.active === false) return;
+      const opt = document.createElement("option");
+      opt.value = ch.id;
+      opt.textContent = ch.name;
+      select.appendChild(opt);
+    });
+  } catch (e) {
+    alert("خطأ فجلب فصول الفيديو: " + e.message);
+  }
+
+  if (select.options.length === 0) {
+    const opt = document.createElement("option");
+    opt.value = "";
+    opt.textContent = "-- زيد فصل فيديو أولا من فوق --";
+    select.appendChild(opt);
+  }
+}
+
+async function addVideoSubject() {
+  const name = document.getElementById("videoSubjectName").value.trim();
+  const section = document.getElementById("videoSubjectSection").value;
+  const chapterId = document.getElementById("videoSubjectChapter").value;
+  const order = parseInt(document.getElementById("videoSubjectOrder").value) || 1;
+  const progressText = document.getElementById("videoSubjectProgressText");
+  if (!name) return alert("دخل اسم مادة الفيديو");
+  if (!chapterId) return alert("زيد فصل فيديو لهاد القسم أولا");
+
+  const docRef = db.collection("videoSubjects").doc();
+  await docRef.set({
+    id: docRef.id, name, section, chapterId, orderIndex: order, active: true, iconName: ""
+  });
+  progressText.textContent = "تم الحفظ ✅";
+  document.getElementById("videoSubjectName").value = "";
+  loadVideoSubjectsList();
+  loadVideoSubjectsIntoVideoSelect();
+}
+
+async function toggleActiveVideoSubject(subjectId, newActive) {
+  await db.collection("videoSubjects").doc(subjectId).update({ active: newActive });
+  loadVideoSubjectsList();
+  loadVideoSubjectsIntoVideoSelect();
+}
+
+async function deleteVideoSubject(subjectId) {
+  if (!confirm("متأكد؟ الفيديوهات المرتبطة بيها غادي تبقى بلا مادة ظاهرة.")) return;
+  await db.collection("videoSubjects").doc(subjectId).delete();
+  loadVideoSubjectsList();
+  loadVideoSubjectsIntoVideoSelect();
+}
+
+async function editVideoSubject(subjectId, currentName) {
+  const newName = prompt("اسم مادة الفيديو الجديد:", currentName);
+  if (newName === null || !newName.trim()) return;
+  await db.collection("videoSubjects").doc(subjectId).update({ name: newName.trim() });
+  loadVideoSubjectsList();
+  loadVideoSubjectsIntoVideoSelect();
+}
+
+async function loadVideoSubjectsList() {
+  const container = document.getElementById("videoSubjectsList");
+  container.innerHTML = "";
+  const snapshot = await db.collection("videoSubjects").orderBy("orderIndex").get();
+
+  if (snapshot.empty) {
+    container.innerHTML = `<div style="font-size:12px;color:#999;">ما كاينش مواد فيديو بعد</div>`;
+    return;
+  }
+
+  snapshot.forEach(doc => {
+    const s = doc.data();
+    const isActive = s.active !== false;
+    const sectionLabel = s.section === "private" ? "خاص" : "عام";
+    const row = document.createElement("div");
+    row.className = "pdf-row";
+    row.innerHTML = `
+      <span>${s.name} <span style="color:#888;font-size:11px;">(${sectionLabel})</span> ${isActive ? '' : '⛔'}</span>
+      <span style="display:flex;gap:6px;">
+        <button style="width:auto;padding:6px 10px;font-size:12px;" onclick="toggleActiveVideoSubject('${doc.id}', ${!isActive})">${isActive ? 'تعطيل' : 'تفعيل'}</button>
+        <button style="width:auto;padding:6px 10px;font-size:12px;" onclick="editVideoSubject('${doc.id}', '${s.name.replace(/'/g, "\\'")}')">تعديل</button>
+        <button class="danger" style="width:auto;padding:6px 12px;" onclick="deleteVideoSubject('${doc.id}')">حذف</button>
+      </span>
+    `;
+    container.appendChild(row);
+  });
+}
+
+async function loadVideoSubjectsIntoVideoSelect() {
+  const select = document.getElementById("videoSubjectSelect");
+  if (!select) return;
+  select.innerHTML = "";
+  const snapshot = await db.collection("videoSubjects").orderBy("orderIndex").get();
+
+  if (snapshot.empty) {
+    const opt = document.createElement("option");
+    opt.value = "";
+    opt.textContent = "-- زيد مادة فيديو أولا من فوق --";
+    select.appendChild(opt);
+    return;
+  }
+
+  const chaptersSnap = await db.collection("videoChapters").get();
+  const chapterNames = {};
+  chaptersSnap.forEach(doc => { chapterNames[doc.id] = doc.data().name; });
+
+  snapshot.forEach(doc => {
+    const s = doc.data();
+    if (s.active === false) return;
+    const sectionLabel = s.section === "private" ? "القانون الخاص" : "القانون العام";
+    const chapterName = chapterNames[s.chapterId] || "";
+    const opt = document.createElement("option");
+    opt.value = doc.id;
+    opt.textContent = `${sectionLabel} > ${chapterName} > ${s.name}`;
+    select.appendChild(opt);
+  });
+}
+
 document.getElementById("broadcastImageInput").addEventListener("change", (e) => {
   const file = e.target.files[0];
   const preview = document.getElementById("broadcastImagePreview");
@@ -513,7 +737,7 @@ async function addSubject() {
 
 async function loadSubjectsIntoSelect() {
   const snapshot = await db.collection("subjects").orderBy("orderIndex").get();
-  const selects = [document.getElementById("pdfSubjectSelect"), document.getElementById("videoSubjectSelect")];
+  const selects = [document.getElementById("pdfSubjectSelect")];
   selects.forEach(select => {
     if (!select) return;
     select.innerHTML = "";
@@ -706,14 +930,14 @@ function extractYoutubeId(url) {
 }
 
 async function addVideo() {
-  const subjectId = document.getElementById("videoSubjectSelect").value;
+  const videoSubjectId = document.getElementById("videoSubjectSelect").value;
   const title = document.getElementById("videoTitle").value.trim();
   const description = document.getElementById("videoDescription").value.trim();
   const url = document.getElementById("videoYoutubeUrl").value.trim();
   const active = document.getElementById("videoActive").checked;
   const progressText = document.getElementById("videoProgressText");
 
-  if (!subjectId) return alert("اختار المادة أولا (زيد مادة من القسم فوق إلا ماكانش عندك)");
+  if (!videoSubjectId) return alert("اختار مادة الفيديو أولا (زيدها من كارطة 'مواد الفيديوهات' فوق إلا ماكانتش)");
   if (!title) return alert("دخل عنوان الفيديو");
   const youtubeId = extractYoutubeId(url);
   if (!youtubeId) return alert("رابط يوتيوب غير صحيح، تأكد منو");
@@ -721,7 +945,7 @@ async function addVideo() {
   const docRef = db.collection("videos").doc();
   await docRef.set({
     id: docRef.id,
-    subjectId,
+    videoSubjectId,
     title,
     description,
     youtubeId,
@@ -770,7 +994,7 @@ async function loadVideosList() {
   const container = document.getElementById("videosList");
   container.innerHTML = "";
 
-  const subjectsSnap = await db.collection("subjects").orderBy("orderIndex").get();
+  const subjectsSnap = await db.collection("videoSubjects").orderBy("orderIndex").get();
   const subjectNames = {};
   subjectsSnap.forEach(doc => { subjectNames[doc.id] = doc.data().name; });
 
@@ -784,7 +1008,7 @@ async function loadVideosList() {
   snapshot.forEach(doc => {
     const video = doc.data();
     const isActive = video.active !== false;
-    const subjectName = subjectNames[video.subjectId] || "مادة محذوفة";
+    const subjectName = subjectNames[video.videoSubjectId] || "مادة محذوفة";
     const row = document.createElement("div");
     row.className = "pdf-row";
     row.innerHTML = `

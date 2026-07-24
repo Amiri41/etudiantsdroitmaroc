@@ -161,9 +161,21 @@ data class GroupMessage(
 )
 
 /** فيديو تعليمي (يوتيوب) كيتحكم فيه الأدمين، مرتبط بمادة معينة */
+/** مادة خاصة بالفيديوهات فقط - مستقلة تماما عن مواد PDF، عندها الشجرة ديالها (قسم/فصل/مادة) */
+data class VideoSubject(
+    var id: String = "",
+    var name: String = "",
+    var section: String = "private", // "private" | "public"
+    var chapterId: String = "", // مرتبط بـ VideoChapter
+    var iconName: String = "",
+    var orderIndex: Int = 0,
+    @get:PropertyName("active") @set:PropertyName("active")
+    var active: Boolean = true
+)
+
 data class VideoLesson(
     var id: String = "",
-    var subjectId: String = "",
+    var videoSubjectId: String = "",
     var title: String = "",
     var description: String = "",
     var youtubeId: String = "",
