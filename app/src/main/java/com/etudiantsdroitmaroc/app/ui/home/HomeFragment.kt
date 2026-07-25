@@ -61,6 +61,10 @@ class HomeFragment : Fragment() {
         binding.rvChapters.layoutManager = LinearLayoutManager(context)
         binding.rvChapters.adapter = chapterRowAdapter
 
+        binding.btnVideosEntry.setOnClickListener {
+            startActivity(Intent(requireContext(), VideosHomeActivity::class.java))
+        }
+
         lifecycleScope.launch {
             val config = appConfigRepository.getSectionsConfig()
             buildSectionChips(config)
@@ -85,10 +89,11 @@ class HomeFragment : Fragment() {
         val items = listOf(
             SectionItem("private", "⚖️ القانون الخاص", config.showPrivate),
             SectionItem("public", "📜 القانون العام", config.showPublic),
-            SectionItem("videos", "🎥 فديوهات قانونية", config.showVideos),
             SectionItem("master", "🎓 بحوث الماستر", config.showMaster),
             SectionItem("phd", "🏆 بحوث الدكتوراه", config.showPhd)
         ).filter { it.visible }
+
+        binding.btnVideosEntry.visibility = if (config.showVideos) View.VISIBLE else View.GONE
 
         if (items.isEmpty()) return
 
@@ -97,20 +102,14 @@ class HomeFragment : Fragment() {
         items.forEach { item ->
             val chip = Chip(requireContext())
             chip.text = item.label
-            chip.isCheckable = item.key != "videos"
+            chip.isCheckable = true
             chip.isClickable = true
 
-            if (item.key == "videos") {
-                chip.setOnClickListener {
-                    startActivity(Intent(requireContext(), VideosHomeActivity::class.java))
-                }
-            } else {
-                if (firstContentChip == null) firstContentChip = chip
-                chip.setOnCheckedChangeListener { _, isChecked ->
-                    if (isChecked) {
-                        currentSection = item.key
-                        loadSubjectsAndChapters()
-                    }
+            if (firstContentChip == null) firstContentChip = chip
+            chip.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    currentSection = item.key
+                    loadSubjectsAndChapters()
                 }
             }
             binding.chipGroupSection.addView(chip)
