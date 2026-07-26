@@ -28,6 +28,7 @@ class VideosListActivity : AppCompatActivity() {
 
         binding.toolbar.setNavigationOnClickListener { finish() }
         com.etudiantsdroitmaroc.app.utils.BannerAdHelper.attach(this, binding.bannerAdContainer)
+        com.etudiantsdroitmaroc.app.utils.AdManager.loadRewarded(this)
 
         val adapter = VideoAdapter(emptyList()) { openVideo(it) }
         binding.rvVideos.layoutManager = LinearLayoutManager(this)
@@ -50,6 +51,21 @@ class VideosListActivity : AppCompatActivity() {
     }
 
     private fun openVideo(video: VideoLesson) {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("مشاهدة الفيديو")
+            .setMessage("شوف إعلان قصير باش تفتح هاد الفيديو")
+            .setPositiveButton("شوف الإعلان وكمل") { _, _ ->
+                com.etudiantsdroitmaroc.app.utils.AdManager.showRewarded(
+                    this,
+                    onReward = { launchVideoPlayer(video) },
+                    onUnavailable = { launchVideoPlayer(video) } // الإعلان ماكانش جاهز، نخليوه يشوف الفيديو بلا ما نعطلوه
+                )
+            }
+            .setNegativeButton("إلغاء", null)
+            .show()
+    }
+
+    private fun launchVideoPlayer(video: VideoLesson) {
         val intent = Intent(this, VideoPlayerActivity::class.java)
         intent.putExtra("title", video.title)
         intent.putExtra("description", video.description)

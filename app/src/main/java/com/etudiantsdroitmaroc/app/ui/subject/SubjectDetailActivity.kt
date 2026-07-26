@@ -31,6 +31,7 @@ class SubjectDetailActivity : AppCompatActivity() {
         binding.toolbar.setNavigationOnClickListener { finish() }
 
         repository = PdfRepository(this)
+        AdManager.loadRewarded(this)
 
         adapter = PdfAdapter(
             pdfs = emptyList(),
@@ -55,6 +56,21 @@ class SubjectDetailActivity : AppCompatActivity() {
     }
 
     private fun downloadPdf(pdf: PdfDocument) {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("تحميل الملف")
+            .setMessage("شوف إعلان قصير باش تحمل هاد الملف وتقدر تقراه بلا أنترنت")
+            .setPositiveButton("شوف الإعلان وحمل") { _, _ ->
+                AdManager.showRewarded(
+                    this,
+                    onReward = { doDownloadPdf(pdf) },
+                    onUnavailable = { doDownloadPdf(pdf) } // الإعلان ماكانش جاهز، نكملو التحميل بلا ما نعطلو الطالب
+                )
+            }
+            .setNegativeButton("إلغاء", null)
+            .show()
+    }
+
+    private fun doDownloadPdf(pdf: PdfDocument) {
         lifecycleScope.launch {
             Toast.makeText(this@SubjectDetailActivity, "جاري التحميل…", Toast.LENGTH_SHORT).show()
             val result = repository.downloadForOffline(pdf)
