@@ -161,6 +161,8 @@ class UserProfileActivity : AppCompatActivity() {
         }
     }
 
+    private var requestPending = false
+
     private fun updateFriendButtonState() {
         lifecycleScope.launch {
             val isFriend = repository.isFriend(targetUid)
@@ -169,26 +171,30 @@ class UserProfileActivity : AppCompatActivity() {
                 binding.btnAddFriend.isEnabled = false
                 return@launch
             }
-            val pending = repository.hasPendingRequestTo(targetUid)
-            if (pending) {
-                binding.btnAddFriend.text = "طلب الصداقة مرسل ⏳"
-                binding.btnAddFriend.isEnabled = false
-            }
+            requestPending = repository.hasPendingRequestTo(targetUid)
+            binding.btnAddFriend.isEnabled = true
+            binding.btnAddFriend.text = if (requestPending) "إلغاء طلب الصداقة ✕" else "إضافة صديق ➕"
         }
     }
 
     private fun addFriend() {
         lifecycleScope.launch {
             try {
-                repository.sendFriendRequest(targetUid)
-                binding.btnAddFriend.text = "طلب الصداقة مرسل ⏳"
-                binding.btnAddFriend.isEnabled = false
-                Toast.makeText(this@UserProfileActivity, "تم بعث طلب الصداقة ✅", Toast.LENGTH_SHORT).show()
+                if (requestPending) {
+                    repository.cancelFriendRequest(targetUid)
+                    Toast.makeText(this@UserProfileActivity, "تم إلغاء طلب الصداقة", Toast.LENGTH_SHORT).show()
+                } else {
+                    repository.sendFriendRequest(targetUid)
+                    Toast.makeText(this@UserProfileActivity, "تم بعث طلب الصداقة ✅", Toast.LENGTH_SHORT).show()
+                }
+                updateFriendButtonState()
             } catch (e: Exception) {
                 Toast.makeText(this@UserProfileActivity, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
+    // الدردشة ديما متاحة بحال واتساب، سواء كانو صحاب أو لا أو كاين طلب معلق
 
     private fun openChat() {
         lifecycleScope.launch {

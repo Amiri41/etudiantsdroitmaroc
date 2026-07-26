@@ -104,6 +104,12 @@ class ChatRepository {
             .collection("incoming_requests").document(fromUid).delete().await()
     }
 
+    /** كنلغيو طلب الصداقة اللي بعتناه (من جهة المُرسل) - الدردشة كتبقى ممكنة فأي وقت بحال واتساب */
+    suspend fun cancelFriendRequest(otherUid: String) {
+        firestore.collection("users").document(otherUid)
+            .collection("incoming_requests").document(myUid).delete().await()
+    }
+
     suspend fun getIncomingRequestsCount(): Int {
         return try {
             firestore.collection("users").document(myUid)
