@@ -54,7 +54,7 @@ object AnnouncementManager : DefaultLifecycleObserver, Application.ActivityLifec
             launchFullscreen(ann.type, ann.title, ann.message, ann.imageUrl, ann.linkUrl)
             prefs.edit().putLong("last_announcement_seen", ann.updatedAt).apply()
         } else {
-            targetElapsedTime = SystemClock.elapsedRealtime()
+            targetElapsedTime = SystemClock.elapsedRealtime() + (ann.intervalMinutes * 60_000L)
             scheduleTimer()
         }
     }

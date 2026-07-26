@@ -27,6 +27,7 @@ object PeriodicAdManager : DefaultLifecycleObserver, Application.ActivityLifecyc
     // وقت مطلق (elapsedRealtime) اللي فيه خاص الإعلان يبان - ما كيتبدلش غير بعد ما يبان إعلان
     private var targetElapsedTime: Long = 0L
     private var isTimerScheduled = false
+    private var hasStartedCounting = false
 
     private var isOnHomeScreen = false
     private var adPendingShow = false
@@ -35,7 +36,8 @@ object PeriodicAdManager : DefaultLifecycleObserver, Application.ActivityLifecyc
 
     fun init(application: Application) {
         application.registerActivityLifecycleCallbacks(this)
-        targetElapsedTime = SystemClock.elapsedRealtime() + INTERVAL_MS
+        // ماكنحسبوش الوقت هنا - Application.onCreate() كيتنفذ قبل ما تبان الواجهة للمستخدم
+        // (تحميل Firebase وAdMob كياخد وقت)، فالعد الحقيقي كيبدا فأول onStart (ملي التطبيق يبان فعليا)
     }
 
     /** خاصها تتنادى من MainActivity ملي يتبدل الوجهة (Fragment) الحالية */
@@ -51,6 +53,10 @@ object PeriodicAdManager : DefaultLifecycleObserver, Application.ActivityLifecyc
     }
 
     override fun onStart(owner: LifecycleOwner) {
+        if (!hasStartedCounting) {
+            hasStartedCounting = true
+            targetElapsedTime = SystemClock.elapsedRealtime() + INTERVAL_MS
+        }
         scheduleTimer()
     }
 
