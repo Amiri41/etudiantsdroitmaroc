@@ -12,7 +12,7 @@ data class Subject(
     var chapterId: String = "", // مرتبط بـ Chapter ديناميكي (خاص بـ private/public فقط)
     @get:PropertyName("active") @set:PropertyName("active")
     var active: Boolean = true,
-    var iconName: String = "",
+    var iconUrl: String = "",
     var orderIndex: Int = 0
 )
 
@@ -167,7 +167,7 @@ data class VideoSubject(
     var name: String = "",
     var section: String = "private", // "private" | "public"
     var chapterId: String = "", // مرتبط بـ VideoChapter
-    var iconName: String = "",
+    var iconUrl: String = "",
     var orderIndex: Int = 0,
     @get:PropertyName("active") @set:PropertyName("active")
     var active: Boolean = true

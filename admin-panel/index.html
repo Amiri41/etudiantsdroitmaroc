@@ -98,6 +98,9 @@
     </select>
     <select id="videoSubjectChapter"></select>
     <input id="videoSubjectOrder" type="number" placeholder="ترتيب العرض" value="1">
+    <label style="font-size:12px;color:#666;">صورة/أيقونة مادة الفيديو (اختياري - نفس مقاس مادة PDF)</label>
+    <input id="videoSubjectIconInput" type="file" accept="image/*">
+    <img id="videoSubjectIconPreview" class="hidden" style="max-width:100px;border-radius:8px;margin-bottom:10px;" />
     <button onclick="addVideoSubject()">حفظ مادة الفيديو</button>
     <p id="videoSubjectProgressText"></p>
     <div id="videoSubjectsList" style="margin-top:10px;"></div>
@@ -118,6 +121,9 @@
     <button onclick="sendBroadcast()">🚀 إرسال للجميع</button>
     <p id="broadcastProgressText"></p>
   </div>
+
+  <div class="card">
+    <h2>🏷️ زيادة مادة</h2>
     <input id="subjectName" placeholder="اسم المادة (مثلا: القانون المدني)">
     <select id="subjectSection" onchange="toggleSemesterField()">
       <option value="private">القانون الخاص</option>
@@ -131,7 +137,11 @@
       <input type="checkbox" id="subjectActive" checked style="width:auto;margin:0;"> نشطة (تبان فالتطبيق)
     </label>
     <input id="subjectOrder" type="number" placeholder="ترتيب العرض (رقم)" value="1">
+    <label style="font-size:12px;color:#666;">صورة/أيقونة المادة (اختياري - مقاس مناسب: 150×130 تقريبا)</label>
+    <input id="subjectIconInput" type="file" accept="image/*">
+    <img id="subjectIconPreview" class="hidden" style="max-width:100px;border-radius:8px;margin-bottom:10px;" />
     <button onclick="addSubject()">حفظ المادة</button>
+    <p id="subjectProgressText"></p>
   </div>
 
   <div class="card">
@@ -549,19 +559,40 @@ async function addVideoSubject() {
   const section = document.getElementById("videoSubjectSection").value;
   const chapterId = document.getElementById("videoSubjectChapter").value;
   const order = parseInt(document.getElementById("videoSubjectOrder").value) || 1;
+  const iconFile = document.getElementById("videoSubjectIconInput").files[0];
   const progressText = document.getElementById("videoSubjectProgressText");
   if (!name) return alert("دخل اسم مادة الفيديو");
   if (!chapterId) return alert("زيد فصل فيديو لهاد القسم أولا");
 
+  let iconUrl = "";
+  if (iconFile) {
+    progressText.textContent = "كنرفعو الصورة...";
+    try {
+      iconUrl = await uploadCoverImage(iconFile);
+    } catch (e) {
+      return alert("فشل رفع الصورة: " + e.message);
+    }
+  }
+
   const docRef = db.collection("videoSubjects").doc();
   await docRef.set({
-    id: docRef.id, name, section, chapterId, orderIndex: order, active: true, iconName: ""
+    id: docRef.id, name, section, chapterId, orderIndex: order, active: true, iconUrl
   });
   progressText.textContent = "تم الحفظ ✅";
   document.getElementById("videoSubjectName").value = "";
+  document.getElementById("videoSubjectIconInput").value = "";
+  document.getElementById("videoSubjectIconPreview").classList.add("hidden");
   loadVideoSubjectsList();
   loadVideoSubjectsIntoVideoSelect();
 }
+
+document.getElementById("videoSubjectIconInput").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  const preview = document.getElementById("videoSubjectIconPreview");
+  if (!file) { preview.classList.add("hidden"); return; }
+  preview.src = URL.createObjectURL(file);
+  preview.classList.remove("hidden");
+});
 
 async function toggleActiveVideoSubject(subjectId, newActive) {
   await db.collection("videoSubjects").doc(subjectId).update({ active: newActive });
@@ -714,8 +745,20 @@ async function addSubject() {
   const chapterId = needsChapter ? document.getElementById("subjectChapter").value : "";
   const active = document.getElementById("subjectActive").checked;
   const order = parseInt(document.getElementById("subjectOrder").value) || 1;
+  const iconFile = document.getElementById("subjectIconInput").files[0];
+  const progressText = document.getElementById("subjectProgressText");
   if (!name) return alert("دخل اسم المادة");
   if (needsChapter && !chapterId) return alert("زيد فصل لهاد القسم أولا (من كارطة إدارة الفصول)");
+
+  let iconUrl = "";
+  if (iconFile) {
+    progressText.textContent = "كنرفعو الصورة...";
+    try {
+      iconUrl = await uploadCoverImage(iconFile);
+    } catch (e) {
+      return alert("فشل رفع الصورة: " + e.message);
+    }
+  }
 
   const docRef = db.collection("subjects").doc();
   await docRef.set({
@@ -727,13 +770,23 @@ async function addSubject() {
     semester: 0,
     active,
     orderIndex: order,
-    iconName: ""
+    iconUrl
   });
-  alert("تمت إضافة المادة ✅");
+  progressText.textContent = "تمت إضافة المادة ✅";
   document.getElementById("subjectName").value = "";
+  document.getElementById("subjectIconInput").value = "";
+  document.getElementById("subjectIconPreview").classList.add("hidden");
   loadSubjectsIntoSelect();
   loadContentList();
 }
+
+document.getElementById("subjectIconInput").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  const preview = document.getElementById("subjectIconPreview");
+  if (!file) { preview.classList.add("hidden"); return; }
+  preview.src = URL.createObjectURL(file);
+  preview.classList.remove("hidden");
+});
 
 async function loadSubjectsIntoSelect() {
   const snapshot = await db.collection("subjects").orderBy("orderIndex").get();
