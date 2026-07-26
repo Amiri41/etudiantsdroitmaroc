@@ -54,14 +54,14 @@ jobs:
         run: |
           grep -n "^e: " build_output.log | while IFS= read -r line; do
             echo "::error::$line"
-          done
+          done || true
           if [ "${{ steps.build.outcome }}" = "failure" ]; then
             echo "::error::البناء فشل - شوف الأخطاء فوق"
             exit 1
           fi
 
       - name: Upload APK
-        if: steps.build.outcome == 'success'
+        if: always() && steps.build.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: etudiants-droit-maroc-debug
@@ -105,21 +105,21 @@ jobs:
         run: |
           grep -n "^e: " build_release_output.log | while IFS= read -r line; do
             echo "::error::$line"
-          done
+          done || true
           if [ "${{ steps.build_release.outcome }}" = "failure" ]; then
             echo "::error::بناء النسخة الموقعة فشل - شوف الأخطاء فوق"
             exit 1
           fi
 
       - name: Upload Release APK
-        if: steps.build_release.outcome == 'success'
+        if: always() && steps.build_release.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: etudiants-droit-maroc-release-apk
           path: app/build/outputs/apk/release/app-release.apk
 
       - name: Upload Release AAB (Play Store)
-        if: steps.build_release.outcome == 'success'
+        if: always() && steps.build_release.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: etudiants-droit-maroc-release-aab

@@ -118,3 +118,4 @@ app/src/main/java/com/etudiantsdroitmaroc/app/
 - صفحة تعليقات كاملة تحت كل منشور فالمنتدى
 - إشعارات Push (Firebase Messaging) عند وصول رسالة جديدة
 - لوحة تحكم Admin بسيطة (Web) باش تزيد المواد وPDFs بلا ما تدخل يدويا لـ Firestore Console
+
