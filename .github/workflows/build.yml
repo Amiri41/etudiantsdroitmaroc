@@ -103,7 +103,7 @@ jobs:
       - name: Show Kotlin compiler errors
         if: always()
         run: |
-          grep -n "^e: " build_release_output.log | while IFS= read -r line; do
+          grep -nE "^e: |error:|FAILURE|What went wrong|Exception" build_release_output.log | while IFS= read -r line; do
             echo "::error::$line"
           done || true
           if [ "${{ steps.build_release.outcome }}" = "failure" ]; then
