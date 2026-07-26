@@ -103,6 +103,7 @@ class ProfileFragment : Fragment() {
                 android.widget.Toast.makeText(context, "خطأ: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
             }
         }
+    }
 
     override fun onResume() {
         super.onResume()
