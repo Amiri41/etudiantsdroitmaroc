@@ -65,8 +65,44 @@ class ProfileFragment : Fragment() {
             requireActivity().finish()
         }
 
+        binding.btnDeleteAccount.setOnClickListener {
+            confirmDeleteAccount()
+        }
+
         loadProfile()
     }
+
+    private fun confirmDeleteAccount() {
+        android.app.AlertDialog.Builder(requireContext())
+            .setTitle("حذف الحساب نهائيا")
+            .setMessage("هاد العملية ماغاديش ترجع فيها. غادي يتحذف حسابك، البروفايل، والمنشورات ديالك. متأكد بغيتي تكمل؟")
+            .setPositiveButton("حذف نهائيا") { _, _ -> deleteAccount() }
+            .setNegativeButton("إلغاء", null)
+            .show()
+    }
+
+    private fun deleteAccount() {
+        val user = FirebaseAuth.getInstance().currentUser ?: return
+        val uid = user.uid
+        lifecycleScope.launch {
+            try {
+                // نحذفو البروفايل من Firestore قبل حذف الحساب
+                Firebase.firestore.collection("users").document(uid).delete().await()
+                user.delete().await()
+                android.widget.Toast.makeText(context, "تم حذف الحساب", android.widget.Toast.LENGTH_SHORT).show()
+                AuthRepository(requireContext()).signOut()
+                startActivity(Intent(requireContext(), LoginActivity::class.java))
+                requireActivity().finish()
+            } catch (e: com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException) {
+                android.widget.Toast.makeText(
+                    context,
+                    "خاصك تسجل الدخول مرة أخرى قبل الحذف (لأسباب أمان). سجل الخروج ثم الدخول وعاود جرب.",
+                    android.widget.Toast.LENGTH_LONG
+                ).show()
+            } catch (e: Exception) {
+                android.widget.Toast.makeText(context, "خطأ: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
+            }
+        }
 
     override fun onResume() {
         super.onResume()

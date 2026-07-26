@@ -85,10 +85,12 @@ class SplashActivity : AppCompatActivity() {
     private fun navigateNext() {
         // App Open Ad كتبان مرة وحدة عند فتح التطبيق (إلا كانت جاهزة)
         AdManager.showAppOpenAdIfReady(this) {
-            val destination = if (FirebaseAuth.getInstance().currentUser != null) {
-                MainActivity::class.java
-            } else {
-                LoginActivity::class.java
+            val isLoggedIn = FirebaseAuth.getInstance().currentUser != null
+            val destination = when {
+                isLoggedIn -> MainActivity::class.java
+                !com.etudiantsdroitmaroc.app.ui.onboarding.OnboardingActivity.hasSeenOnboarding(this) ->
+                    com.etudiantsdroitmaroc.app.ui.onboarding.OnboardingActivity::class.java
+                else -> LoginActivity::class.java
             }
             startActivity(Intent(this, destination))
             finish()
