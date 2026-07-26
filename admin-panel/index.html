@@ -21,6 +21,22 @@
   #loginScreen { text-align: center; padding: 60px 20px; }
   #progressText { font-size: 13px; color: #2E9E5B; }
   .hidden { display: none; }
+
+  #editModalOverlay {
+    position: fixed; inset: 0; background: rgba(10,31,61,0.55);
+    display: flex; align-items: flex-end; justify-content: center; z-index: 9999;
+  }
+  #editModalCard {
+    background: white; width: 100%; max-width: 500px; max-height: 85vh; overflow-y: auto;
+    border-radius: 16px 16px 0 0; padding: 20px; box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+  }
+  #editModalCard h2 { display: flex; justify-content: space-between; align-items: center; }
+  #editModalClose { width: auto; background: none; color: #999; font-size: 20px; padding: 0 8px; margin: 0; }
+  .edit-field-label { font-size: 12px; color: #666; margin-top: 4px; display: block; }
+  @media (min-width: 560px) {
+    #editModalOverlay { align-items: center; }
+    #editModalCard { border-radius: 16px; }
+  }
 </style>
 </head>
 <body>
@@ -223,6 +239,14 @@
 
 </div>
 
+<div id="editModalOverlay" class="hidden">
+  <div id="editModalCard">
+    <h2><span id="editModalTitle">تعديل</span><button id="editModalClose" onclick="closeEditModal()">✕</button></h2>
+    <div id="editModalFields"></div>
+    <button onclick="submitEditModal()">حفظ التعديلات</button>
+  </div>
+</div>
+
 <!-- Firebase SDK (compat - أبسط للاستعمال بلا build tools) -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -240,6 +264,67 @@ const db = firebase.firestore();
 // ⚠️ بدل هاد الـ UID بالـ UID ديالك الحقيقي (من Firebase Console > Authentication)
 // باش غير نتا تقدر تدخل للوحة التحكم
 const ADMIN_UID = "pndM3rNT9DRVCPxODaHFFnBO9jU2";
+
+/* ======================= Modal تعديل عام - كل الخانات فبانر واحد ======================= */
+
+let _editModalSaveHandler = null;
+
+/**
+ * fields: [{ key, label, value, type: 'text'|'textarea'|'number', placeholder }]
+ * onSave(values) - async function كتاخد object {key: value} وتدير الحفظ
+ */
+function openEditModal(title, fields, onSave) {
+  document.getElementById("editModalTitle").textContent = title;
+  const container = document.getElementById("editModalFields");
+  container.innerHTML = "";
+
+  fields.forEach(f => {
+    const label = document.createElement("label");
+    label.className = "edit-field-label";
+    label.textContent = f.label;
+    container.appendChild(label);
+
+    let input;
+    if (f.type === "textarea") {
+      input = document.createElement("textarea");
+      input.rows = 3;
+    } else {
+      input = document.createElement("input");
+      input.type = f.type === "number" ? "number" : "text";
+    }
+    input.id = "editField_" + f.key;
+    input.value = f.value ?? "";
+    if (f.placeholder) input.placeholder = f.placeholder;
+    container.appendChild(input);
+  });
+
+  _editModalSaveHandler = async () => {
+    const values = {};
+    fields.forEach(f => {
+      const el = document.getElementById("editField_" + f.key);
+      values[f.key] = f.type === "number" ? (parseInt(el.value) || 0) : el.value.trim();
+    });
+    await onSave(values);
+    closeEditModal();
+  };
+
+  document.getElementById("editModalOverlay").classList.remove("hidden");
+}
+
+function closeEditModal() {
+  document.getElementById("editModalOverlay").classList.add("hidden");
+  _editModalSaveHandler = null;
+}
+
+async function submitEditModal() {
+  if (_editModalSaveHandler) {
+    try {
+      await _editModalSaveHandler();
+    } catch (e) {
+      alert("خطأ: " + e.message);
+    }
+  }
+}
 
 function loginWithEmail() {
   const email = document.getElementById("loginEmail").value.trim();
@@ -385,12 +470,14 @@ async function deleteChapter(chapterId) {
   loadChaptersIntoSubjectSelect();
 }
 
-async function editChapter(chapterId, currentName) {
-  const newName = prompt("اسم الفصل الجديد:", currentName);
-  if (newName === null || !newName.trim()) return;
-  await db.collection("chapters").doc(chapterId).update({ name: newName.trim() });
-  loadChaptersList();
-  loadChaptersIntoSubjectSelect();
+function editChapter(chapterId, currentName) {
+  openEditModal("تعديل الفصل", [
+    { key: "name", label: "اسم الفصل", value: currentName, type: "text" }
+  ], async (values) => {
+    await db.collection("chapters").doc(chapterId).update(values);
+    loadChaptersList();
+    loadChaptersIntoSubjectSelect();
+  });
 }
 
 async function loadChaptersList() {
@@ -488,12 +575,14 @@ async function deleteVideoChapter(chapterId) {
   loadVideoChaptersIntoSelect();
 }
 
-async function editVideoChapter(chapterId, currentName) {
-  const newName = prompt("اسم الفصل الجديد:", currentName);
-  if (newName === null || !newName.trim()) return;
-  await db.collection("videoChapters").doc(chapterId).update({ name: newName.trim() });
-  loadVideoChaptersList();
-  loadVideoChaptersIntoSelect();
+function editVideoChapter(chapterId, currentName) {
+  openEditModal("تعديل فصل الفيديو", [
+    { key: "name", label: "اسم الفصل", value: currentName, type: "text" }
+  ], async (values) => {
+    await db.collection("videoChapters").doc(chapterId).update(values);
+    loadVideoChaptersList();
+    loadVideoChaptersIntoSelect();
+  });
 }
 
 async function loadVideoChaptersList() {
@@ -607,12 +696,14 @@ async function deleteVideoSubject(subjectId) {
   loadVideoSubjectsIntoVideoSelect();
 }
 
-async function editVideoSubject(subjectId, currentName) {
-  const newName = prompt("اسم مادة الفيديو الجديد:", currentName);
-  if (newName === null || !newName.trim()) return;
-  await db.collection("videoSubjects").doc(subjectId).update({ name: newName.trim() });
-  loadVideoSubjectsList();
-  loadVideoSubjectsIntoVideoSelect();
+function editVideoSubject(subjectId, currentName) {
+  openEditModal("تعديل مادة الفيديو", [
+    { key: "name", label: "اسم مادة الفيديو", value: currentName, type: "text" }
+  ], async (values) => {
+    await db.collection("videoSubjects").doc(subjectId).update(values);
+    loadVideoSubjectsList();
+    loadVideoSubjectsIntoVideoSelect();
+  });
 }
 
 async function loadVideoSubjectsList() {
@@ -872,15 +963,14 @@ async function toggleSubjectActive(subjectId, newActive) {
   loadContentList();
 }
 
-async function editSubject(subjectId, currentName, currentOrder) {
-  const newName = prompt("اسم المادة الجديد:", currentName);
-  if (newName === null || !newName.trim()) return;
-  const newOrder = prompt("ترتيب العرض:", currentOrder);
-  await db.collection("subjects").doc(subjectId).update({
-    name: newName.trim(),
-    orderIndex: parseInt(newOrder) || currentOrder
+function editSubject(subjectId, currentName, currentOrder) {
+  openEditModal("تعديل المادة", [
+    { key: "name", label: "اسم المادة", value: currentName, type: "text" },
+    { key: "orderIndex", label: "ترتيب العرض", value: currentOrder, type: "number" }
+  ], async (values) => {
+    await db.collection("subjects").doc(subjectId).update(values);
+    loadContentList();
   });
-  loadContentList();
 }
 
 async function deleteSubject(subjectId, subjectName) {
@@ -944,7 +1034,7 @@ async function loadContentList() {
       row.innerHTML = `
         <span style="display:flex;align-items:center;">${coverHtml} ${pdf.title} (${pdf.fileSizeKb} KB)</span>
         <span style="display:flex;gap:6px;">
-          <button style="width:auto;padding:6px 10px;font-size:12px;" onclick="editPdf('${subjectDoc.id}','${pdfDoc.id}','${pdf.title.replace(/'/g, "\\'")}')">تعديل</button>
+          <button style="width:auto;padding:6px 10px;font-size:12px;" onclick="editPdf('${subjectDoc.id}','${pdfDoc.id}','${pdf.title.replace(/'/g, "\\'")}','${(pdf.url||'').replace(/'/g, "\\'")}')">تعديل</button>
           <button class="danger" style="width:auto;padding:6px 12px;" onclick="deletePdf('${subjectDoc.id}','${pdfDoc.id}')">حذف</button>
         </span>
       `;
@@ -955,11 +1045,14 @@ async function loadContentList() {
   }
 }
 
-async function editPdf(subjectId, pdfId, currentTitle) {
-  const newTitle = prompt("عنوان الملف الجديد:", currentTitle);
-  if (newTitle === null || !newTitle.trim()) return;
-  await db.collection("subjects").doc(subjectId).collection("pdfs").doc(pdfId).update({ title: newTitle.trim() });
-  loadContentList();
+function editPdf(subjectId, pdfId, currentTitle, currentUrl) {
+  openEditModal("تعديل ملف PDF", [
+    { key: "title", label: "عنوان الملف", value: currentTitle, type: "text" },
+    { key: "url", label: "رابط الملف (PDF)", value: currentUrl || "", type: "text" }
+  ], async (values) => {
+    await db.collection("subjects").doc(subjectId).collection("pdfs").doc(pdfId).update(values);
+    loadContentList();
+  });
 }
 
 async function deletePdf(subjectId, pdfId) {
@@ -1026,21 +1119,22 @@ async function deleteVideo(videoId) {
   loadVideosList();
 }
 
-async function editVideo(videoId, currentTitle, currentDescription) {
-  const newTitle = prompt("عنوان الفيديو الجديد:", currentTitle);
-  if (newTitle === null || !newTitle.trim()) return;
-  const newDescription = prompt("الوصف الجديد:", currentDescription || "");
-  const newUrl = prompt("رابط يوتيوب جديد (اسيب فارغ إلا ماكنتيش بغيتي تبدلو):", "");
-
-  const updates = { title: newTitle.trim(), description: (newDescription || "").trim() };
-  if (newUrl && newUrl.trim()) {
-    const youtubeId = extractYoutubeId(newUrl.trim());
-    if (!youtubeId) return alert("رابط يوتيوب غير صحيح");
-    updates.youtubeId = youtubeId;
-    updates.thumbnailUrl = `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
-  }
-  await db.collection("videos").doc(videoId).update(updates);
-  loadVideosList();
+function editVideo(videoId, currentTitle, currentDescription) {
+  openEditModal("تعديل الفيديو", [
+    { key: "title", label: "عنوان الفيديو", value: currentTitle, type: "text" },
+    { key: "description", label: "الوصف", value: currentDescription || "", type: "textarea" },
+    { key: "youtubeUrl", label: "رابط يوتيوب (اسيب فارغ إلا مابغيتيش تبدلو)", value: "", type: "text", placeholder: "youtube.com/watch?v=..." }
+  ], async (values) => {
+    const updates = { title: values.title, description: values.description };
+    if (values.youtubeUrl) {
+      const youtubeId = extractYoutubeId(values.youtubeUrl);
+      if (!youtubeId) throw new Error("رابط يوتيوب غير صحيح");
+      updates.youtubeId = youtubeId;
+      updates.thumbnailUrl = `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
+    }
+    await db.collection("videos").doc(videoId).update(updates);
+    loadVideosList();
+  });
 }
 
 async function loadVideosList() {
@@ -1110,20 +1204,19 @@ async function toggleActivePage(pageId, newActive) {
   loadPagesList();
 }
 
-async function editPage(pageId, currentTitle, currentType, currentContent, currentUrl) {
-  const newTitle = prompt("عنوان الصفحة الجديد:", currentTitle);
-  if (newTitle === null || !newTitle.trim()) return;
-
-  if (currentType === "link") {
-    const newUrl = prompt("الرابط الجديد:", currentUrl || "");
-    if (newUrl === null || !newUrl.trim()) return;
-    await db.collection("pages").doc(pageId).update({ title: newTitle.trim(), url: newUrl.trim() });
+async function editPage(pageId) {
+  const doc = await db.collection("pages").doc(pageId).get();
+  const page = doc.data();
+  const fields = [{ key: "title", label: "عنوان الصفحة", value: page.title, type: "text" }];
+  if (page.type === "link") {
+    fields.push({ key: "url", label: "الرابط", value: page.url || "", type: "text" });
   } else {
-    const newContent = prompt("النص الجديد ديال الصفحة:", currentContent || "");
-    if (newContent === null) return;
-    await db.collection("pages").doc(pageId).update({ title: newTitle.trim(), content: newContent });
+    fields.push({ key: "content", label: "نص الصفحة", value: page.content || "", type: "textarea" });
   }
-  loadPagesList();
+  openEditModal("تعديل الصفحة", fields, async (values) => {
+    await db.collection("pages").doc(pageId).update(values);
+    loadPagesList();
+  });
 }
 
 async function loadPagesList() {
@@ -1145,7 +1238,7 @@ async function loadPagesList() {
       <span>${page.type === 'link' ? '🔗' : '📄'} ${page.title} ${isActive ? '' : '⛔ معطلة'}</span>
       <span style="display:flex;gap:6px;">
         <button style="width:auto;padding:6px 10px;font-size:12px;" onclick="toggleActivePage('${doc.id}', ${!isActive})">${isActive ? 'تعطيل' : 'تفعيل'}</button>
-        <button style="width:auto;padding:6px 10px;font-size:12px;" onclick="editPage('${doc.id}', '${page.title.replace(/'/g, "\\'")}', '${page.type}', '${(page.content||'').replace(/'/g, "\\'").replace(/\n/g, ' ')}', '${(page.url||'').replace(/'/g, "\\'")}')">تعديل</button>
+        <button style="width:auto;padding:6px 10px;font-size:12px;" onclick="editPage('${doc.id}')">تعديل</button>
         <button class="danger" style="width:auto;padding:6px 12px;" onclick="deletePage('${doc.id}')">حذف</button>
       </span>
     `;
