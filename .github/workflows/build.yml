@@ -124,3 +124,4 @@ jobs:
         with:
           name: etudiants-droit-maroc-release-aab
           path: app/build/outputs/bundle/release/app-release.aab
+# retry release build 1785185968
