@@ -243,7 +243,7 @@
   <div id="editModalCard">
     <h2><span id="editModalTitle">تعديل</span><button id="editModalClose" onclick="closeEditModal()">✕</button></h2>
     <div id="editModalFields"></div>
-    <button onclick="submitEditModal()">حفظ التعديلات</button>
+    <button id="editModalSaveBtn" onclick="submitEditModal()">حفظ التعديلات</button>
   </div>
 </div>
 
@@ -298,6 +298,13 @@ function openEditModal(title, fields, onSave) {
     container.appendChild(input);
   });
 
+  const errorBox = document.createElement("p");
+  errorBox.id = "editModalError";
+  errorBox.style.color = "#c0392b";
+  errorBox.style.fontSize = "13px";
+  errorBox.style.display = "none";
+  container.appendChild(errorBox);
+
   _editModalSaveHandler = async () => {
     const values = {};
     fields.forEach(f => {
@@ -317,11 +324,20 @@ function closeEditModal() {
 }
 
 async function submitEditModal() {
+  const errorBox = document.getElementById("editModalError");
+  const saveBtn = document.getElementById("editModalSaveBtn");
+  if (errorBox) errorBox.style.display = "none";
   if (_editModalSaveHandler) {
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = "جاري الحفظ..."; }
     try {
       await _editModalSaveHandler();
     } catch (e) {
-      alert("خطأ: " + e.message);
+      if (errorBox) {
+        errorBox.textContent = "⚠️ خطأ: " + e.message + " - عاود جرب";
+        errorBox.style.display = "block";
+      }
+    } finally {
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = "حفظ التعديلات"; }
     }
   }
 }
