@@ -78,6 +78,7 @@ class SubjectDetailActivity : AppCompatActivity() {
                 downloadedIds.add(pdf.id)
                 adapter.notifyDataSetChanged()
                 Toast.makeText(this@SubjectDetailActivity, "تم التحميل ✅", Toast.LENGTH_SHORT).show()
+                com.etudiantsdroitmaroc.app.utils.ReviewHelper.recordPositiveAction(this@SubjectDetailActivity)
             } else {
                 Toast.makeText(this@SubjectDetailActivity, "فشل التحميل، تأكد من الانترنت", Toast.LENGTH_SHORT).show()
             }

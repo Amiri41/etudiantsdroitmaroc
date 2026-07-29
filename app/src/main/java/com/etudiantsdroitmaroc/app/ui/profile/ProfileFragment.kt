@@ -65,11 +65,31 @@ class ProfileFragment : Fragment() {
             requireActivity().finish()
         }
 
+        binding.btnDarkMode.setOnClickListener {
+            showDarkModeDialog()
+        }
+
         binding.btnDeleteAccount.setOnClickListener {
             confirmDeleteAccount()
         }
 
         loadProfile()
+    }
+
+    private fun showDarkModeDialog() {
+        val options = arrayOf("فاتح ☀️", "داكن 🌙", "حسب النظام (افتراضي)")
+        val values = arrayOf("light", "dark", "system")
+        val current = com.etudiantsdroitmaroc.app.utils.DarkModeHelper.getSavedMode(requireContext())
+        val checkedIndex = values.indexOf(current).coerceAtLeast(0)
+
+        android.app.AlertDialog.Builder(requireContext())
+            .setTitle("مظهر التطبيق")
+            .setSingleChoiceItems(options, checkedIndex) { dialog, which ->
+                com.etudiantsdroitmaroc.app.utils.DarkModeHelper.setMode(requireContext(), values[which])
+                dialog.dismiss()
+            }
+            .setNegativeButton("إلغاء", null)
+            .show()
     }
 
     private fun confirmDeleteAccount() {

@@ -15,6 +15,8 @@ class EtudiantsApp : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        com.etudiantsdroitmaroc.app.utils.DarkModeHelper.applySavedMode(this)
+
         // تسجيل أي انهيار غير متوقع + بعتو لـ Firestore باش نقدر نشوفوه بلا كمبيوتر
         val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->

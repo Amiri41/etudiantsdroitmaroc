@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- الألوان ديال الهوية (Navy/Gold) كتبقى قريبة من النهار، غير شوية أفتح باش تبان واضحة فوق خلفية مظلمة -->
+    <color name="navy_dark">#0A1F3D</color>
+    <color name="navy">#1A3A66</color>
+    <color name="navy_light">#2C5493</color>
+    <color name="gold">#F5B324</color>
+    <color name="gold_light">#FFD873</color>
+    <color name="green">#3EB86E</color>
+    <color name="green_dark">#2E9E5B</color>
+    <color name="red_accent">#F1685F</color>
+    <color name="white">#FFFFFF</color>
+
+    <!-- ألوان الخلفية والمحتوى - هادو اللي كيتبدلو فعليا فالوضع الليلي -->
+    <color name="off_white">#121722</color>
+    <color name="text_primary">#F1F3F6</color>
+    <color name="text_secondary">#9CA6B5</color>
+    <color name="card_bg">#1B2130</color>
+    <color name="divider">#2C3444</color>
+</resources>

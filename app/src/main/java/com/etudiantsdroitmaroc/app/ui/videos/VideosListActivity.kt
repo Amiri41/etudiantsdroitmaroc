@@ -66,6 +66,7 @@ class VideosListActivity : AppCompatActivity() {
     }
 
     private fun launchVideoPlayer(video: VideoLesson) {
+        com.etudiantsdroitmaroc.app.utils.ReviewHelper.recordPositiveAction(this)
         val intent = Intent(this, VideoPlayerActivity::class.java)
         intent.putExtra("title", video.title)
         intent.putExtra("description", video.description)
