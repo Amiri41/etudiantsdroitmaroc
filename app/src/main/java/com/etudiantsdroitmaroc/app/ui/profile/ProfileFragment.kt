@@ -154,7 +154,7 @@ class ProfileFragment : Fragment() {
 
             val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
                 data = android.net.Uri.parse("mailto:")
-                putExtra(Intent.EXTRA_EMAIL, arrayOf("wamiri459@gmail.com"))
+                putExtra(Intent.EXTRA_EMAIL, arrayOf("etudiantsendroitmorocco@gmail.com"))
                 putExtra(Intent.EXTRA_SUBJECT, "طلب ترويج خدمة - $serviceName")
                 putExtra(Intent.EXTRA_TEXT, emailBody)
             }
