@@ -270,8 +270,9 @@ const ADMIN_UID = "pndM3rNT9DRVCPxODaHFFnBO9jU2";
 let _editModalSaveHandler = null;
 
 /**
- * fields: [{ key, label, value, type: 'text'|'textarea'|'number', placeholder }]
+ * fields: [{ key, label, value, type: 'text'|'textarea'|'number'|'file', placeholder }]
  * onSave(values) - async function كتاخد object {key: value} وتدير الحفظ
+ * ملاحظة: type 'file' كيحتفظ بالصورة القديمة (value) إلا ماختارش المستخدم صورة جديدة
  */
 function openEditModal(title, fields, onSave) {
   document.getElementById("editModalTitle").textContent = title;
@@ -283,6 +284,25 @@ function openEditModal(title, fields, onSave) {
     label.className = "edit-field-label";
     label.textContent = f.label;
     container.appendChild(label);
+
+    if (f.type === "file") {
+      if (f.value) {
+        const preview = document.createElement("img");
+        preview.src = f.value;
+        preview.style.cssText = "max-width:100px;border-radius:8px;display:block;margin-bottom:8px;";
+        container.appendChild(preview);
+      }
+      const fileInput = document.createElement("input");
+      fileInput.type = "file";
+      fileInput.accept = "image/*";
+      fileInput.id = "editField_" + f.key;
+      container.appendChild(fileInput);
+      const hint = document.createElement("div");
+      hint.style.cssText = "font-size:11px;color:#999;margin-bottom:10px;";
+      hint.textContent = "اسيبها فارغة إلا مابغيتيش تبدل الصورة";
+      container.appendChild(hint);
+      return;
+    }
 
     let input;
     if (f.type === "textarea") {
@@ -307,10 +327,17 @@ function openEditModal(title, fields, onSave) {
 
   _editModalSaveHandler = async () => {
     const values = {};
-    fields.forEach(f => {
+    for (const f of fields) {
       const el = document.getElementById("editField_" + f.key);
-      values[f.key] = f.type === "number" ? (parseInt(el.value) || 0) : el.value.trim();
-    });
+      if (f.type === "file") {
+        const chosenFile = el.files[0];
+        values[f.key] = chosenFile ? await uploadCoverImage(chosenFile) : (f.value ?? "");
+      } else if (f.type === "number") {
+        values[f.key] = parseInt(el.value) || 0;
+      } else {
+        values[f.key] = el.value.trim();
+      }
+    }
     await onSave(values);
     closeEditModal();
   };
@@ -712,9 +739,12 @@ async function deleteVideoSubject(subjectId) {
   loadVideoSubjectsIntoVideoSelect();
 }
 
-function editVideoSubject(subjectId, currentName) {
+async function editVideoSubject(subjectId, currentName) {
+  const doc = await db.collection("videoSubjects").doc(subjectId).get();
+  const currentIconUrl = doc.data().iconUrl || "";
   openEditModal("تعديل مادة الفيديو", [
-    { key: "name", label: "اسم مادة الفيديو", value: currentName, type: "text" }
+    { key: "name", label: "اسم مادة الفيديو", value: currentName, type: "text" },
+    { key: "iconUrl", label: "صورة/أيقونة مادة الفيديو", value: currentIconUrl, type: "file" }
   ], async (values) => {
     await db.collection("videoSubjects").doc(subjectId).update(values);
     loadVideoSubjectsList();
@@ -979,10 +1009,13 @@ async function toggleSubjectActive(subjectId, newActive) {
   loadContentList();
 }
 
-function editSubject(subjectId, currentName, currentOrder) {
+async function editSubject(subjectId, currentName, currentOrder) {
+  const doc = await db.collection("subjects").doc(subjectId).get();
+  const currentIconUrl = doc.data().iconUrl || "";
   openEditModal("تعديل المادة", [
     { key: "name", label: "اسم المادة", value: currentName, type: "text" },
-    { key: "orderIndex", label: "ترتيب العرض", value: currentOrder, type: "number" }
+    { key: "orderIndex", label: "ترتيب العرض", value: currentOrder, type: "number" },
+    { key: "iconUrl", label: "صورة/أيقونة المادة", value: currentIconUrl, type: "file" }
   ], async (values) => {
     await db.collection("subjects").doc(subjectId).update(values);
     loadContentList();
