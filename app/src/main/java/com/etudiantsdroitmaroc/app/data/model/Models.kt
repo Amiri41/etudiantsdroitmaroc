@@ -90,7 +90,8 @@ data class ChatMessage(
     var type: String = "text", // "text" أو "image"
     var imageUrl: String = "",
     var sentAt: Long = System.currentTimeMillis(),
-    var seen: Boolean = false
+    var seen: Boolean = false,
+    var participantUids: List<String> = emptyList() // مكررة عمدا هنا باش قواعد الأمان تتحقق بلا ما تحتاج تقرا الوثيقة الأصل (كيفادي مشكل السباق مع المحادثات الجداد)
 )
 
 /** صفحة عامة (من نحن، الخصوصية، روابط...) - محتواها كامل قابل للتعديل من لوحة التحكم */

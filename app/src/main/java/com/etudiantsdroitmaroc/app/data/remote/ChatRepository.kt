@@ -213,13 +213,18 @@ class ChatRepository {
     }
 
     suspend fun sendImageMessage(threadId: String, imageUrl: String) {
-        val message = ChatMessage(senderUid = myUid, type = "image", imageUrl = imageUrl)
+        val otherUid = getOtherParticipantUid(threadId)
+        val message = ChatMessage(
+            senderUid = myUid,
+            type = "image",
+            imageUrl = imageUrl,
+            participantUids = listOfNotNull(myUid, otherUid)
+        )
         val docRef = firestore.collection("chat_threads").document(threadId)
             .collection("messages").document()
         message.id = docRef.id
         docRef.set(message).await()
 
-        val otherUid = getOtherParticipantUid(threadId)
         val updates = mutableMapOf<String, Any>(
             "lastMessage" to "📷 صورة",
             "lastMessageAt" to System.currentTimeMillis()
@@ -233,13 +238,17 @@ class ChatRepository {
     }
 
     suspend fun sendMessage(threadId: String, text: String) {
-        val message = ChatMessage(senderUid = myUid, text = text)
+        val otherUid = getOtherParticipantUid(threadId)
+        val message = ChatMessage(
+            senderUid = myUid,
+            text = text,
+            participantUids = listOfNotNull(myUid, otherUid)
+        )
         val docRef = firestore.collection("chat_threads").document(threadId)
             .collection("messages").document()
         message.id = docRef.id
         docRef.set(message).await()
 
-        val otherUid = getOtherParticipantUid(threadId)
         val updates = mutableMapOf<String, Any>(
             "lastMessage" to text,
             "lastMessageAt" to System.currentTimeMillis()
