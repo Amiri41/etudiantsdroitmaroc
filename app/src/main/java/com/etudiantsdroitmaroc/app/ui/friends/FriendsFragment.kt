@@ -91,7 +91,7 @@ class FriendsFragment : Fragment() {
     }
 
     private fun loadSuggestions() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val allUsers = repository.getAllUsers()
                 val friendUids = repository.getMyFriendsUids()
@@ -120,7 +120,7 @@ class FriendsFragment : Fragment() {
     }
 
     private fun loadFriends() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val friends = repository.getMyFriends()
                 showPeople(friends.map { PersonItem(it, "friend") }, PersonMode.FRIEND)
@@ -155,7 +155,7 @@ class FriendsFragment : Fragment() {
     }
 
     private fun sendRequest(item: PersonItem) {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 repository.sendFriendRequest(item.profile.uid)
                 Toast.makeText(context, "تم بعث طلب الصداقة ✅", Toast.LENGTH_SHORT).show()
@@ -167,7 +167,7 @@ class FriendsFragment : Fragment() {
     }
 
     private fun removeFriend(item: PersonItem) {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 repository.removeFriend(item.profile.uid)
                 Toast.makeText(context, "تمت إزالة الصديق", Toast.LENGTH_SHORT).show()
@@ -179,7 +179,7 @@ class FriendsFragment : Fragment() {
     }
 
     private fun loadRequests() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val requests = repository.getIncomingRequests()
                 isRequestsTab = true
@@ -201,7 +201,7 @@ class FriendsFragment : Fragment() {
     }
 
     private fun acceptRequest(request: FriendRequest) {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 repository.acceptFriendRequest(request.fromUid)
                 Toast.makeText(context, "أصبحتوا أصدقاء ✅", Toast.LENGTH_SHORT).show()
@@ -213,7 +213,7 @@ class FriendsFragment : Fragment() {
     }
 
     private fun declineRequest(request: FriendRequest) {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 repository.declineFriendRequest(request.fromUid)
                 loadRequests()

@@ -72,7 +72,7 @@ class ChatListFragment : Fragment() {
     }
 
     private fun loadData() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 onlineAdapter.updateData(repository.getOnlineUsers())
                 allThreads = repository.getMyThreads()
@@ -90,7 +90,7 @@ class ChatListFragment : Fragment() {
     }
 
     private fun openThreadWith(user: UserProfile) {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             val threadId = repository.getOrCreateThread(user.uid, user.name)
             val intent = Intent(requireContext(), ChatActivity::class.java)
             intent.putExtra("threadId", threadId)

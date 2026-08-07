@@ -104,7 +104,7 @@ class ProfileFragment : Fragment() {
     private fun deleteAccount() {
         val user = FirebaseAuth.getInstance().currentUser ?: return
         val uid = user.uid
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 // نحذفو البروفايل من Firestore قبل حذف الحساب
                 Firebase.firestore.collection("users").document(uid).delete().await()
@@ -176,7 +176,7 @@ class ProfileFragment : Fragment() {
         // الإيميل خاص، ما كنعرضوش فالواجهة
         user.photoUrl?.let { Glide.with(this).load(it).into(binding.ivProfilePhoto) }
 
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val doc = Firebase.firestore.collection("users").document(user.uid).get().await()
                 val profile = doc.toObject<UserProfile>()

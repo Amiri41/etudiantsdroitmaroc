@@ -65,7 +65,7 @@ class HomeFragment : Fragment() {
             startActivity(Intent(requireContext(), VideosHomeActivity::class.java))
         }
 
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             val config = appConfigRepository.getSectionsConfig()
             buildSectionChips(config)
             loadSubjectsAndChapters()
@@ -119,7 +119,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun loadSubjectsAndChapters() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val snapshot = Firebase.firestore.collection("subjects").get().await()
                 allSubjects = snapshot.toObjects<Subject>().filter { it.active }

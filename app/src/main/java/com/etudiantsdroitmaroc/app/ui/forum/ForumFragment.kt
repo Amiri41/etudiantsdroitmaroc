@@ -74,7 +74,7 @@ class ForumFragment : Fragment() {
         adapter = ForumFeedAdapter(
             requireContext(), emptyList(),
             onLikeClick = { post ->
-                lifecycleScope.launch {
+                viewLifecycleOwner.lifecycleScope.launch {
                     try {
                         repository.toggleLike(post.id)
                         loadPosts()
@@ -140,7 +140,7 @@ class ForumFragment : Fragment() {
     }
 
     private fun loadPosts() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 blockedUids = chatRepository.getBlockedUids()
                 allPosts = repository.getPosts().filter { it.authorUid !in blockedUids }
@@ -170,7 +170,7 @@ class ForumFragment : Fragment() {
                 Toast.makeText(context, "اكتب شي حاجة أو زيد صورة قبل النشر", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            lifecycleScope.launch {
+            viewLifecycleOwner.lifecycleScope.launch {
                 var imageUrl = ""
                 val imageUri = pickedPostImageUri
                 if (imageUri != null) {
@@ -201,7 +201,7 @@ class ForumFragment : Fragment() {
         dialogBinding.btnPublish.setOnClickListener {
             val content = dialogBinding.etPostContent.text?.toString()?.trim().orEmpty()
             if (content.isEmpty()) return@setOnClickListener
-            lifecycleScope.launch {
+            viewLifecycleOwner.lifecycleScope.launch {
                 val result = repository.updatePost(post.id, content)
                 if (result.isSuccess) {
                     dialog.dismiss()
@@ -219,7 +219,7 @@ class ForumFragment : Fragment() {
             .setTitle("حذف المنشور")
             .setMessage("متأكد بغيتي تحذف هاد المنشور؟")
             .setPositiveButton("حذف") { _, _ ->
-                lifecycleScope.launch {
+                viewLifecycleOwner.lifecycleScope.launch {
                     repository.deletePost(post.id)
                     loadPosts()
                 }
@@ -229,7 +229,7 @@ class ForumFragment : Fragment() {
     }
 
     private fun loadGroups() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 groupAdapter.updateData(groupRepository.getGroups())
             } catch (e: Exception) {
@@ -239,7 +239,7 @@ class ForumFragment : Fragment() {
     }
 
     private fun joinGroup(group: ForumGroup) {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 groupRepository.joinGroup(group.id)
                 Toast.makeText(context, "انضميتي لمجموعة ${group.name} ✅", Toast.LENGTH_SHORT).show()
@@ -280,7 +280,7 @@ class ForumFragment : Fragment() {
                 Toast.makeText(context, "دخل اسم ووصف المجموعة", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            lifecycleScope.launch {
+            viewLifecycleOwner.lifecycleScope.launch {
                 var iconUrl = ""
                 val iconUri = pickedGroupIconUri
                 if (iconUri != null) {
