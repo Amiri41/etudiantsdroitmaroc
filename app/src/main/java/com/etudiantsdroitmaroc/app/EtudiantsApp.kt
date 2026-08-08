@@ -15,9 +15,8 @@ class EtudiantsApp : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        com.etudiantsdroitmaroc.app.utils.DarkModeHelper.applySavedMode(this)
-
-        // تسجيل أي انهيار غير متوقع + بعتو لـ Firestore باش نقدر نشوفوه بلا كمبيوتر
+        // تسجيل أي انهيار غير متوقع - خاصو يكون أول حاجة كتخدم، قبل أي كود آخر يقدر يكريش
+        // (قبل، كان الكود ديال الوضع الليلي كيخدم قبل هادشي، فإلا كريش هو، ماكنسجلوش)
         val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             try {
@@ -28,7 +27,9 @@ class EtudiantsApp : Application() {
 
                 // Firestore عندو offline persistence، فالكتابة كتتخزن محليا وكتصيفط
                 // للسيرفر أوتوماتيكيا ملي يرجع الانترنت، حتى لو التطبيق سدم مباشرة بعدها
-                val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: "unknown"
+                val uid = try {
+                    com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: "unknown"
+                } catch (_: Exception) { "unknown" }
                 Firebase.firestore.collection("debug_logs").document().set(
                     mapOf(
                         "uid" to uid,
@@ -39,6 +40,12 @@ class EtudiantsApp : Application() {
             } catch (_: Exception) {
             }
             defaultHandler?.uncaughtException(thread, throwable)
+        }
+
+        try {
+            com.etudiantsdroitmaroc.app.utils.DarkModeHelper.applySavedMode(this)
+        } catch (_: Exception) {
+            // ما تكسرش بداية التطبيق إلا فشل تطبيق الوضع الليلي المحفوظ
         }
 
         // Firebase
