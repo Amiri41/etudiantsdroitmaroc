@@ -90,6 +90,14 @@ jobs:
       - name: Decode release keystore
         run: echo '${{ secrets.RELEASE_KEYSTORE_BASE64 }}' | base64 -d > "$RUNNER_TEMP/release.keystore"
 
+      - name: Print keystore fingerprint (SHA-1 / SHA-256 for Firebase)
+        env:
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+        run: |
+          FP=$(keytool -list -v -keystore "$RUNNER_TEMP/release.keystore" -storepass "$RELEASE_KEYSTORE_PASSWORD" -alias "$RELEASE_KEY_ALIAS" | grep -E "SHA1:|SHA256:")
+          echo "::notice::$FP"
+
       - name: Build signed Release APK + AAB
         id: build_release
         continue-on-error: true
