@@ -5,7 +5,6 @@ import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.etudiantsdroitmaroc.app.data.model.Post
 import com.etudiantsdroitmaroc.app.databinding.ItemNativeAdBinding
 import com.etudiantsdroitmaroc.app.databinding.ItemPostBinding
@@ -62,12 +61,12 @@ class ForumFeedAdapter(
         val relativeTime = DateUtils.getRelativeTimeSpanString(post.createdAt)
         binding.tvMeta.text = "$relativeTime · ${post.commentsCount} تعليق"
         if (post.authorPhotoUrl.isNotEmpty()) {
-            Glide.with(holder.itemView).load(post.authorPhotoUrl).into(binding.ivAuthorPhoto)
+            com.etudiantsdroitmaroc.app.utils.ImageLoader.load(binding.ivAuthorPhoto, post.authorPhotoUrl)
         }
 
         if (post.imageUrl.isNotEmpty()) {
             binding.ivPostImage.visibility = android.view.View.VISIBLE
-            Glide.with(holder.itemView).load(post.imageUrl).into(binding.ivPostImage)
+            com.etudiantsdroitmaroc.app.utils.ImageLoader.load(binding.ivPostImage, post.imageUrl)
         } else {
             binding.ivPostImage.visibility = android.view.View.GONE
         }

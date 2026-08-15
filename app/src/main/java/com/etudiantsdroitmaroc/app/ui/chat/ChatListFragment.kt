@@ -45,6 +45,7 @@ class ChatListFragment : Fragment() {
 
         threadAdapter = ThreadAdapter(emptyList()) { thread -> openThread(thread) }
         binding.rvThreads.layoutManager = LinearLayoutManager(context)
+        binding.rvThreads.setHasFixedSize(true)
         binding.rvThreads.adapter = threadAdapter
 
         binding.etSearch.addTextChangedListener(object : android.text.TextWatcher {

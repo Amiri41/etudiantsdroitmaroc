@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.etudiantsdroitmaroc.app.R
 import com.etudiantsdroitmaroc.app.data.model.ChatThread
 import com.etudiantsdroitmaroc.app.databinding.ItemChatThreadBinding
@@ -74,7 +73,7 @@ class ThreadAdapter(
 
     private fun applyUserInfo(holder: VH, info: UserCache) {
         if (info.photoUrl.isNotEmpty()) {
-            Glide.with(holder.itemView).load(info.photoUrl).into(holder.binding.ivAvatar)
+            com.etudiantsdroitmaroc.app.utils.ImageLoader.load(holder.binding.ivAvatar, info.photoUrl)
         }
         holder.binding.onlineDot.visibility = if (info.isOnline) View.VISIBLE else View.GONE
     }

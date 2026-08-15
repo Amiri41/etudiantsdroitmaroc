@@ -99,6 +99,7 @@ class ForumFragment : Fragment() {
             }
         )
         binding.rvPosts.layoutManager = LinearLayoutManager(context)
+        binding.rvPosts.setHasFixedSize(true)
         binding.rvPosts.adapter = adapter
 
         binding.fabNewPost.setOnClickListener { showNewPostDialog() }
@@ -110,6 +111,7 @@ class ForumFragment : Fragment() {
             onJoin = { joinGroup(it) }
         )
         binding.rvGroups.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        binding.rvGroups.setHasFixedSize(true)
         binding.rvGroups.adapter = groupAdapter
         binding.btnCreateGroup.setOnClickListener { showCreateGroupDialog() }
         loadGroups()

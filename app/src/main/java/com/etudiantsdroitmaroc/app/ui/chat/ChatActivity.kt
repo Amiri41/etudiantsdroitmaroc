@@ -63,6 +63,7 @@ class ChatActivity : AppCompatActivity() {
             )
         }
         binding.rvMessages.layoutManager = LinearLayoutManager(this)
+        binding.rvMessages.setHasFixedSize(true)
         binding.rvMessages.adapter = adapter
 
         binding.fabSend.setOnClickListener { sendMessage() }

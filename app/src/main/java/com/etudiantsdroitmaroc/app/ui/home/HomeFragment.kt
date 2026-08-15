@@ -55,10 +55,12 @@ class HomeFragment : Fragment() {
 
         subjectAdapter = SubjectAdapter(emptyList()) { openSubject(it) }
         binding.rvSubjects.layoutManager = GridLayoutManager(context, 2)
+        binding.rvSubjects.setHasFixedSize(true)
         binding.rvSubjects.adapter = subjectAdapter
 
         chapterRowAdapter = ChapterRowAdapter(emptyList()) { openSubject(it) }
         binding.rvChapters.layoutManager = LinearLayoutManager(context)
+        binding.rvChapters.setHasFixedSize(true)
         binding.rvChapters.adapter = chapterRowAdapter
 
         binding.btnVideosEntry.setOnClickListener {

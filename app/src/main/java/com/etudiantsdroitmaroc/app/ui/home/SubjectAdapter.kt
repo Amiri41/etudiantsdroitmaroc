@@ -2,11 +2,12 @@ package com.etudiantsdroitmaroc.app.ui.home
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.etudiantsdroitmaroc.app.R
 import com.etudiantsdroitmaroc.app.data.model.Subject
 import com.etudiantsdroitmaroc.app.databinding.ItemSubjectBinding
+import com.etudiantsdroitmaroc.app.utils.ImageLoader
 
 class SubjectAdapter(
     private var subjects: List<Subject>,
@@ -26,9 +27,7 @@ class SubjectAdapter(
 
         if (subject.iconUrl.isNotEmpty()) {
             holder.binding.ivIcon.setPadding(0, 0, 0, 0)
-            Glide.with(holder.itemView).load(subject.iconUrl)
-                .placeholder(R.drawable.ic_law_scale)
-                .into(holder.binding.ivIcon)
+            ImageLoader.load(holder.binding.ivIcon, subject.iconUrl, R.drawable.ic_law_scale)
         } else {
             val padding = (30 * holder.itemView.resources.displayMetrics.density).toInt()
             holder.binding.ivIcon.setPadding(padding, padding, padding, padding)
@@ -40,8 +39,20 @@ class SubjectAdapter(
 
     override fun getItemCount() = subjects.size
 
+    /** DiffUtil بدل notifyDataSetChanged - كيقلل الفليكر ملي كيتبدل المحتوى */
     fun updateData(newSubjects: List<Subject>) {
+        val diffCallback = object : DiffUtil.Callback() {
+            override fun getOldListSize() = subjects.size
+            override fun getNewListSize() = newSubjects.size
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return subjects[oldItemPosition].id == newSubjects[newItemPosition].id
+            }
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return subjects[oldItemPosition] == newSubjects[newItemPosition]
+            }
+        }
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
         subjects = newSubjects
-        notifyDataSetChanged()
+        diffResult.dispatchUpdatesTo(this)
     }
 }
