@@ -70,7 +70,8 @@
             android:layout_marginTop="14dp"
             android:text="📋 منشوراتي"
             android:textAllCaps="false"
-            app:backgroundTint="@color/navy" />
+            app:backgroundTint="@color/navy"
+            android:textColor="@color/off_white" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnPromoteService"
@@ -79,7 +80,8 @@
             android:layout_marginTop="14dp"
             android:text="📢 روّج خدمتك معنا"
             android:textAllCaps="false"
-            app:backgroundTint="@color/navy" />
+            app:backgroundTint="@color/navy"
+            android:textColor="@color/off_white" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnPages"
@@ -88,7 +90,8 @@
             android:layout_marginTop="24dp"
             android:text="⚖️ تعرف على منصتنا"
             android:textAllCaps="false"
-            app:backgroundTint="@color/navy" />
+            app:backgroundTint="@color/navy"
+            android:textColor="@color/off_white" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDarkMode"
