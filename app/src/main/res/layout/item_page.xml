@@ -3,31 +3,65 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="1dp">
+    android:layout_marginHorizontal="4dp"
+    android:layout_marginBottom="10dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardBackgroundColor="@color/card_bg"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="0dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/divider"
+    app:rippleColor="@color/navy_soft_bg">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:padding="14dp">
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="14dp">
+
+        <!-- إطار دائري ذهبي حول أيقونة الميزان -->
+        <FrameLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_circle_navy_soft">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_law_scale"
+                app:tint="@color/navy" />
+        </FrameLayout>
 
         <TextView
             android:id="@+id/tvPageTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_marginHorizontal="14dp"
             android:textColor="@color/text_primary"
-            android:textSize="15sp" />
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-medium" />
 
-        <ImageView
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:src="@drawable/ic_back"
-            android:rotation="180"
-            app:tint="@color/navy" />
+        <!-- سهم فدائرة ذهبية خفيفة -->
+        <FrameLayout
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/bg_circle_navy_soft">
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_back"
+                android:rotation="180"
+                app:tint="@color/navy" />
+        </FrameLayout>
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
