@@ -15,8 +15,11 @@ class EtudiantsApp : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        // تسجيل أي انهيار غير متوقع - خاصو يكون أول حاجة كتخدم، قبل أي كود آخر يقدر يكريش
-        // (قبل، كان الكود ديال الوضع الليلي كيخدم قبل هادشي، فإلا كريش هو، ماكنسجلوش)
+        // Firebase خاصو يتبدا أول حاجة ديال كولشي - باش الـ exception handler تحت
+        // يقدر يكتب لـ Firestore حتى لو الكراش وقع فبداية بداية التطبيق (بحال DarkModeHelper)
+        FirebaseApp.initializeApp(this)
+
+        // تسجيل أي انهيار غير متوقع - خاصو يكون قبل أي كود آخر يقدر يكريش
         val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             try {
@@ -34,7 +37,8 @@ class EtudiantsApp : Application() {
                     mapOf(
                         "uid" to uid,
                         "trace" to trace.take(4000),
-                        "timestamp" to System.currentTimeMillis()
+                        "timestamp" to System.currentTimeMillis(),
+                        "device" to "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL} (SDK ${android.os.Build.VERSION.SDK_INT})"
                     )
                 )
             } catch (_: Exception) {
@@ -42,14 +46,34 @@ class EtudiantsApp : Application() {
             defaultHandler?.uncaughtException(thread, throwable)
         }
 
+        // إلا كان عندنا كراش محلي قديم ماتبعتش (مثلا وقع الكراش وما كانش انترنت
+        // أو Firebase ماكانش مهيأ بعد فنسخة قديمة)، نحاولو نبعتوه دابا
+        try {
+            val crashFile = File(filesDir, "last_crash.txt")
+            if (crashFile.exists()) {
+                val trace = crashFile.readText()
+                val uid = try {
+                    com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: "unknown"
+                } catch (_: Exception) { "unknown" }
+                Firebase.firestore.collection("debug_logs").document().set(
+                    mapOf(
+                        "uid" to uid,
+                        "trace" to trace.take(4000),
+                        "timestamp" to System.currentTimeMillis(),
+                        "device" to "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL} (SDK ${android.os.Build.VERSION.SDK_INT})",
+                        "recovered" to true
+                    )
+                )
+                crashFile.delete()
+            }
+        } catch (_: Exception) {
+        }
+
         try {
             com.etudiantsdroitmaroc.app.utils.DarkModeHelper.applySavedMode(this)
         } catch (_: Exception) {
             // ما تكسرش بداية التطبيق إلا فشل تطبيق الوضع الليلي المحفوظ
         }
-
-        // Firebase
-        FirebaseApp.initializeApp(this)
 
         // تفعيل offline persistence باش Firestore يخدم بلا انترنت (كاش تلقائي)
         val settings = FirebaseFirestoreSettings.Builder()
