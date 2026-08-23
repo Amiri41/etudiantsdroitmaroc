@@ -124,6 +124,18 @@ jobs:
         with:
           name: etudiants-droit-maroc-release-aab
           path: app/build/outputs/bundle/release/app-release.aab
+
+      - name: Publish GitHub Release with public APK link
+        if: always() && steps.build_release.outcome == 'success'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: "آخر نسخة - Étudiants en Droit Maroc"
+          body: "تحميل مباشر لآخر نسخة من التطبيق (تلقائي من GitHub Actions)."
+          make_latest: true
+          files: app/build/outputs/apk/release/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 # retry release build 1785185968
 # retry 1785281010
 # verify 1785308261
