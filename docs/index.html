@@ -259,6 +259,100 @@
   }
 
   :focus-visible{ outline:2px solid var(--gold); outline-offset:3px; }
+
+  /* --------- استعراض التطبيق (سكرينشوطات) --------- */
+  .showcase{
+    background:var(--ink);
+    padding:80px 0 96px;
+    overflow:hidden;
+    position:relative;
+  }
+  .showcase .scale-pattern{ opacity:.6; }
+  .showcase .section-head h2{ color:var(--parchment); }
+  .showcase .section-head .eyebrow{ color:var(--gold-light); }
+  .showcase .section-head p.sub{
+    color:rgba(247,241,227,.65);
+    max-width:520px;
+    margin:14px auto 0;
+    font-size:14.5px;
+    line-height:1.9;
+  }
+
+  .phone-track{
+    display:flex;
+    gap:26px;
+    overflow-x:auto;
+    padding:50px 24px 30px;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .phone-track::-webkit-scrollbar{ display:none; }
+
+  .phone{
+    flex:0 0 auto;
+    scroll-snap-align:center;
+    width:220px;
+  }
+  .phone-frame{
+    position:relative;
+    width:220px;
+    height:462px;
+    border-radius:32px;
+    background:#0d0d12;
+    padding:9px;
+    box-shadow:
+      0 30px 60px rgba(0,0,0,.55),
+      0 0 0 1.5px rgba(245,179,36,.18);
+    transition:transform .3s ease, box-shadow .3s ease;
+  }
+  .phone:hover .phone-frame{ transform:translateY(-8px); }
+  .phone-frame::before{
+    content:"";
+    position:absolute;
+    top:9px; left:50%; transform:translateX(-50%);
+    width:70px; height:18px;
+    background:#0d0d12;
+    border-radius:0 0 14px 14px;
+    z-index:2;
+  }
+  .phone-screen{
+    width:100%; height:100%;
+    border-radius:24px;
+    overflow:hidden;
+    background:var(--navy);
+  }
+  .phone-screen img{
+    width:100%; height:100%;
+    object-fit:cover;
+    object-position:top center;
+    display:block;
+  }
+  .phone-caption{
+    text-align:center;
+    margin-top:18px;
+    color:var(--gold-light);
+    font-weight:700;
+    font-size:14px;
+  }
+
+  .scroll-hint{
+    text-align:center;
+    color:rgba(247,241,227,.4);
+    font-size:12.5px;
+    margin-top:6px;
+    display:flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .scroll-hint svg{ animation:swipeHint 1.6s ease-in-out infinite; }
+  @keyframes swipeHint{
+    0%,100%{ transform:translateX(0); opacity:.5; }
+    50%{ transform:translateX(-6px); opacity:1; }
+  }
+
+  @media (max-width:560px){
+    .phone{ width:190px; }
+    .phone-frame{ width:190px; height:399px; border-radius:28px; }
+  }
 </style>
 </head>
 <body>
@@ -278,6 +372,53 @@
   <div class="cta-row">
     <a href="#" class="btn btn-gold" id="notifyBtn">🔔 نبّهوني ملي يطلع</a>
     <a href="#features" class="btn btn-outline">شنو كيقدم التطبيق؟</a>
+  </div>
+</section>
+
+<section class="showcase">
+  <div class="scale-pattern"></div>
+  <div class="section-head">
+    <span class="eyebrow">لقطات من التطبيق</span>
+    <h2>شوف كيفاش كيبان من الداخل</h2>
+    <p class="sub">من الصفحة الرئيسية للمنتدى، بحساب واحد كتقدر توصل لكل شي — سحب يمين/يسار باش تشوف الشاشات الأخرى</p>
+  </div>
+
+  <div class="phone-track">
+    <div class="phone">
+      <div class="phone-frame">
+        <div class="phone-screen"><img src="assets/screens/home.jpg" alt="الصفحة الرئيسية - المواد حسب الفصول" loading="lazy"></div>
+      </div>
+      <div class="phone-caption">🏠 الرئيسية</div>
+    </div>
+    <div class="phone">
+      <div class="phone-frame">
+        <div class="phone-screen"><img src="assets/screens/forum.jpg" alt="المنتدى" loading="lazy"></div>
+      </div>
+      <div class="phone-caption">💬 المنتدى</div>
+    </div>
+    <div class="phone">
+      <div class="phone-frame">
+        <div class="phone-screen"><img src="assets/screens/chat.jpg" alt="الدردشة" loading="lazy"></div>
+      </div>
+      <div class="phone-caption">🗨️ الدردشة</div>
+    </div>
+    <div class="phone">
+      <div class="phone-frame">
+        <div class="phone-screen"><img src="assets/screens/friends.jpg" alt="الأصدقاء" loading="lazy"></div>
+      </div>
+      <div class="phone-caption">🤝 الأصدقاء</div>
+    </div>
+    <div class="phone">
+      <div class="phone-frame">
+        <div class="phone-screen"><img src="assets/screens/profile.jpg" alt="حسابي" loading="lazy"></div>
+      </div>
+      <div class="phone-caption">👤 حسابي</div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <span>مرر باش تشوف الباقي</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg>
   </div>
 </section>
 
