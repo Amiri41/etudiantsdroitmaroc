@@ -71,6 +71,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: deploy-rules
     if: ${{ vars.RELEASE_SIGNING_READY == 'true' }}
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
