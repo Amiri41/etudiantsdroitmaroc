@@ -353,6 +353,76 @@
     .phone{ width:190px; }
     .phone-frame{ width:190px; height:399px; border-radius:28px; }
   }
+
+  /* --------- قائمة المتاجر --------- */
+  .store-list{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    max-width:520px;
+    margin:0 auto;
+  }
+  .store-item{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    background:#fff;
+    border:1px solid rgba(10,31,61,.08);
+    border-radius:16px;
+    padding:16px 18px;
+    text-decoration:none;
+    transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+  }
+  .store-item:hover{ transform:translateY(-2px); box-shadow:0 12px 26px rgba(10,31,61,.08); }
+  .store-item:first-child{
+    border-color:rgba(245,179,36,.5);
+    box-shadow:0 8px 22px rgba(245,179,36,.15);
+  }
+  .store-icon{
+    width:44px; height:44px;
+    border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    color:#fff;
+    font-family:'Amiri',serif;
+    font-weight:700;
+    font-size:19px;
+    flex:0 0 auto;
+  }
+  .store-info{ flex:1; }
+  .store-info h4{ font-size:15px; color:var(--ink); font-weight:700; }
+  .store-status{ font-size:12.5px; color:var(--seal-red); font-weight:700; }
+  .store-item:first-child .store-status{ color:#1F7A44; }
+  .store-arrow{ color:rgba(10,31,61,.3); font-size:18px; }
+
+  .store-note{
+    text-align:center;
+    color:var(--ink-70);
+    font-size:13px;
+    max-width:480px;
+    margin:26px auto 0;
+    line-height:1.8;
+  }
+
+  .toast{
+    position:fixed;
+    bottom:26px; left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--ink);
+    color:var(--parchment);
+    padding:13px 22px;
+    border-radius:12px;
+    font-size:13.5px;
+    box-shadow:0 12px 30px rgba(0,0,0,.3);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s ease, transform .25s ease;
+    z-index:50;
+    white-space:nowrap;
+  }
+  .toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
 </style>
 </head>
 <body>
@@ -370,9 +440,61 @@
   <p class="lede">مذكرات، نقاش، محادثات، وفيديوهات تعليمية — كلشي مرتب حسب المسار والفصل والمادة، باش التركيز يبقى ديما فالدراسة.</p>
 
   <div class="cta-row">
-    <a href="#" class="btn btn-gold" id="notifyBtn">🔔 نبّهوني ملي يطلع</a>
+    <a href="#stores" class="btn btn-gold">⬇️ حمّل التطبيق</a>
     <a href="#features" class="btn btn-outline">شنو كيقدم التطبيق؟</a>
   </div>
+</section>
+
+<section id="stores">
+  <div class="section-head">
+    <span class="eyebrow">متوفر قريبا على</span>
+    <h2>اختار المتجر اللي كيناسبك</h2>
+  </div>
+
+  <div class="store-list">
+    <a href="#" class="store-item store-pending" data-store="Uptodown">
+      <div class="store-icon" style="background:#1FC157;">U</div>
+      <div class="store-info">
+        <h4>Uptodown</h4>
+        <span class="store-status">قيد النشر حاليا</span>
+      </div>
+      <div class="store-arrow">←</div>
+    </a>
+    <a href="#" class="store-item store-pending" data-store="Aptoide">
+      <div class="store-icon" style="background:#59B93C;">A</div>
+      <div class="store-info">
+        <h4>Aptoide</h4>
+        <span class="store-status">قريبا</span>
+      </div>
+      <div class="store-arrow">←</div>
+    </a>
+    <a href="#" class="store-item store-pending" data-store="APKPure">
+      <div class="store-icon" style="background:#24B04B;">P</div>
+      <div class="store-info">
+        <h4>APKPure</h4>
+        <span class="store-status">قريبا</span>
+      </div>
+      <div class="store-arrow">←</div>
+    </a>
+    <a href="#" class="store-item store-pending" data-store="Samsung Galaxy Store">
+      <div class="store-icon" style="background:#1428A0;">S</div>
+      <div class="store-info">
+        <h4>Samsung Galaxy Store</h4>
+        <span class="store-status">قريبا</span>
+      </div>
+      <div class="store-arrow">←</div>
+    </a>
+    <a href="#" class="store-item store-pending" data-store="Huawei AppGallery">
+      <div class="store-icon" style="background:#C7000B;">H</div>
+      <div class="store-info">
+        <h4>Huawei AppGallery</h4>
+        <span class="store-status">قريبا</span>
+      </div>
+      <div class="store-arrow">←</div>
+    </a>
+  </div>
+
+  <p class="store-note">⚡ التطبيق قيد النشر تدريجيا على المتاجر أعلاه — سيتم تفعيل كل رابط فور اعتماد التطبيق فيه</p>
 </section>
 
 <section class="showcase">
@@ -490,18 +612,30 @@
 </footer>
 
 <script>
-  document.getElementById('notifyBtn').addEventListener('click', function(e){
-    e.preventDefault();
-    if (navigator.share) {
-      navigator.share({
-        title: 'Étudiants en Droit Maroc',
-        text: 'منصة طلبة الحقوق بالمغرب - قريبا!',
-        url: window.location.href
-      }).catch(()=>{});
-    } else {
-      this.textContent = '✅ غادي نعلموك ملي يطلع';
-      this.style.pointerEvents = 'none';
-    }
+  function showToast(message){
+    var existing = document.querySelector('.toast');
+    if (existing) existing.remove();
+    var toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    requestAnimationFrame(function(){ toast.classList.add('show'); });
+    setTimeout(function(){
+      toast.classList.remove('show');
+      setTimeout(function(){ toast.remove(); }, 300);
+    }, 2400);
+  }
+
+  document.querySelectorAll('.store-item').forEach(function(item){
+    item.addEventListener('click', function(e){
+      var url = item.getAttribute('data-url');
+      var storeName = item.getAttribute('data-store');
+      if (!url) {
+        e.preventDefault();
+        showToast('⏳ ' + storeName + ' — التطبيق قيد النشر، تابعونا قريبا');
+      }
+      // إلا كان data-url معمر، الرابط كيخدم عادي (href الحقيقي كيتحط وقتها)
+    });
   });
 </script>
 
