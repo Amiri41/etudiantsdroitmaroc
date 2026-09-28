@@ -458,41 +458,17 @@
   <div class="store-list">
     <a href="#" class="store-item store-pending" data-store="Uptodown" aria-label="Uptodown">
       <div class="store-logo"><img src="assets/stores/uptodown.png" alt="Uptodown" height="24"></div>
-      <span class="store-status">قيد النشر حاليا</span>
-      <div class="store-arrow">←</div>
-    </a>
-    <a href="#" class="store-item store-pending" data-store="Aptoide">
-      <div class="store-icon" style="background:#59B93C;">A</div>
-      <div class="store-info">
-        <h4>Aptoide</h4>
-        <span class="store-status">قريبا</span>
-      </div>
+      <span class="store-status">قريبا · فانتظار القبول</span>
       <div class="store-arrow">←</div>
     </a>
     <a href="#" class="store-item store-pending" data-store="APKPure" aria-label="APKPure">
       <div class="store-logo"><img src="assets/stores/apkpure.png" alt="APKPure" height="28"></div>
-      <span class="store-status">قريبا</span>
-      <div class="store-arrow">←</div>
-    </a>
-    <a href="#" class="store-item store-pending" data-store="Samsung Galaxy Store">
-      <div class="store-icon" style="background:#1428A0;">S</div>
-      <div class="store-info">
-        <h4>Samsung Galaxy Store</h4>
-        <span class="store-status">قريبا</span>
-      </div>
-      <div class="store-arrow">←</div>
-    </a>
-    <a href="#" class="store-item store-pending" data-store="Huawei AppGallery">
-      <div class="store-icon" style="background:#C7000B;">H</div>
-      <div class="store-info">
-        <h4>Huawei AppGallery</h4>
-        <span class="store-status">قريبا</span>
-      </div>
+      <span class="store-status">قريبا · فانتظار القبول</span>
       <div class="store-arrow">←</div>
     </a>
   </div>
 
-  <p class="store-note">⚡ التطبيق قيد النشر تدريجيا على المتاجر أعلاه — سيتم تفعيل كل رابط فور اعتماد التطبيق فيه</p>
+  <p class="store-note">⏳ التطبيق فانتظار القبول فالمتاجر أعلاه — غادي يتفعل التحميل فكل واحد فور القبول</p>
 </section>
 
 <section class="showcase">
@@ -630,7 +606,7 @@
       var storeName = item.getAttribute('data-store');
       if (!url) {
         e.preventDefault();
-        showToast('⏳ ' + storeName + ' — التطبيق قيد النشر، تابعونا قريبا');
+        showToast('⏳ ' + storeName + ' — التطبيق فانتظار القبول، التحميل قريبا');
       }
       // إلا كان data-url معمر، الرابط كيخدم عادي (href الحقيقي كيتحط وقتها)
     });
