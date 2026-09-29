@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://amiri41.github.io/etudiantsdroitmaroc/sitemap.xml

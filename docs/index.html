@@ -5,6 +5,46 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Étudiants en Droit Maroc | منصة طلبة الحقوق بالمغرب</title>
 <meta name="description" content="منصة رقمية موحدة لطلبة كليات الحقوق بالمغرب: مكتبة مذكرات، منتدى نقاش، محادثات، وفيديوهات تعليمية.">
+<meta name="keywords" content="طلبة الحقوق المغرب, تطبيق قانون, مذكرات قانونية, كلية الحقوق, Étudiants en Droit Maroc">
+<meta name="author" content="Étudiants en Droit Maroc">
+<link rel="canonical" href="https://amiri41.github.io/etudiantsdroitmaroc/">
+<meta name="robots" content="index, follow">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Étudiants en Droit Maroc | منصة طلبة الحقوق بالمغرب">
+<meta property="og:description" content="منصة رقمية موحدة لطلبة كليات الحقوق بالمغرب: مكتبة مذكرات، منتدى نقاش، محادثات، وفيديوهات تعليمية.">
+<meta property="og:url" content="https://amiri41.github.io/etudiantsdroitmaroc/">
+<meta property="og:image" content="https://amiri41.github.io/etudiantsdroitmaroc/assets/og-image.png">
+<meta property="og:locale" content="ar_MA">
+<meta property="og:site_name" content="Étudiants en Droit Maroc">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Étudiants en Droit Maroc | منصة طلبة الحقوق بالمغرب">
+<meta name="twitter:description" content="منصة رقمية موحدة لطلبة كليات الحقوق بالمغرب: مكتبة مذكرات، منتدى نقاش، محادثات، وفيديوهات تعليمية.">
+<meta name="twitter:image" content="https://amiri41.github.io/etudiantsdroitmaroc/assets/og-image.png">
+
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/favicon.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "MobileApplication",
+  "name": "Étudiants en Droit Maroc",
+  "operatingSystem": "ANDROID",
+  "applicationCategory": "EducationalApplication",
+  "description": "منصة رقمية موحدة لطلبة كليات الحقوق بالمغرب: مكتبة مذكرات، منتدى نقاش، محادثات، وفيديوهات تعليمية.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "MAD"
+  },
+  "inLanguage": "ar"
+}
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -427,6 +467,68 @@
     opacity:1;
     transform:translateX(-50%) translateY(0);
   }
+
+  /* --------- الأسئلة الشائعة --------- */
+  .faq-list{
+    max-width:680px;
+    margin:0 auto;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .faq-item{
+    background:#fff;
+    border:1px solid rgba(10,31,61,.08);
+    border-radius:14px;
+    overflow:hidden;
+  }
+  .faq-q{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    background:none;
+    border:none;
+    padding:18px 20px;
+    font-family:'Tajawal',sans-serif;
+    font-size:15px;
+    font-weight:700;
+    color:var(--ink);
+    text-align:start;
+    cursor:pointer;
+  }
+  .faq-icon{
+    flex:0 0 auto;
+    color:var(--seal-red);
+    font-size:20px;
+    font-weight:400;
+    transition:transform .25s ease;
+  }
+  .faq-item.open .faq-icon{ transform:rotate(45deg); }
+  .faq-a{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .3s ease, padding .3s ease;
+    padding:0 20px;
+  }
+  .faq-item.open .faq-a{
+    max-height:200px;
+    padding:0 20px 18px;
+  }
+  .faq-a p{ font-size:14px; color:var(--ink-70); line-height:1.85; }
+  .faq-a a{ color:var(--seal-red); font-weight:700; }
+
+  /* --------- ظهور تدريجي عند التمرير --------- */
+  .reveal{
+    opacity:0;
+    transform:translateY(24px);
+    transition:opacity .7s ease, transform .7s ease;
+  }
+  .reveal.in-view{
+    opacity:1;
+    transform:translateY(0);
+  }
 </style>
 </head>
 <body>
@@ -450,7 +552,7 @@
 </section>
 
 <section id="stores">
-  <div class="section-head">
+  <div class="section-head reveal">
     <span class="eyebrow">متوفر قريبا على</span>
     <h2>اختار المتجر اللي كيناسبك</h2>
   </div>
@@ -473,7 +575,7 @@
 
 <section class="showcase">
   <div class="scale-pattern"></div>
-  <div class="section-head">
+  <div class="section-head reveal">
     <span class="eyebrow">لقطات من التطبيق</span>
     <h2>شوف كيفاش كيبان من الداخل</h2>
     <p class="sub">من الصفحة الرئيسية للمنتدى، بحساب واحد كتقدر توصل لكل شي — سحب يمين/يسار باش تشوف الشاشات الأخرى</p>
@@ -519,7 +621,7 @@
 </section>
 
 <section id="features">
-  <div class="section-head">
+  <div class="section-head reveal">
     <span class="eyebrow">محتوى المنصة</span>
     <h2>خمس مواد كتلخص التطبيق</h2>
   </div>
@@ -571,9 +673,54 @@
 </section>
 
 <section>
-  <div class="mission">
+  <div class="mission reveal">
     <h2>ليه بنيناها؟</h2>
     <p>طالب الحقوق فالمغرب غالبا كيلقى نفسو كيقلب على المذكرة فمجموعة واتساب ضايعة، أو كيسول نفس السؤال اللي تسال ميا مرة قبلو. Étudiants en Droit Maroc جات باش تجمع كل هادشي فمكان واحد منظم — من طلبة الحقوق، لطلبة الحقوق.</p>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="section-head reveal">
+    <span class="eyebrow">أسئلة شائعة</span>
+    <h2>عندك سؤال؟ يمكن جاوبنا عليه هنا</h2>
+  </div>
+
+  <div class="faq-list">
+    <div class="faq-item">
+      <button class="faq-q">
+        <span>واش التطبيق مجاني بالكامل؟</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a"><p>أيه، التطبيق مجاني 100%. ما كاينش اشتراكات ولا مدفوعات باش توصل للمذكرات، المنتدى، أو أي ميزة أخرى.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">
+        <span>شكون يقدر يستافد من التطبيق؟</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a"><p>أي طالب فكلية الحقوق بالمغرب، سواء فالمسار الخاص، العام، الماستر، أو الدكتوراه.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">
+        <span>كيفاش نحمل التطبيق؟</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a"><p>من الروابط فالأعلى (قسم "اختار المتجر اللي كيناسبك"). كنشتغلو باش يكون متوفر على أكثر من متجر.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">
+        <span>واش المعلومات ديالي آمنة؟</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a"><p>أيه، عندنا سياسة خصوصية واضحة، وتقدر تحذف الحساب ديالك نهائيا فأي وقت من داخل التطبيق. <a href="privacy.html">اقرا سياسة الخصوصية</a>.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">
+        <span>عندي اقتراح أو مشكل تقني، فين نتواصل؟</span>
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a"><p>تقدر تراسلنا مباشرة على <a href="mailto:etudiantsendroitmorocco@gmail.com">etudiantsendroitmorocco@gmail.com</a>، أو عبر ميزة "روّج خدمتك معنا" داخل التطبيق.</p></div>
+    </div>
   </div>
 </section>
 
@@ -598,6 +745,29 @@
       toast.classList.remove('show');
       setTimeout(function(){ toast.remove(); }, 300);
     }, 2400);
+  }
+
+  document.querySelectorAll('.faq-q').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var item = btn.closest('.faq-item');
+      var wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(function(o){ o.classList.remove('open'); });
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
+
+  if ('IntersectionObserver' in window) {
+    var revealObserver = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(function(el){ revealObserver.observe(el); });
+  } else {
+    document.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('in-view'); });
   }
 
   document.querySelectorAll('.store-item').forEach(function(item){
