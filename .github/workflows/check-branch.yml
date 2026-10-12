@@ -1,0 +1,32 @@
+name: Check branch (debug build only)
+
+# يبني النسخة Debug فقط للفروع الأخرى غير main - بلا نشر قواعد وبلا Release
+on:
+  push:
+    branches-ignore: [ main ]
+
+jobs:
+  build-debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.4'
+      - name: Build Debug APK
+        id: build
+        continue-on-error: true
+        run: gradle assembleDebug --stacktrace > build_output.log 2>&1
+      - name: Show Kotlin compiler errors
+        if: always()
+        run: |
+          grep -nE "^e: |error:|What went wrong" build_output.log | while IFS= read -r line; do
+            echo "::error::$line"
+          done || true
+          if [ "${{ steps.build.outcome }}" = "failure" ]; then
+            exit 1
+          fi
