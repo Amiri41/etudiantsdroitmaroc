@@ -93,7 +93,8 @@ class UserProfileActivity : AppCompatActivity() {
                 postsAdapter.updateData(posts)
                 binding.tvNoPosts.visibility = if (posts.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
             } catch (e: Exception) {
-                Toast.makeText(this@UserProfileActivity, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                Toast.makeText(this@UserProfileActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -156,7 +157,8 @@ class UserProfileActivity : AppCompatActivity() {
                 }
                 updateFriendButtonState()
             } catch (e: Exception) {
-                Toast.makeText(this@UserProfileActivity, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                Toast.makeText(this@UserProfileActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -189,7 +191,8 @@ class UserProfileActivity : AppCompatActivity() {
                 }
                 updateFriendButtonState()
             } catch (e: Exception) {
-                Toast.makeText(this@UserProfileActivity, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                Toast.makeText(this@UserProfileActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }

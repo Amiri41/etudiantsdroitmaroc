@@ -114,7 +114,8 @@ class FriendsFragment : Fragment() {
 
                 showPeople(finalItems, PersonMode.SUGGESTION)
             } catch (e: Exception) {
-                Toast.makeText(context, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -125,7 +126,8 @@ class FriendsFragment : Fragment() {
                 val friends = repository.getMyFriends()
                 showPeople(friends.map { PersonItem(it, "friend") }, PersonMode.FRIEND)
             } catch (e: Exception) {
-                Toast.makeText(context, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -161,7 +163,8 @@ class FriendsFragment : Fragment() {
                 Toast.makeText(context, "تم بعث طلب الصداقة ✅", Toast.LENGTH_SHORT).show()
                 loadSuggestions()
             } catch (e: Exception) {
-                Toast.makeText(context, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -173,7 +176,8 @@ class FriendsFragment : Fragment() {
                 Toast.makeText(context, "تمت إزالة الصديق", Toast.LENGTH_SHORT).show()
                 loadFriends()
             } catch (e: Exception) {
-                Toast.makeText(context, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -195,7 +199,8 @@ class FriendsFragment : Fragment() {
                 binding.rvPeople.adapter = adapter
                 binding.tvEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
             } catch (e: Exception) {
-                Toast.makeText(context, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -207,7 +212,8 @@ class FriendsFragment : Fragment() {
                 Toast.makeText(context, "أصبحتوا أصدقاء ✅", Toast.LENGTH_SHORT).show()
                 loadRequests()
             } catch (e: Exception) {
-                Toast.makeText(context, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -218,7 +224,8 @@ class FriendsFragment : Fragment() {
                 repository.declineFriendRequest(request.fromUid)
                 loadRequests()
             } catch (e: Exception) {
-                Toast.makeText(context, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }

@@ -72,7 +72,8 @@ class VideosHomeActivity : AppCompatActivity() {
                 allVideoSubjects = subjectsRepository.getAllActive()
                 applyChapterRows()
             } catch (e: Exception) {
-                Toast.makeText(this@VideosHomeActivity, "خطأ: ${e.message}", Toast.LENGTH_LONG).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                Toast.makeText(this@VideosHomeActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -90,7 +91,8 @@ class VideosHomeActivity : AppCompatActivity() {
                 chapterRowAdapter.updateData(rows)
                 binding.tvEmptyVideoSubjects.visibility = if (rows.isEmpty()) View.VISIBLE else View.GONE
             } catch (e: Exception) {
-                Toast.makeText(this@VideosHomeActivity, "خطأ: ${e.message}", Toast.LENGTH_LONG).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                Toast.makeText(this@VideosHomeActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_LONG).show()
             }
         }
     }

@@ -4,16 +4,17 @@ import com.etudiantsdroitmaroc.app.data.model.Chapter
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.firestore.Source
 import kotlinx.coroutines.tasks.await
 
 class ChaptersRepository {
 
     private val firestore = Firebase.firestore
 
-    suspend fun getChaptersForSection(section: String): List<Chapter> {
+    suspend fun getChaptersForSection(section: String, source: Source = Source.DEFAULT): List<Chapter> {
         val snapshot = firestore.collection("chapters")
             .whereEqualTo("section", section)
-            .get()
+            .get(source)
             .await()
         return snapshot.toObjects<Chapter>()
             .filter { it.active }

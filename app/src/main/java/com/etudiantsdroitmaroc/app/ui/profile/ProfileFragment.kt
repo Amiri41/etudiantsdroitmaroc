@@ -120,7 +120,8 @@ class ProfileFragment : Fragment() {
                     android.widget.Toast.LENGTH_LONG
                 ).show()
             } catch (e: Exception) {
-                android.widget.Toast.makeText(context, "خطأ: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                android.widget.Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), android.widget.Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -163,6 +164,7 @@ class ProfileFragment : Fragment() {
                 startActivity(emailIntent)
                 dialog.dismiss()
             } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
                 android.widget.Toast.makeText(context, "ماكاينش تطبيق إيميل مثبت", android.widget.Toast.LENGTH_SHORT).show()
             }
         }

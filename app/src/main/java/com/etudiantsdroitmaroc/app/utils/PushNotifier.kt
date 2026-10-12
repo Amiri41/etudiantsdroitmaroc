@@ -48,7 +48,8 @@ object PushNotifier {
                     }
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "خطأ فبعث الإشعار: ${e.message}", e)
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                Log.e(TAG, "خطأ فبعث الإشعار: ${com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e)}", e)
             }
         }
     }

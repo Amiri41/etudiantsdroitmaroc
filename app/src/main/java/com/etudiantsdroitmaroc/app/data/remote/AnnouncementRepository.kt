@@ -15,6 +15,7 @@ object AnnouncementRepository {
             if (!snap.exists()) return null
             snap.toObject(AppAnnouncement::class.java)
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             null
         }
     }

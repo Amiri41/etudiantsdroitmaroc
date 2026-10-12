@@ -79,7 +79,8 @@ class ChatListFragment : Fragment() {
                 allThreads = repository.getMyThreads()
                 filterThreads(binding.etSearch.text?.toString().orEmpty())
             } catch (e: Exception) {
-                android.widget.Toast.makeText(context, "خطأ Firestore: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                android.widget.Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), android.widget.Toast.LENGTH_LONG).show()
             }
         }
     }

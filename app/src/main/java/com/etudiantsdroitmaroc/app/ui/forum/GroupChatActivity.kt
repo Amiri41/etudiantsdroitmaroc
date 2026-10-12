@@ -84,7 +84,8 @@ class GroupChatActivity : AppCompatActivity() {
                 adapter.updateData(messages)
                 binding.rvMessages.scrollToPosition(maxOf(0, messages.size - 1))
             } catch (e: Exception) {
-                Toast.makeText(this@GroupChatActivity, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                Toast.makeText(this@GroupChatActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }

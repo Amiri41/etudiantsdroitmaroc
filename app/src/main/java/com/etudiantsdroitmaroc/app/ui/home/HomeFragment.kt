@@ -13,6 +13,7 @@ import com.etudiantsdroitmaroc.app.data.model.AppSectionsConfig
 import com.etudiantsdroitmaroc.app.data.model.Chapter
 import com.etudiantsdroitmaroc.app.data.model.Subject
 import com.etudiantsdroitmaroc.app.data.remote.AppConfigRepository
+import com.google.firebase.firestore.Source
 import com.etudiantsdroitmaroc.app.data.remote.ChaptersRepository
 import com.etudiantsdroitmaroc.app.databinding.FragmentHomeBinding
 import com.etudiantsdroitmaroc.app.ui.subject.SubjectDetailActivity
@@ -68,9 +69,20 @@ class HomeFragment : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            val config = appConfigRepository.getSectionsConfig()
-            buildSectionChips(config)
-            loadSubjectsAndChapters()
+            // 1) فوري: نبنيو الأزرار من الكاش المحلي (إلا كان) بلا انتظار الشبكة
+            val cached = appConfigRepository.getCachedSectionsConfig()
+            var shown: AppSectionsConfig? = cached
+            if (cached != null && !buildSectionChips(cached)) loadSubjectsAndChapters()
+
+            // 2) فالخلفية: نحدثو من السيرفر، ونعاودو البناء غير إلا تبدل شي
+            val fresh = appConfigRepository.getFreshSectionsConfig()
+            if (shown == null) {
+                val cfg = fresh ?: AppSectionsConfig()
+                shown = cfg
+                if (!buildSectionChips(cfg)) loadSubjectsAndChapters()
+            } else if (fresh != null && fresh != shown) {
+                if (!buildSectionChips(fresh)) loadSubjectsAndChapters()
+            }
         }
     }
 
@@ -83,7 +95,7 @@ class HomeFragment : Fragment() {
     }
 
     /** كنبنيو أزرار الأقسام الرئيسية ديناميكيا - غير الأقسام اللي فعلها الأدمين كتبان */
-    private fun buildSectionChips(config: AppSectionsConfig) {
+    private fun buildSectionChips(config: AppSectionsConfig): Boolean {
         binding.chipGroupSection.removeAllViews()
 
         data class SectionItem(val key: String, val label: String, val visible: Boolean)
@@ -97,7 +109,7 @@ class HomeFragment : Fragment() {
 
         binding.btnVideosEntry.visibility = if (config.showVideos) View.VISIBLE else View.GONE
 
-        if (items.isEmpty()) return
+        if (items.isEmpty()) return false
 
         var firstContentChip: Chip? = null
 
@@ -118,24 +130,51 @@ class HomeFragment : Fragment() {
         }
 
         firstContentChip?.isChecked = true
+        return true
     }
 
+    private var lastRenderSig: Any? = null
+
+    /** كيجيب المواد والفصول من المصدر المطلوب (كاش أو سيرفر) وكيعرضهم؛ كيرجع true إلا تعرض شي حاجة */
+    private suspend fun fetchAndRender(source: Source): Boolean {
+        val snapshot = Firebase.firestore.collection("subjects").get(source).await()
+        if (source == Source.CACHE && snapshot.isEmpty) return false
+        val subjects = snapshot.toObjects<Subject>().filter { it.active }
+        val needsChapters = currentSection == "private" || currentSection == "public"
+        if (needsChapters) {
+            val chapters = chaptersRepository.getChaptersForSection(currentSection, source)
+            if (source == Source.CACHE && chapters.isEmpty()) return false
+            val sig = Triple(currentSection, subjects, chapters)
+            if (sig == lastRenderSig) return true
+            allSubjects = subjects
+            applyChapterRows(chapters)
+            lastRenderSig = sig
+        } else {
+            val sig = Pair(currentSection, subjects)
+            if (sig == lastRenderSig) return true
+            allSubjects = subjects
+            applyFlatSubjects()
+            lastRenderSig = sig
+        }
+        return true
+    }
+
+    /** عرض فوري من الكاش المحلي، وبعدها تحديث من السيرفر (كيتبدل المحتوى غير إلا تغير) */
     private fun loadSubjectsAndChapters() {
         viewLifecycleOwner.lifecycleScope.launch {
+            var shown = false
             try {
-                val snapshot = Firebase.firestore.collection("subjects").get().await()
-                allSubjects = snapshot.toObjects<Subject>().filter { it.active }
-
-                val needsChapters = currentSection == "private" || currentSection == "public"
-
-                if (needsChapters) {
-                    val chapters = chaptersRepository.getChaptersForSection(currentSection)
-                    applyChapterRows(chapters)
-                } else {
-                    applyFlatSubjects()
-                }
+                shown = fetchAndRender(Source.CACHE)
             } catch (e: Exception) {
-                android.widget.Toast.makeText(context, "خطأ Firestore: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
+                if (e is kotlinx.coroutines.CancellationException) throw e
+            }
+            try {
+                fetchAndRender(Source.SERVER)
+            } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                if (!shown) {
+                    android.widget.Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), android.widget.Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }

@@ -71,6 +71,7 @@ class PdfRepository(private val context: Context) {
 
             Result.success(localFile.absolutePath)
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             Result.failure(e)
         }
     }

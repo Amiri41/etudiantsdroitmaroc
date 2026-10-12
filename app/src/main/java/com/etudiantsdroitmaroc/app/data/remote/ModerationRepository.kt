@@ -40,6 +40,7 @@ class ModerationRepository {
             docRef.set(report).await()
             Result.success(Unit)
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             Result.failure(e)
         }
     }

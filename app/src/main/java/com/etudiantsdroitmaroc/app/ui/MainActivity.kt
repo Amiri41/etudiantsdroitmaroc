@@ -7,11 +7,16 @@ import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.setupWithNavController
 import com.etudiantsdroitmaroc.app.R
 import com.etudiantsdroitmaroc.app.data.remote.ChatRepository
+import com.etudiantsdroitmaroc.app.ui.chat.ChatListFragment
+import com.etudiantsdroitmaroc.app.ui.forum.ForumFragment
+import com.etudiantsdroitmaroc.app.ui.friends.FriendsFragment
+import com.etudiantsdroitmaroc.app.ui.home.HomeFragment
+import com.etudiantsdroitmaroc.app.ui.profile.ProfileFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -21,6 +26,7 @@ import kotlinx.coroutines.tasks.await
 class MainActivity : AppCompatActivity() {
 
     private lateinit var bottomNav: BottomNavigationView
+    private var currentTabId = R.id.homeFragment
 
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* ماشي مشكل إلا رفض */ }
@@ -29,22 +35,67 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val navHostFragment = supportFragmentManager
-            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        val navController = navHostFragment.navController
-
         bottomNav = findViewById(R.id.bottom_nav)
-        bottomNav.setupWithNavController(navController)
+        currentTabId = savedInstanceState?.getInt(KEY_TAB, R.id.homeFragment) ?: R.id.homeFragment
 
-        // كنعلمو PeriodicAdManager واش المستخدم فصفحة "البداية" (الهوم) باش يحبس الإعلان فيها
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            com.etudiantsdroitmaroc.app.utils.PeriodicAdManager
-                .setOnHomeScreen(destination.id == R.id.homeFragment)
+        // أول مرة: نزيدو الصفحة الرئيسية. فالمرات الأخرى النظام كيرجع الصفحات اللي كانت محفوظة.
+        if (savedInstanceState == null) switchToTab(R.id.homeFragment)
+
+        bottomNav.selectedItemId = currentTabId
+        bottomNav.setOnItemSelectedListener { item ->
+            switchToTab(item.itemId)
+            true
         }
+        bottomNav.setOnItemReselectedListener { /* ما كنعاودو والو */ }
 
-        showLastCrashIfAny()
+        com.etudiantsdroitmaroc.app.utils.PeriodicAdManager
+            .setOnHomeScreen(currentTabId == R.id.homeFragment)
+
         requestNotificationPermissionIfNeeded()
         ensureFcmTokenSaved()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(KEY_TAB, currentTabId)
+    }
+
+    /**
+     * التنقل بين التابات: كنخليو كل صفحة حية (إخفاء/إظهار) بدل ما نهدمها ونعاود نبنيوها،
+     * هكا التنقل فوري، والمحتوى كيبقى باين، وما كاين حتى إعادة تحميل غير ضرورية.
+     */
+    private fun switchToTab(id: Int) {
+        val fm = supportFragmentManager
+        val target = fm.findFragmentByTag(tagFor(id))
+        val current = fm.findFragmentByTag(tagFor(currentTabId))
+        if (target != null && target === current && !target.isHidden) return
+
+        fm.beginTransaction().apply {
+            setReorderingAllowed(true)
+            if (current != null && current !== target) {
+                hide(current)
+                setMaxLifecycle(current, Lifecycle.State.STARTED)
+            }
+            if (target == null) {
+                add(R.id.nav_host_fragment, createTab(id), tagFor(id))
+            } else {
+                show(target)
+                setMaxLifecycle(target, Lifecycle.State.RESUMED)
+            }
+        }.commit()
+
+        currentTabId = id
+        com.etudiantsdroitmaroc.app.utils.PeriodicAdManager.setOnHomeScreen(id == R.id.homeFragment)
+    }
+
+    private fun tagFor(id: Int) = "tab_$id"
+
+    private fun createTab(id: Int): Fragment = when (id) {
+        R.id.forumFragment -> ForumFragment()
+        R.id.friendsFragment -> FriendsFragment()
+        R.id.chatListFragment -> ChatListFragment()
+        R.id.profileFragment -> ProfileFragment()
+        else -> HomeFragment()
     }
 
     /** Android 13+ (API 33) كيطلب إذن صريح للإشعارات، وإلا ماغاديش تبان حتى لو وصلات من FCM */
@@ -58,11 +109,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * كنتأكدو التوكن ديال الإشعارات محفوظ فبروفايل المستخدم، فكل مرة يحل فيها التطبيق.
-     * ضروري للمستخدمين اللي دخلين من قبل (قبل هاد الإصلاح) وماعندهمش fcmToken محفوظ - بلا هاد الخطوة
-     * ماغاديش يتوصلو بالإشعارات حتى لو عاودو حلو التطبيق بزاف ديال المرات.
-     */
+    /** كنتأكدو التوكن ديال الإشعارات محفوظ فبروفايل المستخدم، فكل مرة يحل فيها التطبيق. */
     private fun ensureFcmTokenSaved() {
         val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return
         lifecycleScope.launch {
@@ -96,16 +143,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showLastCrashIfAny() {
-        val file = java.io.File(filesDir, "last_crash.txt")
-        if (file.exists()) {
-            val content = file.readText()
-            file.delete()
-            androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("آخر انهيار ديال التطبيق")
-                .setMessage(content.take(2000))
-                .setPositiveButton("حسنا", null)
-                .show()
-        }
+    companion object {
+        private const val KEY_TAB = "current_tab"
     }
 }

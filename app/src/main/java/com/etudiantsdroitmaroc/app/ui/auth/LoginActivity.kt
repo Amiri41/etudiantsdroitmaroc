@@ -30,13 +30,16 @@ class LoginActivity : AppCompatActivity() {
                     startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                     finish()
                 } else {
-                    val errMsg = signInResult.exceptionOrNull()?.message ?: "غير معروف"
-                    Toast.makeText(this@LoginActivity, "فشل Firebase: $errMsg", Toast.LENGTH_LONG).show()
+                    val err = signInResult.exceptionOrNull()
+                    val msg = if (err != null) com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(err) else "تعذر تسجيل الدخول، عاود المحاولة"
+                    Toast.makeText(this@LoginActivity, msg, Toast.LENGTH_LONG).show()
                 }
             }
         } catch (e: ApiException) {
-            val codeStr = GoogleSignInStatusCodes.getStatusCodeString(e.statusCode)
-            Toast.makeText(this, "خطأ Google [${e.statusCode}]: $codeStr", Toast.LENGTH_LONG).show()
+            // 12501 = المستخدم سد النافذة بنفسو، ما كنبينوش ليه خطأ
+            if (e.statusCode != GoogleSignInStatusCodes.SIGN_IN_CANCELLED) {
+                Toast.makeText(this, "تعذر الدخول بحساب Google، عاود المحاولة (${e.statusCode})", Toast.LENGTH_LONG).show()
+            }
         }
     }
 

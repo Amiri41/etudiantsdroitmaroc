@@ -53,6 +53,7 @@ class PdfViewerActivity : AppCompatActivity() {
                 }
                 binding.pdfView.fromFile(tempFile).load()
             } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
                 Toast.makeText(this@PdfViewerActivity, "تحتاج انترنت باش تفتح هاد الملف", Toast.LENGTH_SHORT).show()
             }
         }

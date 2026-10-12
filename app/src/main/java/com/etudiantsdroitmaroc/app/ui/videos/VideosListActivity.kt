@@ -45,7 +45,8 @@ class VideosListActivity : AppCompatActivity() {
                 adapter.updateData(videos)
                 binding.tvEmpty.visibility = if (videos.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
             } catch (e: Exception) {
-                Toast.makeText(this@VideosListActivity, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                Toast.makeText(this@VideosListActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }

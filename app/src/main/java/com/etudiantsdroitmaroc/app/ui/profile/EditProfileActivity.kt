@@ -111,7 +111,8 @@ class EditProfileActivity : AppCompatActivity() {
                 Toast.makeText(this@EditProfileActivity, "تم الحفظ ✅", Toast.LENGTH_SHORT).show()
                 finish()
             } catch (e: Exception) {
-                Toast.makeText(this@EditProfileActivity, "خطأ: ${e.message}", Toast.LENGTH_LONG).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                Toast.makeText(this@EditProfileActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_LONG).show()
             } finally {
                 binding.progressBar.visibility = android.view.View.GONE
                 binding.btnSave.isEnabled = true

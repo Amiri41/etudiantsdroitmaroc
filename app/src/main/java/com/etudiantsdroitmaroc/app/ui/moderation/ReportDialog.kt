@@ -93,6 +93,7 @@ object ReportDialog {
                         Toast.makeText(context, "تم حظر $targetName", Toast.LENGTH_SHORT).show()
                         onBlocked?.invoke()
                     } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
                         Toast.makeText(context, "فشل الحظر، عاود حاول", Toast.LENGTH_SHORT).show()
                     }
                 }

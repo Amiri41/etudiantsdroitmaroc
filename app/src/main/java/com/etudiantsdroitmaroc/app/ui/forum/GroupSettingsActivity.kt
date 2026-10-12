@@ -68,7 +68,8 @@ class GroupSettingsActivity : AppCompatActivity() {
             try {
                 memberAdapter.updateData(repository.getGroupMembers(groupId))
             } catch (e: Exception) {
-                Toast.makeText(this@GroupSettingsActivity, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                Toast.makeText(this@GroupSettingsActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -91,7 +92,8 @@ class GroupSettingsActivity : AppCompatActivity() {
                 repository.updateGroupInfo(groupId, name, description, iconUrl)
                 Toast.makeText(this@GroupSettingsActivity, "تم الحفظ ✅", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
-                Toast.makeText(this@GroupSettingsActivity, "فشل الحفظ: ${e.message}", Toast.LENGTH_SHORT).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                Toast.makeText(this@GroupSettingsActivity, "فشل الحفظ: ${com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e)}", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -122,7 +124,8 @@ class GroupSettingsActivity : AppCompatActivity() {
                         setResult(RESULT_OK)
                         finish()
                     } catch (e: Exception) {
-                        Toast.makeText(this@GroupSettingsActivity, "فشل الحذف: ${e.message}", Toast.LENGTH_SHORT).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                        Toast.makeText(this@GroupSettingsActivity, "فشل الحذف: ${com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e)}", Toast.LENGTH_SHORT).show()
                     }
                 }
             }

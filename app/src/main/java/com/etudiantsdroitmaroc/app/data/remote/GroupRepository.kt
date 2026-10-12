@@ -110,6 +110,7 @@ class GroupRepository {
                 firestore.collection("users").document(uid).get().await()
                     .toObject(UserProfile::class.java)
             } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
                 null
             }
         }

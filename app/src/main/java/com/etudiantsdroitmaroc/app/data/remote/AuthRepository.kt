@@ -61,6 +61,7 @@ class AuthRepository(private val context: Context) {
                 val token = com.google.firebase.messaging.FirebaseMessaging.getInstance().token.await()
                 userDocRef.update("fcmToken", token).await()
             } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
                 // ما تكسرش تسجيل الدخول إلا فشل حفظ التوكن
             }
 
@@ -70,6 +71,7 @@ class AuthRepository(private val context: Context) {
 
             Result.success(Unit)
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             Result.failure(e)
         }
     }

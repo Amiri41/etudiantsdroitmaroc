@@ -38,6 +38,7 @@ class ForumRepository {
             docRef.set(post).await()
             Result.success(Unit)
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             Result.failure(e)
         }
     }
@@ -55,6 +56,7 @@ class ForumRepository {
             firestore.collection("posts").document(postId).delete().await()
             Result.success(Unit)
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             Result.failure(e)
         }
     }
@@ -64,6 +66,7 @@ class ForumRepository {
             firestore.collection("posts").document(postId).update("content", newContent).await()
             Result.success(Unit)
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             Result.failure(e)
         }
     }
@@ -124,6 +127,7 @@ class ForumRepository {
 
             Result.success(Unit)
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             Result.failure(e)
         }
     }

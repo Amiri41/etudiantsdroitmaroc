@@ -52,6 +52,7 @@ object ImageUploader {
             val url = json.getJSONObject("data").getString("url")
             Result.success(url)
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             Result.failure(e)
         }
     }

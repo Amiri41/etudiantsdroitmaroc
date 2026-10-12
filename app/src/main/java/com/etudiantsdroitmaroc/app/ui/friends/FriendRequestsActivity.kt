@@ -37,7 +37,8 @@ class FriendRequestsActivity : AppCompatActivity() {
                 adapter.updateData(requests)
                 binding.tvEmpty.visibility = if (requests.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
             } catch (e: Exception) {
-                Toast.makeText(this@FriendRequestsActivity, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                Toast.makeText(this@FriendRequestsActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -49,7 +50,8 @@ class FriendRequestsActivity : AppCompatActivity() {
                 Toast.makeText(this@FriendRequestsActivity, "أصبحتوا أصدقاء ✅", Toast.LENGTH_SHORT).show()
                 loadRequests()
             } catch (e: Exception) {
-                Toast.makeText(this@FriendRequestsActivity, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                Toast.makeText(this@FriendRequestsActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -60,7 +62,8 @@ class FriendRequestsActivity : AppCompatActivity() {
                 repository.declineFriendRequest(request.fromUid)
                 loadRequests()
             } catch (e: Exception) {
-                Toast.makeText(this@FriendRequestsActivity, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                Toast.makeText(this@FriendRequestsActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }

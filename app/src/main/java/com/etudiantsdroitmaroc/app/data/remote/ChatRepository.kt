@@ -115,6 +115,7 @@ class ChatRepository {
             firestore.collection("users").document(myUid)
                 .collection("incoming_requests").get().await().size()
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             0
         }
     }
@@ -146,6 +147,7 @@ class ChatRepository {
                 firestore.collection("users").document(uid).get().await()
                     .toObject(UserProfile::class.java)
             } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
                 null
             }
         }
@@ -208,6 +210,7 @@ class ChatRepository {
             val myName = auth.currentUser?.displayName ?: "رسالة جديدة"
             PushNotifier.sendNotification(fcmToken, myName, previewText)
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             // ما تكسرش الإرسال العادي إلا فشل الإشعار
         }
     }
@@ -282,6 +285,7 @@ class ChatRepository {
                 .get().await()
             snapshot.toObjects<ChatThread>().sumOf { (it.unreadCounts[myUid] ?: 0L).toInt() }
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             0
         }
     }

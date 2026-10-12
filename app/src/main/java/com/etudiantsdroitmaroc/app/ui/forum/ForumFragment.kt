@@ -79,7 +79,8 @@ class ForumFragment : Fragment() {
                         repository.toggleLike(post.id)
                         loadPosts()
                     } catch (e: Exception) {
-                        Toast.makeText(context, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                        Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
                     }
                 }
             },
@@ -148,7 +149,8 @@ class ForumFragment : Fragment() {
                 allPosts = repository.getPosts().filter { it.authorUid !in blockedUids }
                 filterPosts(binding.etSearch.text?.toString().orEmpty())
             } catch (e: Exception) {
-                Toast.makeText(context, "خطأ Firestore: ${e.message}", Toast.LENGTH_LONG).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -235,7 +237,8 @@ class ForumFragment : Fragment() {
             try {
                 groupAdapter.updateData(groupRepository.getGroups())
             } catch (e: Exception) {
-                Toast.makeText(context, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -247,7 +250,8 @@ class ForumFragment : Fragment() {
                 Toast.makeText(context, "انضميتي لمجموعة ${group.name} ✅", Toast.LENGTH_SHORT).show()
                 loadGroups()
             } catch (e: Exception) {
-                Toast.makeText(context, "خطأ: ${e.message}", Toast.LENGTH_SHORT).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -295,7 +299,8 @@ class ForumFragment : Fragment() {
                     Toast.makeText(context, "تم إنشاء المجموعة ✅", Toast.LENGTH_SHORT).show()
                     loadGroups()
                 } catch (e: Exception) {
-                    Toast.makeText(context, "فشل إنشاء المجموعة: ${e.message}", Toast.LENGTH_SHORT).show()
+            if (e is kotlinx.coroutines.CancellationException) throw e
+                    Toast.makeText(context, "فشل إنشاء المجموعة: ${com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e)}", Toast.LENGTH_SHORT).show()
                 }
             }
         }
