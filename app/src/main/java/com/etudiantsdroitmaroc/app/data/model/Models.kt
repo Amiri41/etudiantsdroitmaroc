@@ -21,6 +21,7 @@ data class Chapter(
     var id: String = "",
     var section: String = "", // "private" أو "public"
     var name: String = "", // مثلا "الفصل 1" - قابل للتسمية من الأدمين
+    var year: String = "", // اختياري: السنة (مثلا "السنة الأولى") - إلا كان فارغ كيتخطى مستوى السنوات
     var orderIndex: Int = 0,
     @get:PropertyName("active") @set:PropertyName("active")
     var active: Boolean = true
@@ -42,6 +43,8 @@ data class PdfDocument(
     var title: String = "",
     var storageUrl: String = "",
     var coverImageUrl: String = "",
+    var description: String = "",
+    var category: String = "", // "lectures" | "summaries" | "exams" - الفارغ كيتعتبر محاضرات
     var fileSizeKb: Long = 0,
     @get:PropertyName("isNew") @set:PropertyName("isNew")
     var isNew: Boolean = false,
@@ -177,6 +180,7 @@ data class VideoSubject(
 data class VideoLesson(
     var id: String = "",
     var videoSubjectId: String = "",
+    var subjectId: String = "", // اختياري: ربط الفيديو بمادة عادية باش يبان فصفحة "فيديوهات" ديالها
     var title: String = "",
     var description: String = "",
     var youtubeId: String = "",

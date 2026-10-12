@@ -47,6 +47,14 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.browse.BrowseActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.lessons.LessonsActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.pdf.PdfViewerActivity"
             android:exported="false" />
 

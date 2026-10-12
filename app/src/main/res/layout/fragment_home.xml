@@ -74,20 +74,11 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <HorizontalScrollView
+            <LinearLayout
+                android:id="@+id/sectionButtons"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:scrollbars="none"
-                android:layout_marginBottom="10dp">
-
-                <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/chipGroupSection"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:singleSelection="true"
-                    app:chipSpacingHorizontal="6dp" />
-
-            </HorizontalScrollView>
+                android:orientation="vertical" />
 
             <TextView
                 android:id="@+id/tvEmptySubjects"
@@ -95,22 +86,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
                 android:gravity="center"
-                android:text="ماكاينش مواد حاليا فهاد القسم"
+                android:text="ماكاينش أقسام حاليا"
                 android:textColor="@color/text_secondary"
                 android:visibility="gone" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvChapters"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                android:visibility="gone" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvSubjects"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
