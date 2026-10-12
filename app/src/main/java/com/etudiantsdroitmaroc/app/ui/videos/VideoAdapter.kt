@@ -22,7 +22,8 @@ class VideoAdapter(
     override fun onBindViewHolder(holder: VH, position: Int) {
         val video = videos[position]
         holder.binding.tvVideoTitle.text = video.title
-        val thumb = video.thumbnailUrl.ifEmpty { "https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg" }
+        val thumb = video.thumbnailUrl.ifEmpty { "https://img.youtube.com/vi/${video.youtubeId}/mqdefault.jpg" }
+            .replace("/hqdefault.jpg", "/mqdefault.jpg")
         Glide.with(holder.itemView).load(thumb).into(holder.binding.ivThumbnail)
         holder.binding.root.setOnClickListener { onClick(video) }
     }

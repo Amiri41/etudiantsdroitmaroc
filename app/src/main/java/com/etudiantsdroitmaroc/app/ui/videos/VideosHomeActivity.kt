@@ -14,6 +14,10 @@ import com.etudiantsdroitmaroc.app.data.remote.VideoSubjectsRepository
 import com.etudiantsdroitmaroc.app.databinding.ActivityVideosHomeBinding
 import com.etudiantsdroitmaroc.app.utils.BannerAdHelper
 import com.google.android.material.chip.Chip
+import com.google.firebase.firestore.Source
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 /**
@@ -29,6 +33,8 @@ class VideosHomeActivity : AppCompatActivity() {
 
     private var allVideoSubjects: List<VideoSubject> = emptyList()
     private var currentSection: String = "private"
+    private var chaptersBySection: Map<String, List<Chapter>> = emptyMap()
+    private var lastSig: Any? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,35 +72,53 @@ class VideosHomeActivity : AppCompatActivity() {
         firstChip?.isChecked = true
     }
 
+    /** عرض فوري من الكاش، وبعدها تحديث من السيرفر (كيتعاود الرسم غير إلا تبدل شي) */
     private fun loadData() {
         lifecycleScope.launch {
+            var shown = false
             try {
-                allVideoSubjects = subjectsRepository.getAllActive()
-                applyChapterRows()
+                shown = fetchAndRender(Source.CACHE)
             } catch (e: Exception) {
-            if (e is kotlinx.coroutines.CancellationException) throw e
-                Toast.makeText(this@VideosHomeActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_LONG).show()
+                if (e is CancellationException) throw e
+            }
+            try {
+                fetchAndRender(Source.SERVER)
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                if (!shown) Toast.makeText(this@VideosHomeActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_LONG).show()
             }
         }
     }
 
+    /** المواد وفصول القسمين كيتجبدو مع بعض (parallel) */
+    private suspend fun fetchAndRender(source: Source): Boolean = coroutineScope {
+        val subjectsJob = async { subjectsRepository.getAllActive(source) }
+        val privateJob = async { chaptersRepository.getChaptersForSection("private", source) }
+        val publicJob = async { chaptersRepository.getChaptersForSection("public", source) }
+        val subjects = subjectsJob.await()
+        val chapters = mapOf("private" to privateJob.await(), "public" to publicJob.await())
+        if (source == Source.CACHE && subjects.isEmpty()) return@coroutineScope false
+        val sig = Pair(subjects, chapters)
+        if (sig == lastSig) return@coroutineScope true
+        lastSig = sig
+        allVideoSubjects = subjects
+        chaptersBySection = chapters
+        applyChapterRows()
+        true
+    }
+
+    /** تبديل القسم (خاص/عام) كيتم من الذاكرة بلا ما نعاودو نجيبو من الشبكة */
     private fun applyChapterRows() {
-        lifecycleScope.launch {
-            try {
-                val chapters = chaptersRepository.getChaptersForSection(currentSection)
-                val rows = chapters.mapNotNull { chapter ->
-                    val subjectsForChapter = allVideoSubjects
-                        .filter { it.section == currentSection && it.chapterId == chapter.id }
-                        .sortedBy { it.orderIndex }
-                    if (subjectsForChapter.isEmpty()) null else VideoChapterWithSubjects(chapter, subjectsForChapter)
-                }
-                chapterRowAdapter.updateData(rows)
-                binding.tvEmptyVideoSubjects.visibility = if (rows.isEmpty()) View.VISIBLE else View.GONE
-            } catch (e: Exception) {
-            if (e is kotlinx.coroutines.CancellationException) throw e
-                Toast.makeText(this@VideosHomeActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_LONG).show()
-            }
+        if (lastSig == null) return // مازال ما تحملات الداتا
+        val chapters = chaptersBySection[currentSection].orEmpty()
+        val rows = chapters.mapNotNull { chapter ->
+            val subjectsForChapter = allVideoSubjects
+                .filter { it.section == currentSection && it.chapterId == chapter.id }
+                .sortedBy { it.orderIndex }
+            if (subjectsForChapter.isEmpty()) null else VideoChapterWithSubjects(chapter, subjectsForChapter)
         }
+        chapterRowAdapter.updateData(rows)
+        binding.tvEmptyVideoSubjects.visibility = if (rows.isEmpty()) View.VISIBLE else View.GONE
     }
 
     private fun openVideoSubject(subject: VideoSubject) {

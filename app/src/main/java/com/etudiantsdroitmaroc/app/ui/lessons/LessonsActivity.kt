@@ -88,7 +88,8 @@ class LessonsActivity : AppCompatActivity() {
         id = id,
         title = title,
         description = description,
-        imageUrl = thumbnailUrl.ifEmpty { "https://img.youtube.com/vi/$youtubeId/hqdefault.jpg" },
+        imageUrl = thumbnailUrl.ifEmpty { "https://img.youtube.com/vi/$youtubeId/mqdefault.jpg" }
+            .replace("/hqdefault.jpg", "/mqdefault.jpg"),
         video = this
     )
 

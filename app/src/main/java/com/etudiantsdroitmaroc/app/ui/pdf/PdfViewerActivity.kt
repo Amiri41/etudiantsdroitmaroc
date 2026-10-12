@@ -23,6 +23,7 @@ class PdfViewerActivity : AppCompatActivity() {
 
         binding.toolbar.title = intent.getStringExtra("title") ?: ""
         binding.toolbar.setNavigationOnClickListener { finish() }
+        com.etudiantsdroitmaroc.app.utils.BannerAdHelper.attach(this, binding.bannerAdContainer)
 
         val localPath = intent.getStringExtra("localPath")
         val remoteUrl = intent.getStringExtra("remoteUrl")

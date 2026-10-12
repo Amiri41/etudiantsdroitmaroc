@@ -5,6 +5,7 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.firestore.Source
 import kotlinx.coroutines.tasks.await
 
 class VideosRepository {
@@ -20,10 +21,10 @@ class VideosRepository {
     }
 
     /** الفيديوهات ديال مادة فيديو معينة (videoSubjects) - مستقلة عن مواد PDF */
-    suspend fun getVideosForVideoSubject(videoSubjectId: String): List<VideoLesson> {
+    suspend fun getVideosForVideoSubject(videoSubjectId: String, source: Source = Source.DEFAULT): List<VideoLesson> {
         val snapshot = firestore.collection("videos")
             .whereEqualTo("videoSubjectId", videoSubjectId)
-            .get()
+            .get(source)
             .await()
         return snapshot.toObjects<VideoLesson>()
             .filter { it.active }

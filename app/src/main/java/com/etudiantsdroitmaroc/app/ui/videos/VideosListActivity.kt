@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.etudiantsdroitmaroc.app.data.model.VideoLesson
 import com.etudiantsdroitmaroc.app.data.remote.VideosRepository
 import com.etudiantsdroitmaroc.app.databinding.ActivityVideosListBinding
+import com.google.firebase.firestore.Source
 import kotlinx.coroutines.launch
 
 /** كتعرض فيديوهات مادة فيديو معينة (videoSubjectId) - كيتم فتحها من VideosHomeActivity */
@@ -40,13 +41,25 @@ class VideosListActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
+            // 1) فوري من الكاش
+            var shown = false
             try {
-                val videos = repository.getVideosForVideoSubject(videoSubjectId)
+                val cached = repository.getVideosForVideoSubject(videoSubjectId, Source.CACHE)
+                if (cached.isNotEmpty()) {
+                    adapter.updateData(cached)
+                    shown = true
+                }
+            } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
+            }
+            // 2) تحديث من السيرفر
+            try {
+                val videos = repository.getVideosForVideoSubject(videoSubjectId, Source.SERVER)
                 adapter.updateData(videos)
                 binding.tvEmpty.visibility = if (videos.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
             } catch (e: Exception) {
-            if (e is kotlinx.coroutines.CancellationException) throw e
-                Toast.makeText(this@VideosListActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                if (!shown) Toast.makeText(this@VideosListActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }
