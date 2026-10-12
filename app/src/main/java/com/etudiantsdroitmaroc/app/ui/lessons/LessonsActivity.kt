@@ -22,7 +22,7 @@ import com.etudiantsdroitmaroc.app.utils.ReviewHelper
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
-/** صفحة الدروس: بطاقات عمودية (محاضرات / ملخصات / امتحانات = PDF، فيديوهات = يوتيوب) لمادة معينة */
+/** صفحة المادة: بطاقات (PDF + فيديوهات يوتيوب مرتبطة بالمادة) */
 class LessonsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLessonsBinding
@@ -38,10 +38,8 @@ class LessonsActivity : AppCompatActivity() {
 
         val subjectId = intent.getStringExtra("subjectId") ?: run { finish(); return }
         val subjectName = intent.getStringExtra("subjectName") ?: ""
-        val category = intent.getStringExtra("category") ?: "lectures"
-        val categoryLabel = intent.getStringExtra("categoryLabel") ?: ""
 
-        binding.toolbar.title = if (categoryLabel.isNotEmpty()) "$subjectName › $categoryLabel" else subjectName
+        binding.toolbar.title = subjectName
         binding.toolbar.setNavigationOnClickListener { finish() }
         BannerAdHelper.attach(this, binding.bannerAdContainer)
 
@@ -57,20 +55,22 @@ class LessonsActivity : AppCompatActivity() {
         binding.rvLessons.layoutManager = LinearLayoutManager(this)
         binding.rvLessons.adapter = adapter
 
-        load(subjectId, category)
+        load(subjectId)
     }
 
-    private fun load(subjectId: String, category: String) {
+    /** كنعرضو كل محتوى المادة: ملفات PDF + الفيديوهات المرتبطة بها (إلا كانو) */
+    private fun load(subjectId: String) {
         lifecycleScope.launch {
             try {
-                val cards = if (category == "videos") {
-                    videosRepository.getVideosForSubject(subjectId).map { it.toCard() }
-                } else {
-                    val pdfs = pdfRepository.getPdfsForSubject(subjectId)
-                        .filter { it.category.ifBlank { "lectures" } == category }
-                    downloadedIds.addAll(pdfs.filter { pdfRepository.isDownloaded(it.id) }.map { it.id })
-                    pdfs.map { it.toCard() }
+                val pdfs = pdfRepository.getPdfsForSubject(subjectId)
+                downloadedIds.addAll(pdfs.filter { pdfRepository.isDownloaded(it.id) }.map { it.id })
+                val videos = try {
+                    videosRepository.getVideosForSubject(subjectId)
+                } catch (e: Exception) {
+                    if (e is CancellationException) throw e
+                    emptyList()
                 }
+                val cards = pdfs.map { it.toCard() } + videos.map { it.toCard() }
                 adapter.updateData(cards)
                 binding.tvEmpty.visibility = if (cards.isEmpty()) View.VISIBLE else View.GONE
             } catch (e: Exception) {

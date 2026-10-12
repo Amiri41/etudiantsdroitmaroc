@@ -25,7 +25,7 @@ import kotlinx.coroutines.tasks.await
 
 /**
  * صفحة تنقل عامة بأزرار عمودية، كتنزل درجة درجة:
- * القسم ← السنة (إلا كانت) ← السداسي ← المادة ← نوع الدروس ← (LessonsActivity)
+ * القسم ← السنة (إلا كانت) ← السداسي ← المادة ← (LessonsActivity: بطاقات الدروس)
  */
 class BrowseActivity : AppCompatActivity() {
 
@@ -58,7 +58,7 @@ class BrowseActivity : AppCompatActivity() {
         binding.toolbar.setNavigationOnClickListener { finish() }
         BannerAdHelper.attach(this, binding.bannerAdContainer)
 
-        if (level == LEVEL_TYPES) showTypes() else load()
+        load()
     }
 
     /** عرض فوري من الكاش، وبعدها تحديث من السيرفر (كيتعاود الرسم غير إلا تبدل شي) */
@@ -142,22 +142,9 @@ class BrowseActivity : AppCompatActivity() {
         resetButtons()
         subjects.forEach { s ->
             addButton("📝 ${s.name}") {
-                start(this, LEVEL_TYPES, s.name, section, subjectId = s.id, subjectName = s.name)
-            }
-        }
-        finishButtons()
-    }
-
-    /** آخر درجة قبل الدروس: محاضرات / ملخصات / امتحانات / فيديوهات */
-    private fun showTypes() {
-        resetButtons()
-        TYPES.forEach { (category, label) ->
-            addButton(label) {
                 val intent = Intent(this, com.etudiantsdroitmaroc.app.ui.lessons.LessonsActivity::class.java)
-                intent.putExtra("subjectId", subjectId)
-                intent.putExtra("subjectName", subjectName)
-                intent.putExtra("category", category)
-                intent.putExtra("categoryLabel", label)
+                intent.putExtra("subjectId", s.id)
+                intent.putExtra("subjectName", s.name)
                 startActivity(intent)
             }
         }
@@ -181,7 +168,6 @@ class BrowseActivity : AppCompatActivity() {
         const val LEVEL_ROOT = "root"
         const val LEVEL_SEMESTERS = "semesters"
         const val LEVEL_SUBJECTS = "subjects"
-        const val LEVEL_TYPES = "types"
 
         private const val EXTRA_LEVEL = "level"
         private const val EXTRA_TITLE = "title"
@@ -190,13 +176,6 @@ class BrowseActivity : AppCompatActivity() {
         private const val EXTRA_CHAPTER_ID = "chapterId"
         private const val EXTRA_SUBJECT_ID = "subjectId"
         private const val EXTRA_SUBJECT_NAME = "subjectName"
-
-        private val TYPES = listOf(
-            "lectures" to "📘 محاضرات",
-            "summaries" to "🗒️ ملخصات",
-            "exams" to "📝 امتحانات",
-            "videos" to "🎥 فيديوهات"
-        )
 
         fun start(
             context: Context,
