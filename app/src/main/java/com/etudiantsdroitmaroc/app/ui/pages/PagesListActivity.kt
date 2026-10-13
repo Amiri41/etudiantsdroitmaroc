@@ -39,6 +39,7 @@ class PagesListActivity : AppCompatActivity() {
             val intent = Intent(this, PageDetailActivity::class.java)
             intent.putExtra("title", page.title)
             intent.putExtra("content", page.content)
+            if (page.type == "html") intent.putExtra("html", page.content)
             startActivity(intent)
         }
     }

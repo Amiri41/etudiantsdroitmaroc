@@ -216,9 +216,10 @@
     <input id="pageTitle" placeholder="عنوان الصفحة (مثلا: من نحن)">
     <select id="pageType">
       <option value="text">نص (يبان جوا التطبيق)</option>
+      <option value="html">HTML (صفحة مصممة، تبان جوا التطبيق)</option>
       <option value="link">رابط خارجي (يفتح فالمتصفح)</option>
     </select>
-    <textarea id="pageContent" placeholder="النص الكامل ديال الصفحة (إلا اخترتي 'نص')" rows="5"></textarea>
+    <textarea id="pageContent" placeholder="النص ديال الصفحة، ولا كود HTML إلا اخترتي 'HTML' (الصور خاصها روابط https، وJavaScript ما كيخدمش)" rows="10" style="font-family:monospace;direction:ltr;"></textarea>
     <input id="pageUrl" placeholder="الرابط (إلا اخترتي 'رابط') - مثلا https://facebook.com/...">
     <input id="pageOrder" type="number" placeholder="ترتيب العرض" value="1">
     <label style="display:flex;align-items:center;gap:8px;font-size:13px;">
@@ -1238,7 +1239,7 @@ async function addPage() {
   const progressText = document.getElementById("pageProgressText");
 
   if (!title) return alert("دخل عنوان الصفحة");
-  if (type === "text" && !content) return alert("دخل محتوى الصفحة");
+  if ((type === "text" || type === "html") && !content) return alert("دخل محتوى الصفحة");
   if (type === "link" && !url) return alert("دخل الرابط");
 
   const docRef = db.collection("pages").doc();
@@ -1266,7 +1267,7 @@ async function editPage(pageId) {
   if (page.type === "link") {
     fields.push({ key: "url", label: "الرابط", value: page.url || "", type: "text" });
   } else {
-    fields.push({ key: "content", label: "نص الصفحة", value: page.content || "", type: "textarea" });
+    fields.push({ key: "content", label: page.type === "html" ? "كود HTML" : "نص الصفحة", value: page.content || "", type: "textarea" });
   }
   openEditModal("تعديل الصفحة", fields, async (values) => {
     await db.collection("pages").doc(pageId).update(values);
@@ -1290,7 +1291,7 @@ async function loadPagesList() {
     const row = document.createElement("div");
     row.className = "pdf-row";
     row.innerHTML = `
-      <span>${page.type === 'link' ? '🔗' : '📄'} ${page.title} ${isActive ? '' : '⛔ معطلة'}</span>
+      <span>${page.type === 'link' ? '🔗' : page.type === 'html' ? '🌐' : '📄'} ${page.title} ${isActive ? '' : '⛔ معطلة'}</span>
       <span style="display:flex;gap:6px;">
         <button style="width:auto;padding:6px 10px;font-size:12px;" onclick="toggleActivePage('${doc.id}', ${!isActive})">${isActive ? 'تعطيل' : 'تفعيل'}</button>
         <button style="width:auto;padding:6px 10px;font-size:12px;" onclick="editPage('${doc.id}')">تعديل</button>

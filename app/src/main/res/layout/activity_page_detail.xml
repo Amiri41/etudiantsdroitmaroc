@@ -14,7 +14,14 @@
         app:titleTextColor="@color/gold"
         app:navigationIcon="@drawable/ic_back" />
 
+    <WebView
+        android:id="@+id/webPage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollText"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
