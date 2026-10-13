@@ -41,4 +41,16 @@ class AppConfigRepository {
             AppSectionsConfig()
         }
     }
+
+    /** ترتيب الصفحة الرئيسية (الأقسام + أماكن الإعلانات): null إلا ماكاينش ولا فشل */
+    suspend fun getHomeOrder(source: Source): List<String>? {
+        return try {
+            val doc = firestore.collection("app_config").document("home_layout").get(source).await()
+            if (!doc.exists()) null
+            else (doc.get("order") as? List<*>)?.mapNotNull { it as? String }
+        } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
+            null
+        }
+    }
 }

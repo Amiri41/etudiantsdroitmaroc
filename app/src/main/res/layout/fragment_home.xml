@@ -22,15 +22,11 @@
         android:fillViewport="true">
 
         <LinearLayout
+            android:id="@+id/homeContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="24dp">
-
-            <FrameLayout
-                android:id="@+id/bannerAdContainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnVideos"
