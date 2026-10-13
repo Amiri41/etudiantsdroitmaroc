@@ -12,11 +12,10 @@ import com.etudiantsdroitmaroc.app.data.remote.AppConfigRepository
 import com.etudiantsdroitmaroc.app.databinding.FragmentHomeBinding
 import com.etudiantsdroitmaroc.app.ui.browse.BrowseActivity
 import com.etudiantsdroitmaroc.app.utils.AdIds
-import com.etudiantsdroitmaroc.app.utils.applyGoldStyle
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
-import com.google.android.material.button.MaterialButton
+import android.widget.TextView
 import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
@@ -97,19 +96,11 @@ class HomeFragment : Fragment() {
         b.tvEmptySubjects.visibility = if (items.isEmpty()) View.VISIBLE else View.GONE
 
         // الزر الأول ذهبي والباقي كحلي (نفس ستايل صفحة "حسابي")
-        items.forEachIndexed { index, item ->
-            val button = layoutInflater.inflate(R.layout.item_browse_button, b.sectionButtons, false) as MaterialButton
-            button.text = item.label
-            // الزر الأول ذهبي والباقي كحلي (بحال صفحة "حسابي")
-            if (b.sectionButtons.childCount == 0) {
-                button.backgroundTintList = android.content.res.ColorStateList.valueOf(
-                    androidx.core.content.ContextCompat.getColor(requireContext(), R.color.gold)
-                )
-                button.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.navy_dark))
-            }
-            if (index == 0) button.applyGoldStyle()
-            button.setOnClickListener { item.onClick() }
-            b.sectionButtons.addView(button)
+        items.forEach { item ->
+            val card = layoutInflater.inflate(R.layout.item_section_card, b.sectionButtons, false)
+            card.findViewById<TextView>(R.id.tvSectionTitle).text = item.label
+            card.setOnClickListener { item.onClick() }
+            b.sectionButtons.addView(card)
         }
     }
 
