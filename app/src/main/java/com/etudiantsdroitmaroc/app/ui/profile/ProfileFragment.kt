@@ -69,11 +69,23 @@ class ProfileFragment : Fragment() {
             showDarkModeDialog()
         }
 
+        updateIntroSoundButton()
+        binding.btnIntroSound.setOnClickListener {
+            val ctx = requireContext()
+            com.etudiantsdroitmaroc.app.utils.IntroSound.setEnabled(ctx, !com.etudiantsdroitmaroc.app.utils.IntroSound.isEnabled(ctx))
+            updateIntroSoundButton()
+        }
+
         binding.btnDeleteAccount.setOnClickListener {
             confirmDeleteAccount()
         }
 
         loadProfile()
+    }
+
+    private fun updateIntroSoundButton() {
+        val on = com.etudiantsdroitmaroc.app.utils.IntroSound.isEnabled(requireContext())
+        binding.btnIntroSound.text = if (on) "🔔 صوت البداية: مفعّل" else "🔕 صوت البداية: موقوف"
     }
 
     private fun showDarkModeDialog() {

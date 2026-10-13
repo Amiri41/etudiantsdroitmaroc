@@ -24,7 +24,13 @@ class SplashActivity : AppCompatActivity() {
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        com.etudiantsdroitmaroc.app.utils.IntroSound.play(this)
         playLogoAnimation()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // الجينغل 4 ثواني: كيكمل حتى الشاشة الجاية، ما كنوقفوهش هنا
     }
 
     private fun playLogoAnimation() {

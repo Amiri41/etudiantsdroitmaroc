@@ -116,6 +116,15 @@
                     android:textColor="@color/gold" />
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnIntroSound"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:textAllCaps="false"
+                    app:backgroundTint="@color/navy_dark"
+                    android:textColor="@color/gold" />
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnLogout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
