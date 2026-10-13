@@ -100,6 +100,13 @@ class HomeFragment : Fragment() {
         items.forEachIndexed { index, item ->
             val button = layoutInflater.inflate(R.layout.item_browse_button, b.sectionButtons, false) as MaterialButton
             button.text = item.label
+            // الزر الأول ذهبي والباقي كحلي (بحال صفحة "حسابي")
+            if (b.sectionButtons.childCount == 0) {
+                button.backgroundTintList = android.content.res.ColorStateList.valueOf(
+                    androidx.core.content.ContextCompat.getColor(requireContext(), R.color.gold)
+                )
+                button.setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), R.color.navy_dark))
+            }
             if (index == 0) button.applyGoldStyle()
             button.setOnClickListener { item.onClick() }
             b.sectionButtons.addView(button)
