@@ -203,6 +203,7 @@
     <select id="pdfSubjectSelect"></select>
     <input id="pdfTitle" placeholder="عنوان الملف">
     <input id="pdfUrl" placeholder="الصق رابط GitHub Raw هنا">
+    <textarea id="pdfDescription" placeholder="وصف الملف (اختياري - كيبان فالبطاقة فـ4 أسطر ماكس)" rows="3"></textarea>
     <label style="font-size:12px;color:#666;">صورة الغلاف (اختياري)</label>
     <input id="pdfCoverInput" type="file" accept="image/*">
     <img id="pdfCoverPreview" class="hidden" style="max-width:100px;border-radius:8px;margin-bottom:10px;" />
@@ -992,6 +993,7 @@ async function addPdfLink() {
     title,
     storageUrl: url,
     coverImageUrl,
+    description: document.getElementById("pdfDescription").value.trim(),
     fileSizeKb: 0,
     isNew: true,
     uploadedAt: Date.now()
@@ -999,6 +1001,7 @@ async function addPdfLink() {
   progressText.textContent = "تم الحفظ بنجاح ✅";
   document.getElementById("pdfTitle").value = "";
   document.getElementById("pdfUrl").value = "";
+  document.getElementById("pdfDescription").value = "";
   document.getElementById("pdfCoverInput").value = "";
   document.getElementById("pdfCoverPreview").classList.add("hidden");
   loadContentList();
@@ -1083,7 +1086,7 @@ async function loadContentList() {
       row.innerHTML = `
         <span style="display:flex;align-items:center;">${coverHtml} ${pdf.title} (${pdf.fileSizeKb} KB)</span>
         <span style="display:flex;gap:6px;">
-          <button style="width:auto;padding:6px 10px;font-size:12px;" onclick="editPdf('${subjectDoc.id}','${pdfDoc.id}','${pdf.title.replace(/'/g, "\\'")}','${(pdf.url||'').replace(/'/g, "\\'")}')">تعديل</button>
+          <button style="width:auto;padding:6px 10px;font-size:12px;" onclick="editPdf('${subjectDoc.id}','${pdfDoc.id}')">تعديل</button>
           <button class="danger" style="width:auto;padding:6px 12px;" onclick="deletePdf('${subjectDoc.id}','${pdfDoc.id}')">حذف</button>
         </span>
       `;
@@ -1094,12 +1097,15 @@ async function loadContentList() {
   }
 }
 
-function editPdf(subjectId, pdfId, currentTitle, currentUrl) {
+async function editPdf(subjectId, pdfId) {
+  const ref = db.collection("subjects").doc(subjectId).collection("pdfs").doc(pdfId);
+  const pdf = (await ref.get()).data() || {};
   openEditModal("تعديل ملف PDF", [
-    { key: "title", label: "عنوان الملف", value: currentTitle, type: "text" },
-    { key: "url", label: "رابط الملف (PDF)", value: currentUrl || "", type: "text" }
+    { key: "title", label: "عنوان الملف", value: pdf.title || "", type: "text" },
+    { key: "description", label: "الوصف (4 أسطر ماكس فالبطاقة)", value: pdf.description || "", type: "textarea" },
+    { key: "storageUrl", label: "رابط الملف (PDF)", value: pdf.storageUrl || "", type: "text" }
   ], async (values) => {
-    await db.collection("subjects").doc(subjectId).collection("pdfs").doc(pdfId).update(values);
+    await ref.update(values);
     loadContentList();
   });
 }
