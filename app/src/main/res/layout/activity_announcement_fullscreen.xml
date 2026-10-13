@@ -78,7 +78,8 @@
             android:textAllCaps="false"
             android:textStyle="bold"
             android:paddingVertical="12dp"
-            app:backgroundTint="@color/gold"
+            app:backgroundTint="@null"
+        android:background="@drawable/bg_gradient_accent"
             android:textColor="@color/navy_dark"
             app:cornerRadius="28dp" />
 

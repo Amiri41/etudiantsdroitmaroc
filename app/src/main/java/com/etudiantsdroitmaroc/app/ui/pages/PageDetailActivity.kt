@@ -59,7 +59,7 @@ class PageDetailActivity : AppCompatActivity() {
 <style>
 body{margin:0;padding:16px;background:$bg;color:$fg;font-family:sans-serif;line-height:1.9;font-size:16px;word-wrap:break-word}
 img,video,iframe,table{max-width:100%;height:auto}
-a{color:#F5B324}
+a{color:#5AA9FF}
 </style></head><body>$html</body></html>"""
         binding.webPage.loadDataWithBaseURL("https://localhost/", page, "text/html", "utf-8", null)
     }

@@ -10,7 +10,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/navy_dark"
+        android:background="@drawable/bg_gradient_toolbar"
         app:title="@string/app_name"
         app:titleTextColor="@color/gold" />
 
@@ -46,7 +46,8 @@
                 android:marqueeRepeatLimit="marquee_forever"
                 android:focusable="true"
                 app:cornerRadius="32dp"
-                app:backgroundTint="@color/gold"
+                app:backgroundTint="@null"
+        android:background="@drawable/bg_gradient_accent"
                 android:textColor="@color/navy_dark" />
 
             <com.google.android.material.button.MaterialButton
@@ -63,7 +64,8 @@
                 android:marqueeRepeatLimit="marquee_forever"
                 android:focusable="true"
                 app:cornerRadius="32dp"
-                app:backgroundTint="@color/navy"
+                app:backgroundTint="@null"
+        android:background="@drawable/bg_gradient_button"
                 android:textColor="@color/off_white" />
 
             <com.google.android.material.button.MaterialButton
@@ -80,7 +82,8 @@
                 android:marqueeRepeatLimit="marquee_forever"
                 android:focusable="true"
                 app:cornerRadius="32dp"
-                app:backgroundTint="@color/navy"
+                app:backgroundTint="@null"
+        android:background="@drawable/bg_gradient_button"
                 android:textColor="@color/off_white" />
 
             <com.google.android.material.button.MaterialButton
@@ -97,7 +100,8 @@
                 android:marqueeRepeatLimit="marquee_forever"
                 android:focusable="true"
                 app:cornerRadius="32dp"
-                app:backgroundTint="@color/navy"
+                app:backgroundTint="@null"
+        android:background="@drawable/bg_gradient_button"
                 android:textColor="@color/off_white" />
 
             <com.google.android.material.button.MaterialButton
@@ -114,7 +118,8 @@
                 android:marqueeRepeatLimit="marquee_forever"
                 android:focusable="true"
                 app:cornerRadius="32dp"
-                app:backgroundTint="@color/navy"
+                app:backgroundTint="@null"
+        android:background="@drawable/bg_gradient_button"
                 android:textColor="@color/off_white" />
 
         </LinearLayout>

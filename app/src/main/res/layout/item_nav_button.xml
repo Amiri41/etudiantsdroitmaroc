@@ -12,5 +12,6 @@
     android:marqueeRepeatLimit="marquee_forever"
     android:focusable="true"
     app:cornerRadius="32dp"
-    app:backgroundTint="@color/navy"
+    app:backgroundTint="@null"
+        android:background="@drawable/bg_gradient_button"
     android:textColor="@color/off_white" />
