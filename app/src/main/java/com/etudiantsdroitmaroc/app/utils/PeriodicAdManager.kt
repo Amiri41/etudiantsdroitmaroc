@@ -84,7 +84,14 @@ object PeriodicAdManager : DefaultLifecycleObserver, Application.ActivityLifecyc
 
     private fun tryShowNow() {
         val activity = currentActivity
-        if (activity != null && !activity.isFinishing) {
+        // ما نقطعوش المستعمل وهو كيقرا PDF ولا كيشوف فيديو ولا كيكتب فمحادثة: نعاودو نجربو من بعد
+        val busy = activity?.javaClass?.simpleName in setOf(
+            "PdfViewerActivity", "VideoPlayerActivity", "ChatActivity", "GroupChatActivity", "CommentsActivity"
+        )
+        if (busy) {
+            targetElapsedTime = SystemClock.elapsedRealtime() + 30_000L
+            scheduleTimer()
+        } else if (activity != null && !activity.isFinishing) {
             AdManager.showInterstitialForced(activity) {
                 targetElapsedTime = SystemClock.elapsedRealtime() + INTERVAL_MS
                 scheduleTimer()
