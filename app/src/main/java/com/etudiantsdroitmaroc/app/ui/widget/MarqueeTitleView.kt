@@ -42,6 +42,11 @@ class MarqueeTitleView @JvmOverloads constructor(
         requestLayout()
     }
 
+    fun setTextSizeSp(sp: Float) {
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp)
+        requestLayout()
+    }
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         // نقيسو النص بعرضو الطبيعي (بلا تحديد) باش نعرفو واش كبر من العرض
         textView.measure(

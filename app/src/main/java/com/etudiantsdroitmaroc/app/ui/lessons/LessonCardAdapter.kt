@@ -37,6 +37,7 @@ class LessonCardAdapter(
         val card = items[position]
         val b = holder.binding
 
+        b.marqueeTitle.setTextSizeSp(11f)
         b.marqueeTitle.setTitle(card.title)
 
         // الصورة

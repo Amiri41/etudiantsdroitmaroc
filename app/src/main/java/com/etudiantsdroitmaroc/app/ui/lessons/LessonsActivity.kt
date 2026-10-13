@@ -7,7 +7,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import com.etudiantsdroitmaroc.app.data.model.PdfDocument
 import com.etudiantsdroitmaroc.app.data.model.VideoLesson
 import com.etudiantsdroitmaroc.app.data.remote.PdfRepository
@@ -36,7 +36,9 @@ class LessonsActivity : AppCompatActivity() {
         binding = ActivityLessonsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val subjectId = intent.getStringExtra("subjectId") ?: run { finish(); return }
+        val subjectId = intent.getStringExtra("subjectId") ?: ""
+        val videoSubjectId = intent.getStringExtra("videoSubjectId") ?: ""
+        if (subjectId.isEmpty() && videoSubjectId.isEmpty()) { finish(); return }
         val subjectName = intent.getStringExtra("subjectName") ?: ""
 
         binding.toolbar.title = subjectName
@@ -52,16 +54,23 @@ class LessonsActivity : AppCompatActivity() {
             onOpen = { openCard(it) },
             onDownload = { downloadPdf(it) }
         )
-        binding.rvLessons.layoutManager = LinearLayoutManager(this)
+        binding.rvLessons.layoutManager = GridLayoutManager(this, GRID_COLUMNS) // 4 بطاقات فكل سطر، وكتنزل لتحت
         binding.rvLessons.adapter = adapter
 
-        load(subjectId)
+        load(subjectId, videoSubjectId)
     }
 
     /** كنعرضو كل محتوى المادة: ملفات PDF + الفيديوهات المرتبطة بها (إلا كانو) */
-    private fun load(subjectId: String) {
+    private fun load(subjectId: String, videoSubjectId: String) {
         lifecycleScope.launch {
             try {
+                if (videoSubjectId.isNotEmpty()) {
+                    // مادة من شجرة الفيديوهات
+                    val cards = videosRepository.getVideosForVideoSubject(videoSubjectId).map { it.toCard() }
+                    adapter.updateData(cards)
+                    binding.tvEmpty.visibility = if (cards.isEmpty()) View.VISIBLE else View.GONE
+                    return@launch
+                }
                 val pdfs = pdfRepository.getPdfsForSubject(subjectId)
                 downloadedIds.addAll(pdfs.filter { pdfRepository.isDownloaded(it.id) }.map { it.id })
                 val videos = try {
@@ -167,5 +176,9 @@ class LessonsActivity : AppCompatActivity() {
         intent.putExtra("description", video.description)
         intent.putExtra("youtubeId", video.youtubeId)
         startActivity(intent)
+    }
+
+    companion object {
+        private const val GRID_COLUMNS = 4
     }
 }

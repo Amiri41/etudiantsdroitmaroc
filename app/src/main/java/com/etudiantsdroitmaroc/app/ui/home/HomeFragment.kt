@@ -1,6 +1,5 @@
 package com.etudiantsdroitmaroc.app.ui.home
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +11,6 @@ import com.etudiantsdroitmaroc.app.data.model.AppSectionsConfig
 import com.etudiantsdroitmaroc.app.data.remote.AppConfigRepository
 import com.etudiantsdroitmaroc.app.databinding.FragmentHomeBinding
 import com.etudiantsdroitmaroc.app.ui.browse.BrowseActivity
-import com.etudiantsdroitmaroc.app.ui.videos.VideosHomeActivity
 import com.etudiantsdroitmaroc.app.utils.AdIds
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
@@ -40,7 +38,11 @@ class HomeFragment : Fragment() {
         setupBannerAd()
 
         binding.btnVideosEntry.setOnClickListener {
-            startActivity(Intent(requireContext(), VideosHomeActivity::class.java))
+            BrowseActivity.start(
+                requireContext(),
+                level = BrowseActivity.LEVEL_VIDEOS_ROOT,
+                title = "🎥 فيديوهات"
+            )
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
