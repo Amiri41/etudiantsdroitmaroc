@@ -1,117 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@color/off_white">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/navy_dark">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:title="@string/app_name"
-            app:titleTextColor="@color/gold" />
-
-    </com.google.android.material.appbar.AppBarLayout>
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/navy_dark"
+        app:title="@string/app_name"
+        app:titleTextColor="@color/gold" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="24dp">
 
             <FrameLayout
                 android:id="@+id/bannerAdContainer"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp" />
+                android:layout_height="wrap_content" />
 
-            <com.google.android.material.card.MaterialCardView
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnVideos"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="14dp"
-                app:cardCornerRadius="14dp"
-                app:cardElevation="0dp"
-                app:strokeWidth="0dp"
-                app:cardBackgroundColor="@color/navy_dark">
+                android:layout_height="64dp"
+                android:layout_marginTop="14dp"
+                android:text="🎬 الفيديوهات"
+                android:textAllCaps="false"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:singleLine="true"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:focusable="true"
+                app:cornerRadius="32dp"
+                app:backgroundTint="@color/gold"
+                android:textColor="@color/navy_dark" />
 
-                <LinearLayout
-                    android:id="@+id/btnVideosEntry"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:padding="14dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="🎥 فديوهات قانونية"
-                        android:textColor="@color/gold"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="اكتشف ›"
-                        android:textColor="@color/gold_light"
-                        android:textSize="13sp" />
-
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <HorizontalScrollView
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPrivate"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scrollbars="none"
-                android:layout_marginBottom="10dp">
+                android:layout_height="64dp"
+                android:layout_marginTop="14dp"
+                android:text="⚖️ القانون الخاص (خيار عربي)"
+                android:textAllCaps="false"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:singleLine="true"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:focusable="true"
+                app:cornerRadius="32dp"
+                app:backgroundTint="@color/navy"
+                android:textColor="@color/off_white" />
 
-                <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/chipGroupSection"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:singleSelection="true"
-                    app:chipSpacingHorizontal="6dp" />
-
-            </HorizontalScrollView>
-
-            <TextView
-                android:id="@+id/tvEmptySubjects"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPublic"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:gravity="center"
-                android:text="ماكاينش مواد حاليا فهاد القسم"
-                android:textColor="@color/text_secondary"
-                android:visibility="gone" />
+                android:layout_height="64dp"
+                android:layout_marginTop="14dp"
+                android:text="🏛️ القانون العام (خيار عربي)"
+                android:textAllCaps="false"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:singleLine="true"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:focusable="true"
+                app:cornerRadius="32dp"
+                app:backgroundTint="@color/navy"
+                android:textColor="@color/off_white" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvChapters"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnMaster"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                android:visibility="gone" />
+                android:layout_height="64dp"
+                android:layout_marginTop="14dp"
+                android:text="🎓 بحوث الماستر"
+                android:textAllCaps="false"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:singleLine="true"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:focusable="true"
+                app:cornerRadius="32dp"
+                app:backgroundTint="@color/navy"
+                android:textColor="@color/off_white" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvSubjects"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPhd"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false" />
+                android:layout_height="64dp"
+                android:layout_marginTop="14dp"
+                android:text="🎓 بحوث الدكتوراه"
+                android:textAllCaps="false"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:singleLine="true"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:focusable="true"
+                app:cornerRadius="32dp"
+                app:backgroundTint="@color/navy"
+                android:textColor="@color/off_white" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>

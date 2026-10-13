@@ -7,40 +7,22 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.etudiantsdroitmaroc.app.data.model.AppSectionsConfig
-import com.etudiantsdroitmaroc.app.data.model.Chapter
-import com.etudiantsdroitmaroc.app.data.model.Subject
 import com.etudiantsdroitmaroc.app.data.remote.AppConfigRepository
-import com.google.firebase.firestore.Source
-import com.etudiantsdroitmaroc.app.data.remote.ChaptersRepository
 import com.etudiantsdroitmaroc.app.databinding.FragmentHomeBinding
-import com.etudiantsdroitmaroc.app.ui.subject.SubjectDetailActivity
 import com.etudiantsdroitmaroc.app.ui.videos.VideosHomeActivity
 import com.etudiantsdroitmaroc.app.utils.AdIds
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
-import com.google.android.material.chip.Chip
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.toObjects
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
+/** الشاشة الرئيسية: 5 أزرار عمودية عريضة، كل واحد كيفتح قسمو */
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-
-    private val chaptersRepository = ChaptersRepository()
     private val appConfigRepository = AppConfigRepository()
-
-    private lateinit var subjectAdapter: SubjectAdapter
-    private lateinit var chapterRowAdapter: ChapterRowAdapter
-    private var allSubjects: List<Subject> = emptyList()
-    private var currentSection: String = "private"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -51,39 +33,42 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setupBannerAd()
 
-        subjectAdapter = SubjectAdapter(emptyList()) { openSubject(it) }
-        binding.rvSubjects.layoutManager = GridLayoutManager(context, 2)
-        binding.rvSubjects.setHasFixedSize(true)
-        binding.rvSubjects.adapter = subjectAdapter
+        // marquee كيتحرك غير إلا كان النص كبر من العرض
+        listOf(binding.btnVideos, binding.btnPrivate, binding.btnPublic, binding.btnMaster, binding.btnPhd)
+            .forEach { it.isSelected = true }
 
-        chapterRowAdapter = ChapterRowAdapter(emptyList()) { openSubject(it) }
-        binding.rvChapters.layoutManager = LinearLayoutManager(context)
-        binding.rvChapters.setHasFixedSize(true)
-        binding.rvChapters.adapter = chapterRowAdapter
-
-        binding.btnVideosEntry.setOnClickListener {
+        binding.btnVideos.setOnClickListener {
             startActivity(Intent(requireContext(), VideosHomeActivity::class.java))
         }
+        binding.btnPrivate.setOnClickListener { openSection("private", "⚖️ القانون الخاص") }
+        binding.btnPublic.setOnClickListener { openSection("public", "🏛️ القانون العام") }
+        binding.btnMaster.setOnClickListener { openSection("master", "🎓 بحوث الماستر") }
+        binding.btnPhd.setOnClickListener { openSection("phd", "🎓 بحوث الدكتوراه") }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            // 1) فوري: نبنيو الأزرار من الكاش المحلي (إلا كان) بلا انتظار الشبكة
+            // فوري من الكاش، ومن بعد تحديث من السيرفر
             val cached = appConfigRepository.getCachedSectionsConfig()
-            var shown: AppSectionsConfig? = cached
-            if (cached != null && !buildSectionChips(cached)) loadSubjectsAndChapters()
-
-            // 2) فالخلفية: نحدثو من السيرفر، ونعاودو البناء غير إلا تبدل شي
+            applyConfig(cached ?: AppSectionsConfig())
             val fresh = appConfigRepository.getFreshSectionsConfig()
-            if (shown == null) {
-                val cfg = fresh ?: AppSectionsConfig()
-                shown = cfg
-                if (!buildSectionChips(cfg)) loadSubjectsAndChapters()
-            } else if (fresh != null && fresh != shown) {
-                if (!buildSectionChips(fresh)) loadSubjectsAndChapters()
-            }
+            if (fresh != null && fresh != cached) applyConfig(fresh)
         }
+    }
+
+    private fun applyConfig(c: AppSectionsConfig) {
+        val b = _binding ?: return
+        b.btnVideos.visibility = if (c.showVideos) View.VISIBLE else View.GONE
+        b.btnPrivate.visibility = if (c.showPrivate) View.VISIBLE else View.GONE
+        b.btnPublic.visibility = if (c.showPublic) View.VISIBLE else View.GONE
+        b.btnMaster.visibility = if (c.showMaster) View.VISIBLE else View.GONE
+        b.btnPhd.visibility = if (c.showPhd) View.VISIBLE else View.GONE
+    }
+
+    private fun openSection(section: String, title: String) {
+        startActivity(Intent(requireContext(), SectionActivity::class.java)
+            .putExtra("section", section)
+            .putExtra("title", title))
     }
 
     private fun setupBannerAd() {
@@ -92,123 +77,6 @@ class HomeFragment : Fragment() {
         adView.adUnitId = AdIds.BANNER
         binding.bannerAdContainer.addView(adView)
         adView.loadAd(AdRequest.Builder().build())
-    }
-
-    /** كنبنيو أزرار الأقسام الرئيسية ديناميكيا - غير الأقسام اللي فعلها الأدمين كتبان */
-    private fun buildSectionChips(config: AppSectionsConfig): Boolean {
-        binding.chipGroupSection.removeAllViews()
-
-        data class SectionItem(val key: String, val label: String, val visible: Boolean)
-
-        val items = listOf(
-            SectionItem("private", "⚖️ القانون الخاص", config.showPrivate),
-            SectionItem("public", "📜 القانون العام", config.showPublic),
-            SectionItem("master", "🎓 بحوث الماستر", config.showMaster),
-            SectionItem("phd", "🏆 بحوث الدكتوراه", config.showPhd)
-        ).filter { it.visible }
-
-        binding.btnVideosEntry.visibility = if (config.showVideos) View.VISIBLE else View.GONE
-
-        if (items.isEmpty()) return false
-
-        var firstContentChip: Chip? = null
-
-        items.forEach { item ->
-            val chip = Chip(requireContext())
-            chip.text = item.label
-            chip.isCheckable = true
-            chip.isClickable = true
-
-            if (firstContentChip == null) firstContentChip = chip
-            chip.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    currentSection = item.key
-                    loadSubjectsAndChapters()
-                }
-            }
-            binding.chipGroupSection.addView(chip)
-        }
-
-        firstContentChip?.isChecked = true
-        return true
-    }
-
-    private var lastRenderSig: Any? = null
-
-    /** كيجيب المواد والفصول من المصدر المطلوب (كاش أو سيرفر) وكيعرضهم؛ كيرجع true إلا تعرض شي حاجة */
-    private suspend fun fetchAndRender(source: Source): Boolean {
-        val snapshot = Firebase.firestore.collection("subjects").get(source).await()
-        if (source == Source.CACHE && snapshot.isEmpty) return false
-        val subjects = snapshot.toObjects<Subject>().filter { it.active }
-        val needsChapters = currentSection == "private" || currentSection == "public"
-        if (needsChapters) {
-            val chapters = chaptersRepository.getChaptersForSection(currentSection, source)
-            if (source == Source.CACHE && chapters.isEmpty()) return false
-            val sig = Triple(currentSection, subjects, chapters)
-            if (sig == lastRenderSig) return true
-            allSubjects = subjects
-            applyChapterRows(chapters)
-            lastRenderSig = sig
-        } else {
-            val sig = Pair(currentSection, subjects)
-            if (sig == lastRenderSig) return true
-            allSubjects = subjects
-            applyFlatSubjects()
-            lastRenderSig = sig
-        }
-        return true
-    }
-
-    /** عرض فوري من الكاش المحلي، وبعدها تحديث من السيرفر (كيتبدل المحتوى غير إلا تغير) */
-    private fun loadSubjectsAndChapters() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            var shown = false
-            try {
-                shown = fetchAndRender(Source.CACHE)
-            } catch (e: Exception) {
-                if (e is kotlinx.coroutines.CancellationException) throw e
-            }
-            try {
-                fetchAndRender(Source.SERVER)
-            } catch (e: Exception) {
-                if (e is kotlinx.coroutines.CancellationException) throw e
-                if (!shown) {
-                    android.widget.Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), android.widget.Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
-
-    /** كنعرضو كل فصل بعنوانو والمواد ديالو مصفوفة أفقيا تحتو (بحال Netflix) */
-    private fun applyChapterRows(chapters: List<Chapter>) {
-        val rows = chapters.mapNotNull { chapter ->
-            val subjectsForChapter = allSubjects
-                .filter { it.section == currentSection && it.chapterId == chapter.id }
-                .sortedBy { it.orderIndex }
-            if (subjectsForChapter.isEmpty()) null else ChapterWithSubjects(chapter, subjectsForChapter)
-        }
-
-        chapterRowAdapter.updateData(rows)
-        binding.rvChapters.visibility = View.VISIBLE
-        binding.rvSubjects.visibility = View.GONE
-        binding.tvEmptySubjects.visibility = if (rows.isEmpty()) View.VISIBLE else View.GONE
-    }
-
-    /** الأقسام اللي ماعندهاش فصول (ماستر/دكتوراه) كتبان بشكل شبكة عادية */
-    private fun applyFlatSubjects() {
-        val filtered = allSubjects.filter { it.section == currentSection }.sortedBy { it.orderIndex }
-
-        subjectAdapter.updateData(filtered)
-        binding.rvSubjects.visibility = View.VISIBLE
-        binding.rvChapters.visibility = View.GONE
-        binding.tvEmptySubjects.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
-    }
-
-    private fun openSubject(subject: Subject) {
-        val intent = Intent(requireContext(), SubjectDetailActivity::class.java)
-        intent.putExtra("subjectId", subject.id)
-        intent.putExtra("subjectName", subject.name)
-        startActivity(intent)
     }
 
     override fun onDestroyView() {

@@ -43,6 +43,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.home.SectionActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.subject.SubjectDetailActivity"
             android:exported="false" />
 
