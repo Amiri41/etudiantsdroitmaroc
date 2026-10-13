@@ -3,6 +3,7 @@ package com.etudiantsdroitmaroc.app.ui.common
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -24,7 +25,9 @@ data class ContentCard(
 
 class ContentCardAdapter(
     private val onClick: (ContentCard) -> Unit,
-    private val onStatusClick: (ContentCard) -> Unit = {}
+    private val onStatusClick: (ContentCard) -> Unit = {},
+    /** true = صورة عمودية 4:5 بحال انستغرام (PDF)، false = أفقية 16:9 (فيديو) */
+    private val portrait: Boolean = false
 ) : ListAdapter<ContentCard, ContentCardAdapter.VH>(Diff) {
 
     class VH(val b: ItemContentCardBinding) : RecyclerView.ViewHolder(b.root)
@@ -35,6 +38,8 @@ class ContentCardAdapter(
     override fun onBindViewHolder(holder: VH, position: Int) {
         val c = getItem(position)
         val b = holder.b
+        (b.frameCardImage.layoutParams as ConstraintLayout.LayoutParams).dimensionRatio =
+            if (portrait) "4:5" else "16:9"
         b.tvCardTitle.text = c.title
         b.tvCardTitle.isSelected = true
         b.tvCardDesc.text = c.description

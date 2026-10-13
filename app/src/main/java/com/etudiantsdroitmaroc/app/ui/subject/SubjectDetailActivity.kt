@@ -6,7 +6,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import com.etudiantsdroitmaroc.app.R
 import com.etudiantsdroitmaroc.app.data.model.PdfDocument
 import com.etudiantsdroitmaroc.app.data.model.Subject
@@ -66,9 +66,11 @@ class SubjectDetailActivity : AppCompatActivity() {
                 pdfs.firstOrNull { it.id == card.id }?.let {
                     if (downloadedIds.contains(it.id)) openPdf(it) else downloadPdf(it)
                 }
-            }
+            },
+            portrait = true
         )
-        binding.rvPdfs.layoutManager = LinearLayoutManager(this)
+        // شبكة من عمودين، بطاقات عمودية متوسطة الحجم (4:5)
+        binding.rvPdfs.layoutManager = GridLayoutManager(this, 2)
         binding.rvPdfs.adapter = adapter
 
         load()
