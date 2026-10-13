@@ -17,6 +17,7 @@ import com.etudiantsdroitmaroc.app.databinding.ActivityBrowseBinding
 import com.etudiantsdroitmaroc.app.ui.lessons.LessonsActivity
 import com.etudiantsdroitmaroc.app.utils.BannerAdHelper
 import com.etudiantsdroitmaroc.app.utils.ErrorUtils
+import com.etudiantsdroitmaroc.app.utils.applyGoldStyle
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.firestore.Source
 import com.google.firebase.firestore.ktx.firestore
@@ -196,6 +197,7 @@ class BrowseActivity : AppCompatActivity() {
     private fun addButton(text: String, onClick: () -> Unit) {
         val button = layoutInflater.inflate(R.layout.item_browse_button, binding.buttonsContainer, false) as MaterialButton
         button.text = text
+        if (binding.buttonsContainer.childCount == 0) button.applyGoldStyle()
         button.setOnClickListener { onClick() }
         binding.buttonsContainer.addView(button)
     }

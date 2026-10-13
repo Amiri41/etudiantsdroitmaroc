@@ -12,6 +12,7 @@ import com.etudiantsdroitmaroc.app.data.remote.AppConfigRepository
 import com.etudiantsdroitmaroc.app.databinding.FragmentHomeBinding
 import com.etudiantsdroitmaroc.app.ui.browse.BrowseActivity
 import com.etudiantsdroitmaroc.app.utils.AdIds
+import com.etudiantsdroitmaroc.app.utils.applyGoldStyle
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
@@ -36,14 +37,6 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupBannerAd()
-
-        binding.btnVideosEntry.setOnClickListener {
-            BrowseActivity.start(
-                requireContext(),
-                level = BrowseActivity.LEVEL_VIDEOS_ROOT,
-                title = "🎥 فيديوهات"
-            )
-        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             // 1) فوري: نبنيو الأزرار من الكاش المحلي (إلا كان) بلا انتظار الشبكة
@@ -76,29 +69,39 @@ class HomeFragment : Fragment() {
         val b = _binding ?: return
         b.sectionButtons.removeAllViews()
 
-        data class SectionItem(val key: String, val label: String, val visible: Boolean)
+        data class SectionItem(val label: String, val visible: Boolean, val onClick: () -> Unit)
+
+        fun openSection(key: String, label: String) = {
+            BrowseActivity.start(
+                requireContext(),
+                level = BrowseActivity.LEVEL_ROOT,
+                title = label,
+                section = key
+            )
+        }
 
         val items = listOf(
-            SectionItem("private", "⚖️ القانون الخاص", config.showPrivate),
-            SectionItem("public", "📜 القانون العام", config.showPublic),
-            SectionItem("master", "🎓 بحوث الماستر", config.showMaster),
-            SectionItem("phd", "🏆 بحوث الدكتوراه", config.showPhd)
-        ).filter { it.visible }
-
-        b.btnVideosEntry.visibility = if (config.showVideos) View.VISIBLE else View.GONE
-        b.tvEmptySubjects.visibility = if (items.isEmpty()) View.VISIBLE else View.GONE
-
-        items.forEach { item ->
-            val button = layoutInflater.inflate(R.layout.item_browse_button, b.sectionButtons, false) as MaterialButton
-            button.text = item.label
-            button.setOnClickListener {
+            SectionItem("🎥 فديوهات قانونية", config.showVideos) {
                 BrowseActivity.start(
                     requireContext(),
-                    level = BrowseActivity.LEVEL_ROOT,
-                    title = item.label,
-                    section = item.key
+                    level = BrowseActivity.LEVEL_VIDEOS_ROOT,
+                    title = "🎥 فيديوهات"
                 )
-            }
+            },
+            SectionItem("⚖️ القانون الخاص", config.showPrivate, openSection("private", "⚖️ القانون الخاص")),
+            SectionItem("📜 القانون العام", config.showPublic, openSection("public", "📜 القانون العام")),
+            SectionItem("🎓 بحوث الماستر", config.showMaster, openSection("master", "🎓 بحوث الماستر")),
+            SectionItem("🏆 بحوث الدكتوراه", config.showPhd, openSection("phd", "🏆 بحوث الدكتوراه"))
+        ).filter { it.visible }
+
+        b.tvEmptySubjects.visibility = if (items.isEmpty()) View.VISIBLE else View.GONE
+
+        // الزر الأول ذهبي والباقي كحلي (نفس ستايل صفحة "حسابي")
+        items.forEachIndexed { index, item ->
+            val button = layoutInflater.inflate(R.layout.item_browse_button, b.sectionButtons, false) as MaterialButton
+            button.text = item.label
+            if (index == 0) button.applyGoldStyle()
+            button.setOnClickListener { item.onClick() }
             b.sectionButtons.addView(button)
         }
     }
