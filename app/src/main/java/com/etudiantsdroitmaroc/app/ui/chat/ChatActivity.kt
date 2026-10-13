@@ -192,4 +192,14 @@ class ChatActivity : AppCompatActivity() {
             binding.rvMessages.setBackgroundColor(android.graphics.Color.parseColor(colorHex))
         } catch (_: Exception) { }
     }
+
+    override fun onResume() {
+        super.onResume()
+        if (::threadId.isInitialized) com.etudiantsdroitmaroc.app.utils.ActiveChat.threadId = threadId
+    }
+
+    override fun onPause() {
+        super.onPause()
+        com.etudiantsdroitmaroc.app.utils.ActiveChat.threadId = null
+    }
 }

@@ -17,6 +17,7 @@ import com.google.firebase.messaging.RemoteMessage
 import com.google.firebase.auth.FirebaseAuth
 
 private const val CHANNEL_ID = "etudiants_general"
+private const val CHAT_CHANNEL_ID = "etudiants_messages"
 
 /**
  * كيستقبل الإشعارات (رسالة جديدة، منشور جديد...).
@@ -37,6 +38,17 @@ class NotificationService : FirebaseMessagingService() {
         super.onMessageReceived(message)
         val title = message.notification?.title ?: message.data["title"] ?: getString(R.string.app_name)
         val body = message.notification?.body ?: message.data["body"] ?: message.data["message"] ?: ""
+
+        if (message.data["kind"] == "chat" || message.data["threadId"] != null) {
+            showChatNotification(
+                title = title,
+                body = body,
+                threadId = message.data["threadId"] ?: "",
+                otherUid = message.data["otherUid"] ?: "",
+                otherName = message.data["otherName"] ?: title
+            )
+            return
+        }
 
         if (message.data["kind"] == "broadcast_announcement") {
             showAnnouncementNotification(
@@ -103,6 +115,46 @@ class NotificationService : FirebaseMessagingService() {
 
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         manager.notify(System.currentTimeMillis().toInt(), notification)
+    }
+
+    /** إشعار رسالة: قناة بأهمية عالية، كيفتح المحادثة مباشرة، وما كيبانش إلا كنتي فنفس المحادثة */
+    private fun showChatNotification(title: String, body: String, threadId: String, otherUid: String, otherName: String) {
+        if (threadId.isNotEmpty() && ActiveChat.threadId == threadId) return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val m = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            if (m.getNotificationChannel(CHAT_CHANNEL_ID) == null) {
+                m.createNotificationChannel(
+                    NotificationChannel(CHAT_CHANNEL_ID, "الرسائل", NotificationManager.IMPORTANCE_HIGH)
+                )
+            }
+        }
+
+        val chatIntent = Intent(this, com.etudiantsdroitmaroc.app.ui.chat.ChatActivity::class.java).apply {
+            putExtra("threadId", threadId)
+            putExtra("otherUid", otherUid)
+            putExtra("otherName", otherName)
+        }
+        val pendingIntent = androidx.core.app.TaskStackBuilder.create(this)
+            .addNextIntent(Intent(this, MainActivity::class.java))
+            .addNextIntent(chatIntent)
+            .getPendingIntent(
+                threadId.hashCode(),
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+
+        val notification = NotificationCompat.Builder(this, CHAT_CHANNEL_ID)
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle(title)
+            .setContentText(body)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+            .setAutoCancel(true)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(pendingIntent)
+            .build()
+
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        manager.notify(threadId.hashCode(), notification)
     }
 
     private fun createChannelIfNeeded() {

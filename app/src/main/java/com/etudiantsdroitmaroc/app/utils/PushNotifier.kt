@@ -22,7 +22,7 @@ object PushNotifier {
     private val client = OkHttpClient()
 
     /** كيبعت إشعار بصفة صامتة (بلا ما يوقف التطبيق إلا فشل) */
-    suspend fun sendNotification(toToken: String, title: String, message: String) {
+    suspend fun sendNotification(toToken: String, title: String, message: String, data: Map<String, String> = emptyMap()) {
         if (toToken.isBlank()) {
             Log.w(TAG, "ما بعتناش الإشعار: fcmToken فارغ (المستقبل ماعندوش توكن محفوظ)")
             return
@@ -33,6 +33,7 @@ object PushNotifier {
                     put("token", toToken)
                     put("title", title)
                     put("message", message)
+                    if (data.isNotEmpty()) put("data", JSONObject(data))
                 }
                 val body = json.toString().toRequestBody("application/json".toMediaType())
 

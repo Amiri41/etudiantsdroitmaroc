@@ -208,7 +208,10 @@ class ChatRepository {
             val fcmToken = otherUserDoc.getString("fcmToken") ?: return
 
             val myName = auth.currentUser?.displayName ?: "رسالة جديدة"
-            PushNotifier.sendNotification(fcmToken, myName, previewText)
+            PushNotifier.sendNotification(
+                fcmToken, myName, previewText,
+                mapOf("kind" to "chat", "threadId" to threadId, "otherUid" to myUid, "otherName" to myName)
+            )
         } catch (e: Exception) {
             if (e is kotlinx.coroutines.CancellationException) throw e
             // ما تكسرش الإرسال العادي إلا فشل الإشعار
