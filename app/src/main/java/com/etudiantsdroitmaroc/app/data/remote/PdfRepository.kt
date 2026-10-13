@@ -4,6 +4,7 @@ import android.content.Context
 import com.etudiantsdroitmaroc.app.data.local.AppDatabase
 import com.etudiantsdroitmaroc.app.data.local.DownloadedPdfEntity
 import com.etudiantsdroitmaroc.app.data.model.PdfDocument
+import com.google.firebase.firestore.Source
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.ktx.Firebase
@@ -25,11 +26,11 @@ class PdfRepository(private val context: Context) {
     private val firestore = Firebase.firestore
     private val httpClient = OkHttpClient()
 
-    suspend fun getPdfsForSubject(subjectId: String): List<PdfDocument> {
+    suspend fun getPdfsForSubject(subjectId: String, source: Source = Source.DEFAULT): List<PdfDocument> {
         val snapshot = firestore.collection("subjects")
             .document(subjectId)
             .collection("pdfs")
-            .get()
+            .get(source)
             .await()
         return snapshot.toObjects()
     }

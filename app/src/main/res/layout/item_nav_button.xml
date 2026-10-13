@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.button.MaterialButton xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="64dp"
+    android:layout_marginTop="14dp"
+    android:textAllCaps="false"
+    android:textSize="16sp"
+    android:textStyle="bold"
+    android:singleLine="true"
+    android:ellipsize="marquee"
+    android:marqueeRepeatLimit="marquee_forever"
+    android:focusable="true"
+    app:cornerRadius="32dp"
+    app:backgroundTint="@color/navy"
+    android:textColor="@color/off_white" />

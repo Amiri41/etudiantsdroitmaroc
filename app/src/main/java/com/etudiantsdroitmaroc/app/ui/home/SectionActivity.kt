@@ -2,16 +2,16 @@ package com.etudiantsdroitmaroc.app.ui.home
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import android.view.View
-import com.etudiantsdroitmaroc.app.data.model.Chapter
 import com.etudiantsdroitmaroc.app.data.model.Subject
 import com.etudiantsdroitmaroc.app.data.remote.ChaptersRepository
 import com.etudiantsdroitmaroc.app.databinding.ActivitySectionBinding
+import com.etudiantsdroitmaroc.app.ui.common.NavButtonAdapter
+import com.etudiantsdroitmaroc.app.ui.common.NavItem
 import com.etudiantsdroitmaroc.app.ui.subject.SubjectDetailActivity
 import com.etudiantsdroitmaroc.app.utils.ErrorUtils
 import com.google.firebase.firestore.Source
@@ -22,15 +22,18 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
-/** صفحة قسم (خاص/عام/ماستر/دكتوراه): كتعرض الفصول والمواد، من الكاش أولا ومن بعد من السيرفر */
+/**
+ * قانون خاص / عام: المستوى 1 = الفصول (أزرار عمودية)، المستوى 2 (chapterId) = المواد (أزرار عمودية)،
+ * والمادة كتفتح قائمة بطاقات PDF. كل مستوى كيتعرض من الكاش أولا ومن بعد من السيرفر.
+ */
 class SectionActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySectionBinding
     private val chaptersRepository = ChaptersRepository()
-    private lateinit var subjectAdapter: SubjectAdapter
-    private lateinit var chapterRowAdapter: ChapterRowAdapter
+    private lateinit var adapter: NavButtonAdapter
     private var section: String = "private"
-    private var lastRenderSig: Any? = null
+    private var chapterId: String? = null
+    private var lastItems: List<NavItem>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,18 +41,28 @@ class SectionActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         section = intent.getStringExtra("section") ?: "private"
+        chapterId = intent.getStringExtra("chapterId")
         binding.toolbar.title = intent.getStringExtra("title") ?: ""
         binding.toolbar.setNavigationOnClickListener { finish() }
 
-        subjectAdapter = SubjectAdapter(emptyList()) { openSubject(it) }
-        binding.rvSubjects.layoutManager = GridLayoutManager(this, 2)
-        binding.rvSubjects.adapter = subjectAdapter
-
-        chapterRowAdapter = ChapterRowAdapter(emptyList()) { openSubject(it) }
-        binding.rvChapters.layoutManager = LinearLayoutManager(this)
-        binding.rvChapters.adapter = chapterRowAdapter
+        adapter = NavButtonAdapter { onItemClick(it) }
+        binding.rvItems.layoutManager = LinearLayoutManager(this)
+        binding.rvItems.adapter = adapter
 
         load()
+    }
+
+    private fun onItemClick(item: NavItem) {
+        if (chapterId == null) {
+            startActivity(Intent(this, SectionActivity::class.java)
+                .putExtra("section", section)
+                .putExtra("chapterId", item.id)
+                .putExtra("title", item.title))
+        } else {
+            startActivity(Intent(this, SubjectDetailActivity::class.java)
+                .putExtra("subjectId", item.id)
+                .putExtra("subjectName", item.title))
+        }
     }
 
     private fun load() {
@@ -70,43 +83,23 @@ class SectionActivity : AppCompatActivity() {
     }
 
     private suspend fun fetchAndRender(source: Source): Boolean {
-        val snapshot = Firebase.firestore.collection("subjects").get(source).await()
-        if (source == Source.CACHE && snapshot.isEmpty) return false
-        val subjects = snapshot.toObjects<Subject>().filter { it.active && it.section == section }
-        val needsChapters = section == "private" || section == "public"
-        if (needsChapters) {
-            val chapters = chaptersRepository.getChaptersForSection(section, source)
-            if (source == Source.CACHE && chapters.isEmpty()) return false
-            val sig = Pair(subjects, chapters)
-            if (sig == lastRenderSig) return true
-            lastRenderSig = sig
-            applyChapterRows(subjects, chapters)
+        val cid = chapterId
+        val items: List<NavItem> = if (cid == null) {
+            chaptersRepository.getChaptersForSection(section, source).map { NavItem(it.id, it.name) }
         } else {
-            if (subjects == lastRenderSig) return true
-            lastRenderSig = subjects
-            val sorted = subjects.sortedBy { it.orderIndex }
-            subjectAdapter.updateData(sorted)
-            binding.rvSubjects.visibility = View.VISIBLE
-            binding.rvChapters.visibility = View.GONE
-            binding.tvEmptySubjects.visibility = if (sorted.isEmpty()) View.VISIBLE else View.GONE
+            Firebase.firestore.collection("subjects")
+                .whereEqualTo("chapterId", cid)
+                .get(source).await()
+                .toObjects<Subject>()
+                .filter { it.active && it.section == section }
+                .sortedBy { it.orderIndex }
+                .map { NavItem(it.id, it.name) }
         }
+        if (source == Source.CACHE && items.isEmpty()) return false
+        if (items == lastItems) return true
+        lastItems = items
+        adapter.submitList(items)
+        binding.tvEmptySubjects.visibility = if (items.isEmpty()) View.VISIBLE else View.GONE
         return true
-    }
-
-    private fun applyChapterRows(subjects: List<Subject>, chapters: List<Chapter>) {
-        val rows = chapters.mapNotNull { chapter ->
-            val list = subjects.filter { it.chapterId == chapter.id }.sortedBy { it.orderIndex }
-            if (list.isEmpty()) null else ChapterWithSubjects(chapter, list)
-        }
-        chapterRowAdapter.updateData(rows)
-        binding.rvChapters.visibility = View.VISIBLE
-        binding.rvSubjects.visibility = View.GONE
-        binding.tvEmptySubjects.visibility = if (rows.isEmpty()) View.VISIBLE else View.GONE
-    }
-
-    private fun openSubject(subject: Subject) {
-        startActivity(Intent(this, SubjectDetailActivity::class.java)
-            .putExtra("subjectId", subject.id)
-            .putExtra("subjectName", subject.name))
     }
 }

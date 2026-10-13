@@ -66,7 +66,11 @@ class HomeFragment : Fragment() {
     }
 
     private fun openSection(section: String, title: String) {
-        startActivity(Intent(requireContext(), SectionActivity::class.java)
+        // الماستر والدكتوراه: PDF مباشرة. الخاص والعام: فصول ← مواد ← PDF
+        val target = if (section == "master" || section == "phd")
+            com.etudiantsdroitmaroc.app.ui.subject.SubjectDetailActivity::class.java
+        else SectionActivity::class.java
+        startActivity(Intent(requireContext(), target)
             .putExtra("section", section)
             .putExtra("title", title))
     }

@@ -7,100 +7,104 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.etudiantsdroitmaroc.app.data.model.Chapter
-import com.etudiantsdroitmaroc.app.data.model.VideoSubject
 import com.etudiantsdroitmaroc.app.data.remote.VideoChaptersRepository
 import com.etudiantsdroitmaroc.app.data.remote.VideoSubjectsRepository
 import com.etudiantsdroitmaroc.app.databinding.ActivityVideosHomeBinding
-import com.etudiantsdroitmaroc.app.utils.BannerAdHelper
-import com.google.android.material.chip.Chip
+import com.etudiantsdroitmaroc.app.ui.common.NavButtonAdapter
+import com.etudiantsdroitmaroc.app.ui.common.NavItem
+import com.etudiantsdroitmaroc.app.utils.ErrorUtils
+import com.google.firebase.firestore.Source
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 /**
- * شجرة الفيديوهات مستقلة تماما عن شجرة PDF: أقسام (خاص/عام) خاصة بيها، فصول خاصة بيها، مواد خاصة بيها.
- * الأدمين كيتحكم فيها بذاتها من لوحة التحكم (videoChapters + videoSubjects).
+ * شجرة الفيديوهات (مستقلة عن PDF): بلا extras = زرين (خاص/عام)، section = الفصول،
+ * section + chapterId = المواد، والمادة كتفتح VideosListActivity (بطاقات الفيديو).
  */
 class VideosHomeActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityVideosHomeBinding
     private val chaptersRepository = VideoChaptersRepository()
     private val subjectsRepository = VideoSubjectsRepository()
-    private lateinit var chapterRowAdapter: VideoChapterRowAdapter
-
-    private var allVideoSubjects: List<VideoSubject> = emptyList()
-    private var currentSection: String = "private"
+    private lateinit var adapter: NavButtonAdapter
+    private var section: String? = null
+    private var chapterId: String? = null
+    private var lastItems: List<NavItem>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityVideosHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        section = intent.getStringExtra("section")
+        chapterId = intent.getStringExtra("chapterId")
+        binding.toolbar.title = intent.getStringExtra("title") ?: "🎬 الفيديوهات"
         binding.toolbar.setNavigationOnClickListener { finish() }
-        BannerAdHelper.attach(this, binding.bannerAdContainer)
 
-        chapterRowAdapter = VideoChapterRowAdapter(emptyList()) { subject -> openVideoSubject(subject) }
+        adapter = NavButtonAdapter { onItemClick(it) }
         binding.rvVideoChapters.layoutManager = LinearLayoutManager(this)
-        binding.rvVideoChapters.adapter = chapterRowAdapter
+        binding.rvVideoChapters.adapter = adapter
 
-        setupSectionChips()
-        loadData()
-    }
-
-    private fun setupSectionChips() {
-        val sections = listOf("private" to "⚖️ القانون الخاص", "public" to "📜 القانون العام")
-        var firstChip: Chip? = null
-
-        sections.forEach { (key, label) ->
-            val chip = Chip(this)
-            chip.text = label
-            chip.isCheckable = true
-            chip.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    currentSection = key
-                    applyChapterRows()
-                }
-            }
-            if (firstChip == null) firstChip = chip
-            binding.chipGroupVideoSection.addView(chip)
+        if (section == null) {
+            adapter.submitList(listOf(
+                NavItem("private", "⚖️ فيديوهات القانون الخاص"),
+                NavItem("public", "🏛️ فيديوهات القانون العام")
+            ))
+        } else {
+            load()
         }
-        firstChip?.isChecked = true
     }
 
-    private fun loadData() {
+    private fun onItemClick(item: NavItem) {
+        val sec = section
+        val cid = chapterId
+        when {
+            sec == null -> startActivity(Intent(this, VideosHomeActivity::class.java)
+                .putExtra("section", item.id)
+                .putExtra("title", item.title))
+            cid == null -> startActivity(Intent(this, VideosHomeActivity::class.java)
+                .putExtra("section", sec)
+                .putExtra("chapterId", item.id)
+                .putExtra("title", item.title))
+            else -> startActivity(Intent(this, VideosListActivity::class.java)
+                .putExtra("videoSubjectId", item.id)
+                .putExtra("videoSubjectName", item.title))
+        }
+    }
+
+    private fun load() {
         lifecycleScope.launch {
+            var shown = false
             try {
-                allVideoSubjects = subjectsRepository.getAllActive()
-                applyChapterRows()
+                shown = fetchAndRender(Source.CACHE)
             } catch (e: Exception) {
-            if (e is kotlinx.coroutines.CancellationException) throw e
-                Toast.makeText(this@VideosHomeActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_LONG).show()
+                if (e is CancellationException) throw e
+            }
+            try {
+                fetchAndRender(Source.SERVER)
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                if (!shown) Toast.makeText(this@VideosHomeActivity, ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun applyChapterRows() {
-        lifecycleScope.launch {
-            try {
-                val chapters = chaptersRepository.getChaptersForSection(currentSection)
-                val rows = chapters.mapNotNull { chapter ->
-                    val subjectsForChapter = allVideoSubjects
-                        .filter { it.section == currentSection && it.chapterId == chapter.id }
-                        .sortedBy { it.orderIndex }
-                    if (subjectsForChapter.isEmpty()) null else VideoChapterWithSubjects(chapter, subjectsForChapter)
-                }
-                chapterRowAdapter.updateData(rows)
-                binding.tvEmptyVideoSubjects.visibility = if (rows.isEmpty()) View.VISIBLE else View.GONE
-            } catch (e: Exception) {
-            if (e is kotlinx.coroutines.CancellationException) throw e
-                Toast.makeText(this@VideosHomeActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_LONG).show()
-            }
+    private suspend fun fetchAndRender(source: Source): Boolean {
+        val sec = section ?: return true
+        val cid = chapterId
+        val items: List<NavItem> = if (cid == null) {
+            chaptersRepository.getChaptersForSection(sec, source).map { NavItem(it.id, it.name) }
+        } else {
+            subjectsRepository.getAllActive(source)
+                .filter { it.section == sec && it.chapterId == cid }
+                .sortedBy { it.orderIndex }
+                .map { NavItem(it.id, it.name) }
         }
-    }
-
-    private fun openVideoSubject(subject: VideoSubject) {
-        val intent = Intent(this, VideosListActivity::class.java)
-        intent.putExtra("videoSubjectId", subject.id)
-        intent.putExtra("videoSubjectName", subject.name)
-        startActivity(intent)
+        if (source == Source.CACHE && items.isEmpty()) return false
+        if (items == lastItems) return true
+        lastItems = items
+        adapter.submitList(items)
+        binding.tvEmptyVideoSubjects.visibility = if (items.isEmpty()) View.VISIBLE else View.GONE
+        return true
     }
 }

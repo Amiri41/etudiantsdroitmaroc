@@ -42,6 +42,7 @@ data class PdfDocument(
     var title: String = "",
     var storageUrl: String = "",
     var coverImageUrl: String = "",
+    var description: String = "",
     var fileSizeKb: Long = 0,
     @get:PropertyName("isNew") @set:PropertyName("isNew")
     var isNew: Boolean = false,
