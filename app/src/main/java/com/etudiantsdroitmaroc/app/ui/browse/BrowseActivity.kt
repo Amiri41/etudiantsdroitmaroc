@@ -17,6 +17,7 @@ import com.etudiantsdroitmaroc.app.databinding.ActivityBrowseBinding
 import com.etudiantsdroitmaroc.app.ui.lessons.LessonsActivity
 import com.etudiantsdroitmaroc.app.utils.BannerAdHelper
 import com.etudiantsdroitmaroc.app.utils.ErrorUtils
+import com.etudiantsdroitmaroc.app.utils.goHome
 import android.widget.TextView
 import com.google.firebase.firestore.Source
 import com.google.firebase.firestore.ktx.firestore
@@ -67,6 +68,7 @@ class BrowseActivity : AppCompatActivity() {
 
         binding.toolbar.title = intent.getStringExtra(EXTRA_TITLE) ?: ""
         binding.toolbar.setNavigationOnClickListener { finish() }
+        binding.btnHome.setOnClickListener { goHome() }
         BannerAdHelper.attach(this, binding.bannerAdContainer)
 
         if (level == LEVEL_VIDEOS_ROOT) showVideoSections() else load()

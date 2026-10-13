@@ -12,7 +12,19 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@color/navy_dark"
         app:titleTextColor="@color/gold"
-        app:navigationIcon="@drawable/ic_back" />
+        app:navigationIcon="@drawable/ic_back">
+
+        <ImageButton
+            android:id="@+id/btnHome"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="الرئيسية"
+            android:src="@drawable/ic_home"
+            app:tint="@color/gold" />
+
+    </androidx.appcompat.widget.Toolbar>
 
     <FrameLayout
         android:id="@+id/bannerAdContainer"

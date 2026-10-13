@@ -18,6 +18,7 @@ import com.etudiantsdroitmaroc.app.ui.videos.VideoPlayerActivity
 import com.etudiantsdroitmaroc.app.utils.AdManager
 import com.etudiantsdroitmaroc.app.utils.BannerAdHelper
 import com.etudiantsdroitmaroc.app.utils.ErrorUtils
+import com.etudiantsdroitmaroc.app.utils.goHome
 import com.etudiantsdroitmaroc.app.utils.ReviewHelper
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
@@ -43,6 +44,7 @@ class LessonsActivity : AppCompatActivity() {
 
         binding.toolbar.title = subjectName
         binding.toolbar.setNavigationOnClickListener { finish() }
+        binding.btnHome.setOnClickListener { goHome() }
         BannerAdHelper.attach(this, binding.bannerAdContainer)
 
         pdfRepository = PdfRepository(this)
