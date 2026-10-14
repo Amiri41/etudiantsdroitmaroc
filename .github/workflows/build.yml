@@ -135,7 +135,9 @@ jobs:
           name: "آخر نسخة - Étudiants en Droit Maroc"
           body: "تحميل مباشر لآخر نسخة من التطبيق (تلقائي من GitHub Actions)."
           make_latest: true
-          files: app/build/outputs/apk/release/app-release.apk
+          files: |
+            app/build/outputs/apk/release/app-release.apk
+            app/build/outputs/bundle/release/app-release.aab
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 # retry release build 1785185968
