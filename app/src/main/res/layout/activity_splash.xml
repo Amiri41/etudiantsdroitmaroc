@@ -40,7 +40,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="مرحبا بيك فـ فضاء القانون"
-                android:textColor="@color/gold"
+                android:textColor="@color/gold_brand"
                 android:textSize="19sp"
                 android:textStyle="bold"
                 android:gravity="center" />
