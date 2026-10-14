@@ -107,7 +107,7 @@ class ProfileFragment : Fragment() {
     private fun confirmDeleteAccount() {
         android.app.AlertDialog.Builder(requireContext())
             .setTitle("حذف الحساب نهائيا")
-            .setMessage("هاد العملية ماغاديش ترجع فيها. غادي يتحذف حسابك، البروفايل، والمنشورات ديالك. متأكد بغيتي تكمل؟")
+            .setMessage("هاد العملية ماغاديش ترجع فيها. غادي يتحذف حسابك، البروفايل، الأصدقاء والمنشورات ديالك. التعليقات والرسائل الخاصة اللي بعتي كتبقى، وتقدر تطلب مسحها بالإيميل. متأكد بغيتي تكمل؟")
             .setPositiveButton("حذف نهائيا") { _, _ -> deleteAccount() }
             .setNegativeButton("إلغاء", null)
             .show()
@@ -116,10 +116,33 @@ class ProfileFragment : Fragment() {
     private fun deleteAccount() {
         val user = FirebaseAuth.getInstance().currentUser ?: return
         val uid = user.uid
+        // Firebase كيطلب دخول حديث لحذف الحساب: نتأكدو قبل ما نمسحو أي بيانات
+        val lastSignIn = user.metadata?.lastSignInTimestamp ?: 0L
+        if (System.currentTimeMillis() - lastSignIn > 4 * 60 * 1000L) {
+            android.widget.Toast.makeText(
+                context,
+                "خاصك تسجل الدخول مرة أخرى قبل الحذف (لأسباب أمان). سجل الخروج ثم الدخول وعاود جرب.",
+                android.widget.Toast.LENGTH_LONG
+            ).show()
+            return
+        }
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                // نحذفو البروفايل من Firestore قبل حذف الحساب
-                Firebase.firestore.collection("users").document(uid).delete().await()
+                val db = Firebase.firestore
+                // المنشورات ديال المستعمل
+                db.collection("posts").whereEqualTo("authorUid", uid).get().await()
+                    .documents.forEach { it.reference.delete().await() }
+                // الأصدقاء والطلبات والحظر
+                for (sub in listOf("friends", "incoming_requests", "blocked")) {
+                    try {
+                        db.collection("users").document(uid).collection(sub).get().await()
+                            .documents.forEach { it.reference.delete().await() }
+                    } catch (e: Exception) {
+                        if (e is kotlinx.coroutines.CancellationException) throw e
+                    }
+                }
+                // البروفايل من Firestore قبل حذف الحساب
+                db.collection("users").document(uid).delete().await()
                 user.delete().await()
                 android.widget.Toast.makeText(context, "تم حذف الحساب", android.widget.Toast.LENGTH_SHORT).show()
                 AuthRepository(requireContext()).signOut()
