@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace 'com.etudiantsdroitmaroc.app'
-    compileSdk 34
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.etudiantsdroitmaroc.app"
         minSdk 24
-        targetSdk 34
+        targetSdk 36
         versionCode 3
         versionName "1.2"
 
@@ -107,7 +107,6 @@ dependencies {
     kapt 'androidx.room:room-compiler:2.6.1'
 
     // PDF Viewer
-    implementation 'com.github.mhiew:android-pdf-viewer:3.2.0-beta.1'
 
     // تحميل الملفات (Download Manager بديل)
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'

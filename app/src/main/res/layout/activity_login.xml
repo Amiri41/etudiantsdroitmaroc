@@ -45,4 +45,17 @@
         app:icon="@drawable/ic_google"
         app:iconGravity="textStart" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:autoLink="web"
+        android:linksClickable="true"
+        android:textColorLink="@color/gold"
+        android:textColor="@color/off_white"
+        android:textSize="12sp"
+        android:lineSpacingExtra="4dp"
+        android:text="بتسجيل الدخول كتوافق على شروط الاستعمال (ممنوع المحتوى المسيء، وكاين الإبلاغ والحظر) وعلى سياسة الخصوصية:\nhttps://amiri41.github.io/etudiantsdroitmaroc/privacy.html" />
+
 </LinearLayout>

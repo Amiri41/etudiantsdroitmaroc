@@ -66,6 +66,7 @@ class EtudiantsApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        registerActivityLifecycleCallbacks(com.etudiantsdroitmaroc.app.utils.EdgeToEdgeHelper)
 
         // Firebase (محمي بـ try/catch باش إلا كريش هو نفسه، الـ handler لي حطينا
         // فـ attachBaseContext يقدر يمسكو ويسجلو محليا حتى لو Firebase ماخدمش)
