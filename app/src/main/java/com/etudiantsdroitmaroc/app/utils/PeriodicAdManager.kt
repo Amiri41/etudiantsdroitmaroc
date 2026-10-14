@@ -34,7 +34,11 @@ object PeriodicAdManager : DefaultLifecycleObserver, Application.ActivityLifecyc
 
     private val fireRunnable = Runnable { onTimerFired() }
 
+    /** مقفول بسبب سياسة Google Play (ما كيبانش إعلان فأوقات غير متوقعة). بدّلو لـ true باش يرجع. */
+    private const val ENABLED = false
+
     fun init(application: Application) {
+        if (!ENABLED) return
         application.registerActivityLifecycleCallbacks(this)
         // ماكنحسبوش الوقت هنا - Application.onCreate() كيتنفذ قبل ما تبان الواجهة للمستخدم
         // (تحميل Firebase وAdMob كياخد وقت)، فالعد الحقيقي كيبدا فأول onStart (ملي التطبيق يبان فعليا)
