@@ -2,7 +2,12 @@ package com.etudiantsdroitmaroc.app.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
+import android.net.Uri
+import android.view.View
 import android.widget.Toast
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -49,8 +54,35 @@ class LoginActivity : AppCompatActivity() {
 
         authRepository = AuthRepository(this)
 
-        findViewById<android.view.View>(R.id.btnGoogleSignIn).setOnClickListener {
+        findViewById<View>(R.id.btnGoogleSignIn).setOnClickListener {
             googleSignInLauncher.launch(authRepository.getGoogleSignInIntent())
+        }
+        findViewById<View>(R.id.tvTerms).setOnClickListener {
+            openUrl("https://amiri41.github.io/etudiantsdroitmaroc/terms.html")
+        }
+        findViewById<View>(R.id.tvPrivacy).setOnClickListener {
+            openUrl("https://amiri41.github.io/etudiantsdroitmaroc/privacy.html")
+        }
+
+        // الشاشة كتمتد تحت أشرطة النظام: نزيدو المسافة الفوقانية والسفلية يدويا
+        val top = findViewById<View>(R.id.topContainer)
+        val footer = findViewById<View>(R.id.loginFooter)
+        val topPad = top.paddingTop
+        val footerPad = footer.paddingBottom
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.loginRoot)) { _, insets ->
+            val bars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
+            top.updatePadding(top = topPad + bars.top)
+            footer.updatePadding(bottom = footerPad + bars.bottom)
+            WindowInsetsCompat.CONSUMED
+        }
+    }
+
+    private fun openUrl(url: String) {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        } catch (_: Exception) {
         }
     }
 }

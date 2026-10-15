@@ -2,6 +2,7 @@ package com.etudiantsdroitmaroc.app.utils
 
 import android.app.Activity
 import android.app.Application
+import android.content.res.Configuration
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.View
@@ -21,6 +22,15 @@ object EdgeToEdgeHelper : Application.ActivityLifecycleCallbacks {
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         if (activity !is AppCompatActivity) return
         WindowCompat.setDecorFitsSystemWindows(activity.window, false)
+        if (activity.javaClass.simpleName == "LoginActivity") {
+            // صفحة الدخول كتتكلف بالمسافات بوحدها، وفيها وضع فاتح بأيقونات داكنة
+            val night = (activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+                Configuration.UI_MODE_NIGHT_YES
+            val ctrl = WindowCompat.getInsetsController(activity.window, activity.window.decorView)
+            ctrl.isAppearanceLightStatusBars = !night
+            ctrl.isAppearanceLightNavigationBars = false
+            return
+        }
         // الشعار كيستعمل خلفية خاصة بيه
         if (activity.javaClass.simpleName != "SplashActivity") {
             activity.window.setBackgroundDrawable(
@@ -34,6 +44,7 @@ object EdgeToEdgeHelper : Application.ActivityLifecycleCallbacks {
 
     override fun onActivityStarted(activity: Activity) {
         if (activity !is AppCompatActivity) return
+        if (activity.javaClass.simpleName == "LoginActivity") return
         val content = activity.findViewById<View>(android.R.id.content) ?: return
         ViewCompat.setOnApplyWindowInsetsListener(content) { v, insets ->
             val bars = insets.getInsets(
