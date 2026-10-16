@@ -55,6 +55,12 @@ class MainActivity : AppCompatActivity() {
         ensureFcmTokenSaved()
     }
 
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.getStringExtra("tab") == "forum") bottomNav.selectedItemId = R.id.forumFragment
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putInt(KEY_TAB, currentTabId)

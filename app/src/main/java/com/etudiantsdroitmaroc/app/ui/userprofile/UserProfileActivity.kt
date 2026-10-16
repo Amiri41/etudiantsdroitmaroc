@@ -2,6 +2,7 @@ package com.etudiantsdroitmaroc.app.ui.userprofile
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -37,8 +38,25 @@ class UserProfileActivity : AppCompatActivity() {
         val myUid = FirebaseAuth.getInstance().currentUser?.uid
         if (targetUid == myUid) {
             // ماشي منطقي تشوف "إضافة صديق" لراسك
-            binding.btnAddFriend.visibility = android.view.View.GONE
-            binding.btnMessage.visibility = android.view.View.GONE
+            binding.rowActions.visibility = View.GONE
+            binding.btnAddFriend.visibility = View.GONE
+            binding.btnMessage.visibility = View.GONE
+            binding.toolbar.subtitle = "حسابي الشخصي"
+            binding.ivCameraBadge.visibility = View.VISIBLE
+            binding.ivCameraBadge.setOnClickListener {
+                startActivity(Intent(this, com.etudiantsdroitmaroc.app.ui.profile.EditProfileActivity::class.java))
+            }
+            binding.tvNoPostsHint.visibility = View.VISIBLE
+            binding.btnCreatePost.visibility = View.VISIBLE
+            binding.btnCreatePost.setOnClickListener {
+                // نمشيو للمنتدى فين كاين زر منشور جديد
+                startActivity(
+                    Intent(this, com.etudiantsdroitmaroc.app.ui.MainActivity::class.java)
+                        .putExtra("tab", "forum")
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                )
+                finish()
+            }
         } else {
             binding.toolbar.menu.add("الإبلاغ عن المستخدم")
             binding.toolbar.menu.add("حظر المستخدم")
@@ -91,7 +109,7 @@ class UserProfileActivity : AppCompatActivity() {
             try {
                 val posts = forumRepository.getPostsByUser(targetUid)
                 postsAdapter.updateData(posts)
-                binding.tvNoPosts.visibility = if (posts.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
+                binding.emptyState.visibility = if (posts.isEmpty()) View.VISIBLE else View.GONE
             } catch (e: Exception) {
             if (e is kotlinx.coroutines.CancellationException) throw e
                 Toast.makeText(this@UserProfileActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
@@ -169,13 +187,18 @@ class UserProfileActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val isFriend = repository.isFriend(targetUid)
             if (isFriend) {
-                binding.btnAddFriend.text = "أصدقاء ✓"
+                binding.btnAddFriend.text = "أصدقاء"
+                binding.btnAddFriend.setIconResource(com.etudiantsdroitmaroc.app.R.drawable.ic_check)
                 binding.btnAddFriend.isEnabled = false
                 return@launch
             }
             requestPending = repository.hasPendingRequestTo(targetUid)
             binding.btnAddFriend.isEnabled = true
-            binding.btnAddFriend.text = if (requestPending) "إلغاء طلب الصداقة ✕" else "إضافة صديق ➕"
+            binding.btnAddFriend.text = if (requestPending) "إلغاء طلب الصداقة" else "إضافة صديق"
+            binding.btnAddFriend.setIconResource(
+                if (requestPending) com.etudiantsdroitmaroc.app.R.drawable.ic_close_x
+                else com.etudiantsdroitmaroc.app.R.drawable.ic_person_add
+            )
         }
     }
 

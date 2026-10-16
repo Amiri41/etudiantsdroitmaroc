@@ -9,115 +9,242 @@
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="80dp"
         android:background="@drawable/bg_gradient_toolbar"
+        android:paddingBottom="6dp"
+        app:title="المنشورات"
         app:titleTextColor="@color/white"
+        app:titleTextAppearance="@style/ToolbarTitleBig"
+        app:subtitleTextColor="#B8D4FF"
+        app:subtitleTextAppearance="@style/ToolbarSubtitleSmall"
         app:navigationIcon="@drawable/ic_back" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:clipToPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="14dp"
+            android:paddingBottom="24dp">
 
-            <LinearLayout
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:padding="24dp">
-
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/ivPhoto"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:src="@drawable/ic_profile"
-                    app:civ_border_width="2dp"
-                    app:civ_border_color="@color/gold" />
-
-                <TextView
-                    android:id="@+id/tvName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    android:textSize="19sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_primary" />
-
-                <TextView
-                    android:id="@+id/tvUniversityLevel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textSize="14sp"
-                    android:textColor="@color/gold" />
+                app:cardBackgroundColor="@color/card_bg"
+                app:cardCornerRadius="26dp"
+                app:cardElevation="3dp"
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="24dp">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnAddFriend"
-                        android:layout_width="0dp"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="6dp"
-                        android:text="إضافة صديق"
-                        android:textAllCaps="false"
-                        app:backgroundTint="@color/gold"
-                        android:textColor="@color/navy_dark" />
+                        android:layoutDirection="rtl"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnMessage"
-                        android:layout_width="0dp"
+                        <FrameLayout
+                            android:layout_width="108dp"
+                            android:layout_height="108dp">
+
+                            <de.hdodenhof.circleimageview.CircleImageView
+                                android:id="@+id/ivPhoto"
+                                android:layout_width="102dp"
+                                android:layout_height="102dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_profile"
+                                app:civ_border_width="3dp"
+                                app:civ_border_color="#2F7BE0" />
+
+                            <ImageView
+                                android:id="@+id/ivCameraBadge"
+                                android:layout_width="34dp"
+                                android:layout_height="34dp"
+                                android:layout_gravity="bottom|start"
+                                android:background="@drawable/bg_camera_badge"
+                                android:padding="7dp"
+                                android:src="@drawable/ic_camera"
+                                android:visibility="gone"
+                                app:tint="@color/white"
+                                android:importantForAccessibility="no" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="16dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tvName"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/text_primary"
+                                android:textSize="24sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvUniversityLevel"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:textColor="@color/gold"
+                                android:textSize="16sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/rowActions"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="6dp"
-                        android:text="رسالة خاصة"
-                        android:textAllCaps="false"
-                        app:backgroundTint="@color/navy" />
+                        android:layout_marginTop="16dp"
+                        android:layoutDirection="rtl"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnAddFriend"
+                            android:layout_width="0dp"
+                            android:layout_height="52dp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="6dp"
+                            android:text="إضافة صديق"
+                            android:textAllCaps="false"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/white"
+                            android:background="@drawable/bg_btn_soft_blue"
+                            app:backgroundTint="@null"
+                            app:cornerRadius="26dp"
+                            app:icon="@drawable/ic_person_add"
+                            app:iconTint="@color/white"
+                            app:iconPadding="6dp"
+                            app:iconGravity="textStart" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnMessage"
+                            android:layout_width="0dp"
+                            android:layout_height="52dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="6dp"
+                            android:text="رسالة خاصة"
+                            android:textAllCaps="false"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/white"
+                            android:background="@drawable/bg_btn_navy"
+                            app:backgroundTint="@null"
+                            app:cornerRadius="26dp"
+                            app:icon="@drawable/ic_lock"
+                            app:iconTint="@color/white"
+                            app:iconPadding="6dp"
+                            app:iconGravity="textStart" />
+                    </LinearLayout>
                 </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                app:cardBackgroundColor="@color/card_bg"
+                app:cardCornerRadius="26dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="0dp">
+
+                <TextView
+                    android:id="@+id/tvPostsTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:layout_margin="6dp"
+                    android:gravity="center"
+                    android:background="@drawable/bg_tab_selected"
+                    android:drawableStart="@drawable/ic_assignment"
+                    android:drawablePadding="10dp"
+                    android:drawableTint="@color/tab_selected_text"
+                    android:text="المنشورات"
+                    android:textColor="@color/tab_selected_text"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <LinearLayout
+                android:id="@+id/emptyState"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="220dp"
+                    android:layout_height="170dp"
+                    android:src="@drawable/ill_empty_posts"
+                    android:importantForAccessibility="no" />
+
+                <TextView
+                    android:id="@+id/tvNoPosts"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="لا توجد منشورات بعد"
+                    android:textColor="@color/text_primary"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvNoPostsHint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:paddingStart="24dp"
+                    android:paddingEnd="24dp"
+                    android:text="ابدأ بمشاركة أول منشور لك في هذا الحساب وكن جزءاً من مجتمعنا"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="15sp"
+                    android:lineSpacingExtra="4dp"
+                    android:visibility="gone" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCreatePost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="20dp"
+                    android:minWidth="200dp"
+                    android:text="إنشاء منشور"
+                    android:textAllCaps="false"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/white"
+                    android:background="@drawable/bg_btn_blue_solid"
+                    android:visibility="gone"
+                    app:backgroundTint="@null"
+                    app:cornerRadius="28dp"
+                    app:icon="@drawable/ic_edit"
+                    app:iconTint="@color/white"
+                    app:iconPadding="8dp"
+                    app:iconGravity="textStart" />
             </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="8dp"
-                android:background="@color/off_white" />
-
-            <TextView
-                android:id="@+id/tvPostsTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="14dp"
-                android:text="📋 المنشورات"
-                android:textStyle="bold"
-                android:textSize="15sp"
-                android:textColor="@color/navy_dark"
-                android:background="@color/white" />
-
-            <TextView
-                android:id="@+id/tvNoPosts"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="20dp"
-                android:gravity="center"
-                android:text="ماكاينش منشورات بعد"
-                android:textColor="@color/text_secondary"
-                android:visibility="gone" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvUserPosts"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:nestedScrollingEnabled="false" />
-
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-
 </LinearLayout>
