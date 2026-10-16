@@ -19,8 +19,8 @@
         android:paddingTop="16dp">
 
         <ImageView
-            android:layout_width="190dp"
-            android:layout_height="190dp"
+            android:layout_width="170dp"
+            android:layout_height="170dp"
             android:src="@drawable/splash_logo"
             android:contentDescription="@string/app_name" />
 
@@ -51,7 +51,7 @@
             android:id="@+id/btnGoogleSignIn"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="24dp"
             android:text="@string/login_with_google"
             android:textAllCaps="false"
             android:textSize="16sp"
@@ -98,7 +98,7 @@
         android:id="@+id/loginFooter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="150dp"
+        android:minHeight="100dp"
         android:background="@drawable/bg_login_wave"
         android:paddingBottom="18dp">
 
@@ -129,7 +129,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="8dp"
-                    android:text="الشروط والاستخدام"
+                    android:text="شروط الاستخدام"
                     android:textColor="@color/white"
                     android:textSize="13sp" />
 
