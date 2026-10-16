@@ -38,6 +38,7 @@ class ProfileFragment : Fragment() {
         com.etudiantsdroitmaroc.app.utils.BannerAdHelper.attach(requireContext(), binding.bannerAdContainer)
         com.etudiantsdroitmaroc.app.utils.BannerAdHelper.attach(requireContext(), binding.bannerAdContainerBottom)
 
+        binding.ivCameraBadge.setOnClickListener { binding.btnEditProfile.performClick() }
         binding.btnEditProfile.setOnClickListener {
             startActivity(Intent(requireContext(), com.etudiantsdroitmaroc.app.ui.profile.EditProfileActivity::class.java))
         }
@@ -85,7 +86,7 @@ class ProfileFragment : Fragment() {
 
     private fun updateIntroSoundButton() {
         val on = com.etudiantsdroitmaroc.app.utils.IntroSound.isEnabled(requireContext())
-        binding.btnIntroSound.text = if (on) "🔔 صوت البداية: مفعّل" else "🔕 صوت البداية: موقوف"
+        binding.tvIntroSoundState.text = if (on) "مفعّل" else "موقوف"
     }
 
     private fun showDarkModeDialog() {
