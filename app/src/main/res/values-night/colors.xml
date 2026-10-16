@@ -21,4 +21,5 @@
     <color name="login_title">#FFFFFF</color>
     <color name="login_subtitle">#9DB7E3</color>
     <color name="login_button_text">#FFFFFF</color>
+    <color name="login_footer_bg">#07152B</color>
 </resources>

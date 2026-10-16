@@ -93,7 +93,7 @@ class SplashActivity : AppCompatActivity() {
         AdManager.showAppOpenAdIfReady(this) {
             val isLoggedIn = FirebaseAuth.getInstance().currentUser != null
             val destination = when {
-                isLoggedIn -> MainActivity::class.java
+                isLoggedIn -> com.etudiantsdroitmaroc.app.ui.auth.WelcomeBackActivity::class.java
                 !com.etudiantsdroitmaroc.app.ui.onboarding.OnboardingActivity.hasSeenOnboarding(this) ->
                     com.etudiantsdroitmaroc.app.ui.onboarding.OnboardingActivity::class.java
                 else -> LoginActivity::class.java

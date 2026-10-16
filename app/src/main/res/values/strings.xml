@@ -4,7 +4,7 @@
 
     <string name="login_title">مرحبا بك</string>
     <string name="login_subtitle">سجل الدخول باش تكمل دراستك القانونية</string>
-    <string name="login_with_google">تسجيل الدخول بحساب Google</string>
+    <string name="login_with_google">تسجيل الدخول بواسطة Google</string>
 
     <string name="nav_home">الرئيسية</string>
     <string name="nav_forum">المنتدى</string>
@@ -25,4 +25,18 @@
     <string name="offline">غير متصل</string>
 
     <string name="profile_logout">تسجيل الخروج</string>
+
+    <!-- شاشة الترحيب / الدخول -->
+    <string name="welcome_title">مرحباً بك</string>
+    <string name="welcome_subtitle">في مجتمع طلبة القانون بالمغرب</string>
+    <string name="welcome_tagline">معاً نحو مستقبل قانوني أفضل</string>
+    <string name="welcome_consent">بتسجيل الدخول كتوافق على:</string>
+    <string name="welcome_terms">الشروط والاستخدام</string>
+    <string name="welcome_privacy">سياسة الخصوصية</string>
+    <string name="welcome_art_description">كتب قانونية وميزان العدالة</string>
+
+    <!-- شاشة الترحيب بالمستخدم العائد -->
+    <string name="welcome_back_title">مرحباً بعودتك</string>
+    <string name="welcome_back_subtitle">مرحباً بعودتك إلى طلبة القانون</string>
+    <string name="welcome_back_continue">متابعة</string>
 </resources>

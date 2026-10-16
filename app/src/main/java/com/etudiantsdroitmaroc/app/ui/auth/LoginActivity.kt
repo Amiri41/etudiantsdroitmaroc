@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import com.etudiantsdroitmaroc.app.R
 import com.etudiantsdroitmaroc.app.data.remote.AuthRepository
 import com.etudiantsdroitmaroc.app.ui.MainActivity
+import com.etudiantsdroitmaroc.app.utils.setupWelcomeWindow
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes
 import com.google.android.gms.common.api.ApiException
@@ -50,6 +51,7 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setupWelcomeWindow()
         setContentView(R.layout.activity_login)
 
         authRepository = AuthRepository(this)

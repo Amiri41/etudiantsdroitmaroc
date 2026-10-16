@@ -19,4 +19,5 @@
     <color name="login_title">#0A1F3D</color>
     <color name="login_subtitle">#33415C</color>
     <color name="login_button_text">#0A1F3D</color>
+    <color name="login_footer_bg">#0A1F3D</color>
 </resources>

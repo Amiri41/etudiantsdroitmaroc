@@ -61,7 +61,7 @@ class ProfileFragment : Fragment() {
 
         binding.btnLogout.setOnClickListener {
             AuthRepository(requireContext()).signOut()
-            startActivity(Intent(requireContext(), LoginActivity::class.java))
+            startActivity(Intent(requireContext(), LoginActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
             requireActivity().finish()
         }
 
@@ -146,7 +146,7 @@ class ProfileFragment : Fragment() {
                 user.delete().await()
                 android.widget.Toast.makeText(context, "تم حذف الحساب", android.widget.Toast.LENGTH_SHORT).show()
                 AuthRepository(requireContext()).signOut()
-                startActivity(Intent(requireContext(), LoginActivity::class.java))
+                startActivity(Intent(requireContext(), LoginActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
                 requireActivity().finish()
             } catch (e: com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException) {
                 android.widget.Toast.makeText(
