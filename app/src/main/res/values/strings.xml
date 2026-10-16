@@ -39,4 +39,17 @@
     <string name="forum_empty_groups">ماكاينة حتى مجموعة حاليا</string>
     <string name="forum_fab_add_group">إضافة مجموعة</string>
     <string name="forum_fab_add_post">إنشاء منشور</string>
+
+    <!-- نافذة إنشاء منشور -->
+    <string name="post_dialog_title">إنشاء منشور جديد</string>
+    <string name="post_dialog_subtitle">شارك أفكارك، أسئلتك أو معلوماتك مع مجتمعنا</string>
+    <string name="post_dialog_edit_title">تعديل المنشور</string>
+    <string name="post_dialog_edit_subtitle">عدّل محتوى منشورك</string>
+    <string name="post_dialog_hint">اكتب موضوعك هنا…</string>
+    <string name="post_dialog_images_title">إضافة صور</string>
+    <string name="post_dialog_images_hint">يمكنك إضافة صور لشرح موضوعك (اختياري)</string>
+    <string name="post_dialog_publish">نشر المنشور</string>
+    <string name="post_dialog_save">حفظ التعديل</string>
+    <string name="post_dialog_cancel">إلغاء</string>
+    <string name="post_dialog_publishing">جاري النشر…</string>
 </resources>

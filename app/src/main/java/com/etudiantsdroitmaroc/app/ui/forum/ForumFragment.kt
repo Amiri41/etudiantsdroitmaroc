@@ -267,11 +267,18 @@ class ForumFragment : Fragment() {
             .setView(dialogBinding.root)
             .create()
 
+        bindPostDialogCommon(dialogBinding, dialog)
+
         postImagePreviewCallback = { uri ->
-            dialogBinding.ivPostImagePreview.visibility = View.VISIBLE
-            Glide.with(this).load(uri).into(dialogBinding.ivPostImagePreview)
+            dialogBinding.previewContainer.visibility = View.VISIBLE
+            Glide.with(this).load(uri).centerCrop().into(dialogBinding.ivPostImagePreview)
         }
+        dialog.setOnDismissListener { postImagePreviewCallback = null }
         dialogBinding.btnPickPostImage.setOnClickListener { pickPostImageLauncher.launch("image/*") }
+        dialogBinding.btnRemoveImage.setOnClickListener {
+            pickedPostImageUri = null
+            dialogBinding.previewContainer.visibility = View.GONE
+        }
 
         dialogBinding.btnPublish.setOnClickListener {
             val content = dialogBinding.etPostContent.text?.toString()?.trim().orEmpty()
@@ -279,6 +286,8 @@ class ForumFragment : Fragment() {
                 Toast.makeText(context, "اكتب شي حاجة أو زيد صورة قبل النشر", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+            dialogBinding.btnPublish.isEnabled = false
+            dialogBinding.btnPublish.setText(R.string.post_dialog_publishing)
             viewLifecycleOwner.lifecycleScope.launch {
                 var imageUrl = ""
                 val imageUri = pickedPostImageUri
@@ -291,36 +300,69 @@ class ForumFragment : Fragment() {
                     dialog.dismiss()
                     loadPosts()
                 } else {
+                    dialogBinding.btnPublish.isEnabled = true
+                    dialogBinding.btnPublish.setText(R.string.post_dialog_publish)
                     Toast.makeText(context, "فشل النشر، تأكد من الانترنت", Toast.LENGTH_SHORT).show()
                 }
             }
         }
 
-        dialog.show()
+        showStyledDialog(dialog)
     }
 
     private fun showEditPostDialog(post: Post) {
         val dialogBinding = DialogNewPostBinding.inflate(LayoutInflater.from(context))
-        dialogBinding.etPostContent.setText(post.content)
-        dialogBinding.btnPublish.text = "حفظ التعديل"
         val dialog = AlertDialog.Builder(requireContext())
             .setView(dialogBinding.root)
             .create()
 
+        bindPostDialogCommon(dialogBinding, dialog)
+        dialogBinding.tvDialogTitle.setText(R.string.post_dialog_edit_title)
+        dialogBinding.tvDialogSubtitle.setText(R.string.post_dialog_edit_subtitle)
+        dialogBinding.imageSection.visibility = View.GONE
+        dialogBinding.btnPublish.setText(R.string.post_dialog_save)
+        dialogBinding.etPostContent.setText(post.content)
+
         dialogBinding.btnPublish.setOnClickListener {
             val content = dialogBinding.etPostContent.text?.toString()?.trim().orEmpty()
             if (content.isEmpty()) return@setOnClickListener
+            dialogBinding.btnPublish.isEnabled = false
             viewLifecycleOwner.lifecycleScope.launch {
                 val result = repository.updatePost(post.id, content)
                 if (result.isSuccess) {
                     dialog.dismiss()
                     loadPosts()
                 } else {
+                    dialogBinding.btnPublish.isEnabled = true
                     Toast.makeText(context, "فشل التعديل", Toast.LENGTH_SHORT).show()
                 }
             }
         }
+        showStyledDialog(dialog)
+    }
+
+    /** أزرار الإغلاق/الإلغاء + عدّاد الحروف (0/1000) المشتركين بين نافذة الإنشاء والتعديل */
+    private fun bindPostDialogCommon(dialogBinding: DialogNewPostBinding, dialog: AlertDialog) {
+        dialogBinding.btnCloseDialog.setOnClickListener { dialog.dismiss() }
+        dialogBinding.btnCancelDialog.setOnClickListener { dialog.dismiss() }
+        dialogBinding.etPostContent.addTextChangedListener(object : android.text.TextWatcher {
+            override fun afterTextChanged(s: android.text.Editable?) {
+                dialogBinding.tvCounter.text = "${s?.length ?: 0}/1000"
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+    }
+
+    /** خلفية شفافة (باش تبان الزوايا المدورة) وعرض 94% من الشاشة */
+    private fun showStyledDialog(dialog: AlertDialog) {
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.window?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         dialog.show()
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.94f).toInt(),
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
     }
 
     private fun confirmDeletePost(post: Post) {
