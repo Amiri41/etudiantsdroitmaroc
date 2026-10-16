@@ -12,7 +12,7 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@drawable/bg_gradient_toolbar"
         app:title="إعدادات المجموعة"
-        app:titleTextColor="@color/gold"
+        app:titleTextColor="@color/white"
         app:navigationIcon="@drawable/ic_back" />
 
     <androidx.core.widget.NestedScrollView

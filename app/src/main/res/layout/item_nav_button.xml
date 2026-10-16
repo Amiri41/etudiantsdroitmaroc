@@ -1,17 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.button.MaterialButton xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="64dp"
     android:layout_marginTop="14dp"
-    android:textAllCaps="false"
-    android:textSize="16sp"
-    android:textStyle="bold"
-    android:singleLine="true"
-    android:ellipsize="marquee"
-    android:marqueeRepeatLimit="marquee_forever"
+    android:layoutDirection="rtl"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@drawable/bg_section_button"
+    android:clickable="true"
     android:focusable="true"
-    app:cornerRadius="32dp"
-    app:backgroundTint="@null"
-        android:background="@drawable/bg_gradient_button"
-    android:textColor="@color/off_white" />
+    android:foreground="?attr/selectableItemBackground"
+    android:paddingStart="24dp"
+    android:paddingEnd="18dp">
+
+    <TextView
+        android:id="@+id/tvNavTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:singleLine="true"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:textColor="@color/white"
+        android:textSize="17sp"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_chevron_right"
+        android:alpha="0.85"
+        android:importantForAccessibility="no" />
+</LinearLayout>

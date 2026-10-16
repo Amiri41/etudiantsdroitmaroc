@@ -21,8 +21,8 @@ class NavButtonAdapter(
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         val item = getItem(position)
-        holder.b.root.text = item.title
-        holder.b.root.isSelected = true
+        holder.b.tvNavTitle.text = item.title
+        holder.b.tvNavTitle.isSelected = true
         holder.b.root.setOnClickListener { onClick(item) }
     }
 

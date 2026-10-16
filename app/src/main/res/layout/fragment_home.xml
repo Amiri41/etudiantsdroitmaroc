@@ -6,13 +6,41 @@
     android:orientation="vertical"
     android:background="@color/off_white">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="92dp"
+        android:layoutDirection="rtl"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:background="@drawable/bg_gradient_toolbar"
-        app:title="@string/app_name"
-        app:titleTextColor="@color/gold" />
+        android:paddingStart="20dp"
+        android:paddingEnd="18dp">
+
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/ic_home"
+            android:importantForAccessibility="no" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:text="الرئيسية"
+            android:textColor="@color/white"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="@drawable/bg_logo_tile"
+            android:padding="4dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/splash_logo"
+            android:contentDescription="@string/app_name" />
+    </LinearLayout>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -26,97 +54,242 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:padding="20dp">
 
-            <com.google.android.material.button.MaterialButton
+            <LinearLayout
                 android:id="@+id/btnVideos"
                 android:layout_width="match_parent"
-                android:layout_height="64dp"
+                android:layout_height="68dp"
                 android:layout_marginTop="14dp"
-                android:text="🎬 الفيديوهات"
-                android:textAllCaps="false"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:singleLine="true"
-                android:ellipsize="marquee"
-                android:marqueeRepeatLimit="marquee_forever"
+                android:layoutDirection="rtl"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_section_button"
+                android:clickable="true"
                 android:focusable="true"
-                app:cornerRadius="32dp"
-                app:backgroundTint="@null"
-        android:background="@drawable/bg_gradient_accent"
-                android:textColor="@color/navy_dark" />
+                android:foreground="?attr/selectableItemBackground"
+                android:paddingStart="12dp"
+                android:paddingEnd="18dp">
 
-            <com.google.android.material.button.MaterialButton
+                <ImageView
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:background="@drawable/bg_icon_blue"
+                    android:padding="11dp"
+                    android:src="@drawable/ic_play_circle_outline"
+                    app:tint="@color/white"
+                    android:importantForAccessibility="no" />
+
+                <TextView
+                    android:id="@+id/tvVideos"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="14dp"
+                    android:layout_marginEnd="8dp"
+                    android:text="الفيديوهات"
+                    android:singleLine="true"
+                    android:ellipsize="marquee"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_chevron_right"
+                    android:alpha="0.85"
+                    android:importantForAccessibility="no" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/btnPrivate"
                 android:layout_width="match_parent"
-                android:layout_height="64dp"
+                android:layout_height="68dp"
                 android:layout_marginTop="14dp"
-                android:text="⚖️ القانون الخاص (خيار عربي)"
-                android:textAllCaps="false"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:singleLine="true"
-                android:ellipsize="marquee"
-                android:marqueeRepeatLimit="marquee_forever"
+                android:layoutDirection="rtl"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_section_button"
+                android:clickable="true"
                 android:focusable="true"
-                app:cornerRadius="32dp"
-                app:backgroundTint="@null"
-        android:background="@drawable/bg_gradient_button"
-                android:textColor="@color/off_white" />
+                android:foreground="?attr/selectableItemBackground"
+                android:paddingStart="12dp"
+                android:paddingEnd="18dp">
 
-            <com.google.android.material.button.MaterialButton
+                <ImageView
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:background="@drawable/bg_icon_purple"
+                    android:padding="11dp"
+                    android:src="@drawable/ic_law_scale"
+                    app:tint="@color/white"
+                    android:importantForAccessibility="no" />
+
+                <TextView
+                    android:id="@+id/tvPrivate"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="14dp"
+                    android:layout_marginEnd="8dp"
+                    android:text="القانون الخاص"
+                    android:singleLine="true"
+                    android:ellipsize="marquee"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_chevron_right"
+                    android:alpha="0.85"
+                    android:importantForAccessibility="no" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/btnPublic"
                 android:layout_width="match_parent"
-                android:layout_height="64dp"
+                android:layout_height="68dp"
                 android:layout_marginTop="14dp"
-                android:text="🏛️ القانون العام (خيار عربي)"
-                android:textAllCaps="false"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:singleLine="true"
-                android:ellipsize="marquee"
-                android:marqueeRepeatLimit="marquee_forever"
+                android:layoutDirection="rtl"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_section_button"
+                android:clickable="true"
                 android:focusable="true"
-                app:cornerRadius="32dp"
-                app:backgroundTint="@null"
-        android:background="@drawable/bg_gradient_button"
-                android:textColor="@color/off_white" />
+                android:foreground="?attr/selectableItemBackground"
+                android:paddingStart="12dp"
+                android:paddingEnd="18dp">
 
-            <com.google.android.material.button.MaterialButton
+                <ImageView
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:background="@drawable/bg_icon_green"
+                    android:padding="11dp"
+                    android:src="@drawable/ic_account_balance"
+                    app:tint="@color/white"
+                    android:importantForAccessibility="no" />
+
+                <TextView
+                    android:id="@+id/tvPublic"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="14dp"
+                    android:layout_marginEnd="8dp"
+                    android:text="القانون العام"
+                    android:singleLine="true"
+                    android:ellipsize="marquee"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_chevron_right"
+                    android:alpha="0.85"
+                    android:importantForAccessibility="no" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/btnMaster"
                 android:layout_width="match_parent"
-                android:layout_height="64dp"
+                android:layout_height="68dp"
                 android:layout_marginTop="14dp"
-                android:text="🎓 بحوث الماستر"
-                android:textAllCaps="false"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:singleLine="true"
-                android:ellipsize="marquee"
-                android:marqueeRepeatLimit="marquee_forever"
+                android:layoutDirection="rtl"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_section_button"
+                android:clickable="true"
                 android:focusable="true"
-                app:cornerRadius="32dp"
-                app:backgroundTint="@null"
-        android:background="@drawable/bg_gradient_button"
-                android:textColor="@color/off_white" />
+                android:foreground="?attr/selectableItemBackground"
+                android:paddingStart="12dp"
+                android:paddingEnd="18dp">
 
-            <com.google.android.material.button.MaterialButton
+                <ImageView
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:background="@drawable/bg_icon_orange"
+                    android:padding="11dp"
+                    android:src="@drawable/ic_description"
+                    app:tint="@color/white"
+                    android:importantForAccessibility="no" />
+
+                <TextView
+                    android:id="@+id/tvMaster"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="14dp"
+                    android:layout_marginEnd="8dp"
+                    android:text="بحوث الماستر"
+                    android:singleLine="true"
+                    android:ellipsize="marquee"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_chevron_right"
+                    android:alpha="0.85"
+                    android:importantForAccessibility="no" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/btnPhd"
                 android:layout_width="match_parent"
-                android:layout_height="64dp"
+                android:layout_height="68dp"
                 android:layout_marginTop="14dp"
-                android:text="🎓 بحوث الدكتوراه"
-                android:textAllCaps="false"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:singleLine="true"
-                android:ellipsize="marquee"
-                android:marqueeRepeatLimit="marquee_forever"
+                android:layoutDirection="rtl"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_section_button"
+                android:clickable="true"
                 android:focusable="true"
-                app:cornerRadius="32dp"
-                app:backgroundTint="@null"
-        android:background="@drawable/bg_gradient_button"
-                android:textColor="@color/off_white" />
+                android:foreground="?attr/selectableItemBackground"
+                android:paddingStart="12dp"
+                android:paddingEnd="18dp">
+
+                <ImageView
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:background="@drawable/bg_icon_red"
+                    android:padding="11dp"
+                    android:src="@drawable/ic_school"
+                    app:tint="@color/white"
+                    android:importantForAccessibility="no" />
+
+                <TextView
+                    android:id="@+id/tvPhd"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="14dp"
+                    android:layout_marginEnd="8dp"
+                    android:text="بحوث الدكتوراه"
+                    android:singleLine="true"
+                    android:ellipsize="marquee"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_chevron_right"
+                    android:alpha="0.85"
+                    android:importantForAccessibility="no" />
+            </LinearLayout>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

@@ -38,7 +38,7 @@ class VideosHomeActivity : AppCompatActivity() {
 
         section = intent.getStringExtra("section")
         chapterId = intent.getStringExtra("chapterId")
-        binding.toolbar.title = intent.getStringExtra("title") ?: "🎬 الفيديوهات"
+        binding.toolbar.title = intent.getStringExtra("title") ?: "الفيديوهات"
         binding.toolbar.setNavigationOnClickListener { finish() }
 
         adapter = NavButtonAdapter { onItemClick(it) }
@@ -47,8 +47,8 @@ class VideosHomeActivity : AppCompatActivity() {
 
         if (section == null) {
             adapter.submitList(listOf(
-                NavItem("private", "⚖️ فيديوهات القانون الخاص"),
-                NavItem("public", "🏛️ فيديوهات القانون العام")
+                NavItem("private", "فيديوهات القانون الخاص"),
+                NavItem("public", "فيديوهات القانون العام")
             ))
         } else {
             load()

@@ -50,16 +50,16 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         // marquee كيتحرك غير إلا كان النص كبر من العرض
-        listOf(binding.btnVideos, binding.btnPrivate, binding.btnPublic, binding.btnMaster, binding.btnPhd)
+        listOf(binding.tvVideos, binding.tvPrivate, binding.tvPublic, binding.tvMaster, binding.tvPhd)
             .forEach { it.isSelected = true }
 
         binding.btnVideos.setOnClickListener {
             startActivity(Intent(requireContext(), VideosHomeActivity::class.java))
         }
-        binding.btnPrivate.setOnClickListener { openSection("private", "⚖️ القانون الخاص") }
-        binding.btnPublic.setOnClickListener { openSection("public", "🏛️ القانون العام") }
-        binding.btnMaster.setOnClickListener { openSection("master", "🎓 بحوث الماستر") }
-        binding.btnPhd.setOnClickListener { openSection("phd", "🎓 بحوث الدكتوراه") }
+        binding.btnPrivate.setOnClickListener { openSection("private", "القانون الخاص") }
+        binding.btnPublic.setOnClickListener { openSection("public", "القانون العام") }
+        binding.btnMaster.setOnClickListener { openSection("master", "بحوث الماستر") }
+        binding.btnPhd.setOnClickListener { openSection("phd", "بحوث الدكتوراه") }
 
         viewLifecycleOwner.lifecycleScope.launch {
             // فوري من الكاش، ومن بعد تحديث من السيرفر

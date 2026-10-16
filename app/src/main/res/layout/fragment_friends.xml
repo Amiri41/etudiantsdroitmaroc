@@ -11,7 +11,7 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@drawable/bg_gradient_toolbar"
         app:title="الأصدقاء"
-        app:titleTextColor="@color/gold" />
+        app:titleTextColor="@color/white" />
 
     <FrameLayout
         android:id="@+id/bannerAdContainer"
