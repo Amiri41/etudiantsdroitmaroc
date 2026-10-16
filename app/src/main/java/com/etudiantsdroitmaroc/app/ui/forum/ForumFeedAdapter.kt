@@ -9,6 +9,7 @@ import com.etudiantsdroitmaroc.app.data.model.Post
 import com.etudiantsdroitmaroc.app.databinding.ItemNativeAdBinding
 import com.etudiantsdroitmaroc.app.databinding.ItemPostBinding
 import com.etudiantsdroitmaroc.app.utils.AdIds
+import com.etudiantsdroitmaroc.app.utils.OfficialAccounts
 import com.google.android.gms.ads.AdLoader
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.nativead.NativeAd
@@ -16,6 +17,7 @@ import com.google.android.gms.ads.nativead.NativeAd
 private const val TYPE_POST = 0
 private const val TYPE_AD = 1
 private const val AD_INTERVAL = 5 // إعلان واحد كل 5 منشورات
+private val HASHTAG = Regex("#[\\p{L}\\p{N}_]+")
 
 /**
  * كيدمج المنشورات مع إعلان Native Advanced كل 5 منشورات، بحال فيسبوك/إنستغرام.
@@ -57,9 +59,11 @@ class ForumFeedAdapter(
         val post = posts[postIndexFor(position)]
         val binding = (holder as PostVH).binding
         binding.tvAuthorName.text = post.authorName
-        binding.tvContent.text = post.content
-        val relativeTime = DateUtils.getRelativeTimeSpanString(post.createdAt)
-        binding.tvMeta.text = "$relativeTime · ${post.commentsCount} تعليق"
+        binding.tvTime.text = DateUtils.getRelativeTimeSpanString(post.createdAt)
+        binding.tvCommentsCount.text = post.commentsCount.toString()
+        binding.ivVerified.visibility =
+            if (OfficialAccounts.isOfficial(post.authorUid)) android.view.View.VISIBLE else android.view.View.GONE
+        bindContentAndTags(binding, post.content)
         if (post.authorPhotoUrl.isNotEmpty()) {
             com.etudiantsdroitmaroc.app.utils.ImageLoader.load(binding.ivAuthorPhoto, post.authorPhotoUrl)
         }
@@ -77,11 +81,13 @@ class ForumFeedAdapter(
         }
         binding.ivAuthorPhoto.setOnClickListener(openAuthorProfile)
         binding.tvAuthorName.setOnClickListener(openAuthorProfile)
-        binding.tvMeta.setOnClickListener {
+        val openComments = android.view.View.OnClickListener {
             val intent = android.content.Intent(context, CommentsActivity::class.java)
             intent.putExtra("postId", post.id)
             context.startActivity(intent)
         }
+        binding.btnComments.setOnClickListener(openComments)
+        binding.btnOpenPost.setOnClickListener(openComments)
         binding.tvLikesCount.text = post.likesCount.toString()
         binding.btnLike.setOnClickListener {
             onLikeClick(post)
@@ -117,6 +123,38 @@ class ForumFeedAdapter(
                 }
                 popup.show()
             }
+        }
+    }
+
+    /** النص بلا الهاشتاغات + شريحة (chip) لكل هاشتاغ (حتى 2) */
+    private fun bindContentAndTags(binding: ItemPostBinding, content: String) {
+        val tags = HASHTAG.findAll(content).map { it.value }.distinct().take(2).toList()
+        val body = if (tags.isEmpty()) content else {
+            val stripped = HASHTAG.replace(content, "").replace(Regex("[ \\t]{2,}"), " ").trim()
+            if (stripped.isEmpty()) content else stripped
+        }
+        binding.tvContent.text = body
+        binding.llTags.removeAllViews()
+        if (tags.isEmpty()) {
+            binding.llTags.visibility = android.view.View.GONE
+            return
+        }
+        binding.llTags.visibility = android.view.View.VISIBLE
+        val d = context.resources.displayMetrics.density
+        tags.forEach { tag ->
+            val chip = android.widget.TextView(context).apply {
+                text = tag
+                setTextColor(android.graphics.Color.parseColor("#1F63D6"))
+                textSize = 13f
+                setBackgroundResource(com.etudiantsdroitmaroc.app.R.drawable.bg_forum_tag)
+                setPadding((12 * d).toInt(), (6 * d).toInt(), (12 * d).toInt(), (6 * d).toInt())
+            }
+            val lp = android.widget.LinearLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            lp.marginEnd = (8 * d).toInt()
+            binding.llTags.addView(chip, lp)
         }
     }
 

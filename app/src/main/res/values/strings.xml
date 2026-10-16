@@ -25,4 +25,18 @@
     <string name="offline">غير متصل</string>
 
     <string name="profile_logout">تسجيل الخروج</string>
+
+    <!-- المنتدى -->
+    <string name="forum_title">المنتدى</string>
+    <string name="forum_subtitle">تبادل الخبرات، شارك أفكارك، وكن جزءاً من مجتمعنا</string>
+    <string name="forum_tab_public">المنشورات العامة</string>
+    <string name="forum_tab_friends">منشورات الأصدقاء</string>
+    <string name="forum_tab_groups">منشورات المجموعات</string>
+    <string name="forum_search_posts">ابحث عن منشور…</string>
+    <string name="forum_search_groups">ابحث عن مجموعة…</string>
+    <string name="forum_empty_posts">ماكاين حتى منشور حاليا</string>
+    <string name="forum_empty_friends">ماكاين حتى منشور من أصدقائك</string>
+    <string name="forum_empty_groups">ماكاينة حتى مجموعة حاليا</string>
+    <string name="forum_fab_add_group">إضافة مجموعة</string>
+    <string name="forum_fab_add_post">إنشاء منشور</string>
 </resources>
