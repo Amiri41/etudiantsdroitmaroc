@@ -25,4 +25,11 @@
     <string name="offline">غير متصل</string>
 
     <string name="profile_logout">تسجيل الخروج</string>
+
+    <!-- مشغّل الفيديو -->
+    <string name="video_error_embed">صاحب هاد الفيديو ما سمحش بتشغيلو داخل التطبيق. تقدر تشوفو مباشرة فـ YouTube.</string>
+    <string name="video_error_unavailable">هاد الفيديو ما بقاش متوفر (محذوف أو خاص).</string>
+    <string name="video_open_youtube">▶ افتح فـ YouTube</string>
+    <string name="video_open_youtube_hint">ما خدامش الفيديو؟ افتحو فـ YouTube ›</string>
+    <string name="video_open_failed">ما قدرناش نفتحو، جرب من بعد</string>
 </resources>
