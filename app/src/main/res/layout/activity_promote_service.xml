@@ -105,7 +105,7 @@
                 <ImageView
                     android:layout_width="22dp"
                     android:layout_height="22dp"
-                    android:src="@drawable/ic_verified"
+                    android:src="@drawable/ic_shield_check"
                     app:tint="@color/chip_text"
                     android:importantForAccessibility="no" />
 

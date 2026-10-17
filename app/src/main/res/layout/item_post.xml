@@ -3,54 +3,102 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="10dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="1dp">
+    android:layout_margin="6dp"
+    app:cardBackgroundColor="@color/card_bg"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="2dp"
+    app:strokeColor="@color/divider"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="14dp">
+        android:padding="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/ivAuthorPhoto"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="46dp"
+                android:layout_height="46dp"
                 android:src="@drawable/ic_profile" />
 
-            <TextView
-                android:id="@+id/tvAuthorName"
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
                 android:layout_weight="1"
-                android:layout_marginStart="10dp"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary"
-                android:textSize="14sp" />
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvAuthorName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:id="@+id/ivVerified"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_marginStart="6dp"
+                        android:src="@drawable/ic_verified"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:src="@drawable/ic_globe"
+                        app:tint="@color/text_secondary" />
+
+                    <TextView
+                        android:id="@+id/tvTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>
 
             <ImageView
                 android:id="@+id/btnPostMenu"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:padding="2dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:padding="3dp"
                 android:src="@drawable/ic_more_vert"
-                android:visibility="gone" />
+                android:visibility="gone"
+                app:tint="@color/text_secondary" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/tvContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="12dp"
+            android:lineSpacingExtra="3dp"
             android:textColor="@color/text_primary"
-            android:textSize="14sp" />
+            android:textSize="15sp" />
 
         <ImageView
             android:id="@+id/ivPostImage"
@@ -61,25 +109,35 @@
             android:visibility="gone" />
 
         <LinearLayout
+            android:id="@+id/llTags"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            android:visibility="gone" />
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="10dp"
-            android:gravity="center_vertical">
+            android:layout_marginTop="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <LinearLayout
                 android:id="@+id/btnLike"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:background="?attr/selectableItemBackground"
                 android:gravity="center_vertical"
+                android:orientation="horizontal"
                 android:padding="4dp">
 
                 <ImageView
                     android:id="@+id/ivLikeIcon"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_heart_outline" />
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@drawable/ic_thumb_up"
+                    app:tint="#2F7BE0" />
 
                 <TextView
                     android:id="@+id/tvLikesCount"
@@ -87,19 +145,50 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
                     android:textColor="@color/text_secondary"
-                    android:textSize="13sp" />
+                    android:textSize="14sp" />
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/btnComments"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="4dp">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@drawable/ic_comment_outline"
+                    app:tint="@color/text_secondary" />
+
+                <TextView
+                    android:id="@+id/tvCommentsCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <!-- يبقى موجود باش PostAdapter القديم يتكومبيلا -->
             <TextView
                 android:id="@+id/tvMeta"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="16dp"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
+                android:visibility="invisible" />
 
+            <ImageView
+                android:id="@+id/btnOpenPost"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@drawable/bg_circle_navy_soft"
+                android:padding="6dp"
+                android:src="@drawable/ic_chevron_right"
+                app:tint="#2F7BE0" />
         </LinearLayout>
-
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

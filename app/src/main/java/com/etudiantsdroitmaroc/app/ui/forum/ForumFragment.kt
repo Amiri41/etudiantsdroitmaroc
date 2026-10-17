@@ -7,7 +7,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.content.res.ColorStateList
+import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
+import androidx.core.widget.TextViewCompat
+import androidx.recyclerview.widget.GridLayoutManager
+import com.etudiantsdroitmaroc.app.R
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -37,6 +43,12 @@ class ForumFragment : Fragment() {
     private lateinit var adapter: ForumFeedAdapter
     private lateinit var groupAdapter: GroupAdapter
     private var allPosts: List<Post> = emptyList()
+    private var allGroups: List<ForumGroup> = emptyList()
+    private var friendUids: Set<String>? = null
+    private var currentTab = TAB_PUBLIC
+    private var postsLoaded = false
+    private var groupsLoaded = false
+    private var fabOpen = false
     private var blockedUids: Set<String> = emptySet()
     private var pickedGroupIconUri: Uri? = null
     private var groupIconPreviewCallback: ((Uri) -> Unit)? = null
@@ -103,7 +115,7 @@ class ForumFragment : Fragment() {
         binding.rvPosts.setHasFixedSize(true)
         binding.rvPosts.adapter = adapter
 
-        binding.fabNewPost.setOnClickListener { showNewPostDialog() }
+        setupFabMenu()
 
         groupAdapter = GroupAdapter(
             emptyList(),
@@ -111,17 +123,16 @@ class ForumFragment : Fragment() {
             onOpen = { openGroupChat(it) },
             onJoin = { joinGroup(it) }
         )
-        binding.rvGroups.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        binding.rvGroups.setHasFixedSize(true)
+        binding.rvGroups.layoutManager = GridLayoutManager(context, 2)
         binding.rvGroups.adapter = groupAdapter
-        binding.btnCreateGroup.setOnClickListener { showCreateGroupDialog() }
+        setupTabs()
         loadGroups()
 
         com.etudiantsdroitmaroc.app.utils.BannerAdHelper.attach(requireContext(), binding.bannerAdContainer)
 
         binding.etSearch.addTextChangedListener(object : android.text.TextWatcher {
             override fun afterTextChanged(s: android.text.Editable?) {
-                filterPosts(s?.toString().orEmpty())
+                applyFilters()
             }
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
@@ -130,16 +141,109 @@ class ForumFragment : Fragment() {
         loadPosts()
     }
 
-    private fun filterPosts(query: String) {
-        val filtered = if (query.isBlank()) {
-            allPosts
-        } else {
-            allPosts.filter {
+    // ---------- التبويبات الثلاثة ----------
+
+    private fun setupTabs() {
+        binding.tabPublic.setOnClickListener { selectTab(TAB_PUBLIC) }
+        binding.tabFriends.setOnClickListener { selectTab(TAB_FRIENDS) }
+        binding.tabGroups.setOnClickListener { selectTab(TAB_GROUPS) }
+        selectTab(TAB_PUBLIC)
+    }
+
+    private fun selectTab(tab: Int) {
+        currentTab = tab
+        styleTab(binding.tabPublic, tab == TAB_PUBLIC)
+        styleTab(binding.tabFriends, tab == TAB_FRIENDS)
+        styleTab(binding.tabGroups, tab == TAB_GROUPS)
+        binding.etSearch.hint = getString(
+            if (tab == TAB_GROUPS) R.string.forum_search_groups else R.string.forum_search_posts
+        )
+        if (tab == TAB_FRIENDS && friendUids == null) loadFriends() else applyFilters()
+    }
+
+    private fun styleTab(tab: TextView, selected: Boolean) {
+        val ctx = requireContext()
+        tab.setBackgroundResource(if (selected) R.drawable.bg_btn_blue_solid else 0)
+        val color = ContextCompat.getColor(ctx, if (selected) R.color.white else R.color.text_primary)
+        tab.setTextColor(color)
+        TextViewCompat.setCompoundDrawableTintList(tab, ColorStateList.valueOf(color))
+    }
+
+    private fun loadFriends() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                friendUids = repository.getFriendUids()
+            } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                friendUids = emptySet()
+                Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
+            }
+            applyFilters()
+        }
+    }
+
+    /** كيطبق التبويب الحالي + البحث على المنشورات أو المجموعات */
+    private fun applyFilters() {
+        val b = _binding ?: return
+        val query = b.etSearch.text?.toString().orEmpty().trim()
+
+        if (currentTab == TAB_GROUPS) {
+            val groups = if (query.isEmpty()) allGroups else allGroups.filter {
+                it.name.contains(query, ignoreCase = true) || it.description.contains(query, ignoreCase = true)
+            }
+            groupAdapter.updateData(groups)
+            b.rvPosts.visibility = View.GONE
+            b.rvGroups.visibility = View.VISIBLE
+            showEmpty(groupsLoaded && groups.isEmpty(), R.string.forum_empty_groups)
+            return
+        }
+
+        var posts = allPosts
+        if (currentTab == TAB_FRIENDS) {
+            val friends = friendUids.orEmpty()
+            posts = posts.filter { it.authorUid in friends }
+        }
+        if (query.isNotEmpty()) {
+            posts = posts.filter {
                 it.content.contains(query, ignoreCase = true) ||
                     it.authorName.contains(query, ignoreCase = true)
             }
         }
-        adapter.updateData(filtered)
+        adapter.updateData(posts)
+        b.rvPosts.visibility = View.VISIBLE
+        b.rvGroups.visibility = View.GONE
+        showEmpty(
+            postsLoaded && posts.isEmpty(),
+            if (currentTab == TAB_FRIENDS) R.string.forum_empty_friends else R.string.forum_empty_posts
+        )
+    }
+
+    private fun showEmpty(show: Boolean, messageRes: Int) {
+        val b = _binding ?: return
+        b.tvForumEmpty.setText(messageRes)
+        b.tvForumEmpty.visibility = if (show) View.VISIBLE else View.GONE
+    }
+
+    // ---------- زر الإضافة (إنشاء منشور / إضافة مجموعة) ----------
+
+    private fun setupFabMenu() {
+        binding.fabMain.setOnClickListener { toggleFab(!fabOpen) }
+        binding.fabScrim.setOnClickListener { toggleFab(false) }
+        binding.fabAddPost.setOnClickListener {
+            toggleFab(false)
+            showNewPostDialog()
+        }
+        binding.fabAddGroup.setOnClickListener {
+            toggleFab(false)
+            showCreateGroupDialog()
+        }
+    }
+
+    private fun toggleFab(open: Boolean) {
+        fabOpen = open
+        binding.fabMenu.visibility = if (open) View.VISIBLE else View.GONE
+        binding.fabScrim.visibility = if (open) View.VISIBLE else View.GONE
+        binding.fabMain.animate().rotation(if (open) 45f else 0f).setDuration(150).start()
     }
 
     private fun loadPosts() {
@@ -147,7 +251,8 @@ class ForumFragment : Fragment() {
             try {
                 blockedUids = chatRepository.getBlockedUids()
                 allPosts = repository.getPosts().filter { it.authorUid !in blockedUids }
-                filterPosts(binding.etSearch.text?.toString().orEmpty())
+                postsLoaded = true
+                applyFilters()
             } catch (e: Exception) {
             if (e is kotlinx.coroutines.CancellationException) throw e
                 Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_LONG).show()
@@ -162,11 +267,18 @@ class ForumFragment : Fragment() {
             .setView(dialogBinding.root)
             .create()
 
+        bindPostDialogCommon(dialogBinding, dialog)
+
         postImagePreviewCallback = { uri ->
-            dialogBinding.ivPostImagePreview.visibility = View.VISIBLE
-            Glide.with(this).load(uri).into(dialogBinding.ivPostImagePreview)
+            dialogBinding.previewContainer.visibility = View.VISIBLE
+            Glide.with(this).load(uri).centerCrop().into(dialogBinding.ivPostImagePreview)
         }
+        dialog.setOnDismissListener { postImagePreviewCallback = null }
         dialogBinding.btnPickPostImage.setOnClickListener { pickPostImageLauncher.launch("image/*") }
+        dialogBinding.btnRemoveImage.setOnClickListener {
+            pickedPostImageUri = null
+            dialogBinding.previewContainer.visibility = View.GONE
+        }
 
         dialogBinding.btnPublish.setOnClickListener {
             val content = dialogBinding.etPostContent.text?.toString()?.trim().orEmpty()
@@ -174,6 +286,8 @@ class ForumFragment : Fragment() {
                 Toast.makeText(context, "اكتب شي حاجة أو زيد صورة قبل النشر", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+            dialogBinding.btnPublish.isEnabled = false
+            dialogBinding.btnPublish.setText(R.string.post_dialog_publishing)
             viewLifecycleOwner.lifecycleScope.launch {
                 var imageUrl = ""
                 val imageUri = pickedPostImageUri
@@ -186,36 +300,69 @@ class ForumFragment : Fragment() {
                     dialog.dismiss()
                     loadPosts()
                 } else {
+                    dialogBinding.btnPublish.isEnabled = true
+                    dialogBinding.btnPublish.setText(R.string.post_dialog_publish)
                     Toast.makeText(context, "فشل النشر، تأكد من الانترنت", Toast.LENGTH_SHORT).show()
                 }
             }
         }
 
-        dialog.show()
+        showStyledDialog(dialog)
     }
 
     private fun showEditPostDialog(post: Post) {
         val dialogBinding = DialogNewPostBinding.inflate(LayoutInflater.from(context))
-        dialogBinding.etPostContent.setText(post.content)
-        dialogBinding.btnPublish.text = "حفظ التعديل"
         val dialog = AlertDialog.Builder(requireContext())
             .setView(dialogBinding.root)
             .create()
 
+        bindPostDialogCommon(dialogBinding, dialog)
+        dialogBinding.tvDialogTitle.setText(R.string.post_dialog_edit_title)
+        dialogBinding.tvDialogSubtitle.setText(R.string.post_dialog_edit_subtitle)
+        dialogBinding.imageSection.visibility = View.GONE
+        dialogBinding.btnPublish.setText(R.string.post_dialog_save)
+        dialogBinding.etPostContent.setText(post.content)
+
         dialogBinding.btnPublish.setOnClickListener {
             val content = dialogBinding.etPostContent.text?.toString()?.trim().orEmpty()
             if (content.isEmpty()) return@setOnClickListener
+            dialogBinding.btnPublish.isEnabled = false
             viewLifecycleOwner.lifecycleScope.launch {
                 val result = repository.updatePost(post.id, content)
                 if (result.isSuccess) {
                     dialog.dismiss()
                     loadPosts()
                 } else {
+                    dialogBinding.btnPublish.isEnabled = true
                     Toast.makeText(context, "فشل التعديل", Toast.LENGTH_SHORT).show()
                 }
             }
         }
+        showStyledDialog(dialog)
+    }
+
+    /** أزرار الإغلاق/الإلغاء + عدّاد الحروف (0/1000) المشتركين بين نافذة الإنشاء والتعديل */
+    private fun bindPostDialogCommon(dialogBinding: DialogNewPostBinding, dialog: AlertDialog) {
+        dialogBinding.btnCloseDialog.setOnClickListener { dialog.dismiss() }
+        dialogBinding.btnCancelDialog.setOnClickListener { dialog.dismiss() }
+        dialogBinding.etPostContent.addTextChangedListener(object : android.text.TextWatcher {
+            override fun afterTextChanged(s: android.text.Editable?) {
+                dialogBinding.tvCounter.text = "${s?.length ?: 0}/1000"
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+    }
+
+    /** خلفية شفافة (باش تبان الزوايا المدورة) وعرض 94% من الشاشة */
+    private fun showStyledDialog(dialog: AlertDialog) {
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.window?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         dialog.show()
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.94f).toInt(),
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
     }
 
     private fun confirmDeletePost(post: Post) {
@@ -235,7 +382,9 @@ class ForumFragment : Fragment() {
     private fun loadGroups() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                groupAdapter.updateData(groupRepository.getGroups())
+                allGroups = groupRepository.getGroups()
+                groupsLoaded = true
+                applyFilters()
             } catch (e: Exception) {
             if (e is kotlinx.coroutines.CancellationException) throw e
                 Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
@@ -311,5 +460,11 @@ class ForumFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        private const val TAB_PUBLIC = 0
+        private const val TAB_FRIENDS = 1
+        private const val TAB_GROUPS = 2
     }
 }

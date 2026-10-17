@@ -23,7 +23,7 @@ class PageAdapter(
     /** الأيقونة كتتختار من كلمات العنوان، والافتراضي ورقة */
     private fun iconFor(title: String): Int = when {
         title.contains("نحن") -> R.drawable.ic_law_scale
-        title.contains("خصوصية") -> R.drawable.ic_verified
+        title.contains("خصوصية") -> R.drawable.ic_shield_check
         title.contains("قواعد") || title.contains("مجتمع") -> R.drawable.ic_people
         title.contains("شروط") -> R.drawable.ic_description
         title.contains("تواصل") || title.contains("اتصل") -> R.drawable.ic_email

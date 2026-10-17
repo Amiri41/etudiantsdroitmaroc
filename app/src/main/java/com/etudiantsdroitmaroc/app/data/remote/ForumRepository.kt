@@ -43,6 +43,14 @@ class ForumRepository {
         }
     }
 
+    /** معرّفات أصدقاء المستخدم الحالي (لتبويب "منشورات الأصدقاء") */
+    suspend fun getFriendUids(): Set<String> {
+        val uid = auth.currentUser?.uid ?: return emptySet()
+        val snapshot = firestore.collection("users").document(uid)
+            .collection("friends").get().await()
+        return snapshot.documents.map { it.id }.toSet()
+    }
+
     suspend fun getPostsByUser(uid: String): List<Post> {
         val snapshot = firestore.collection("posts")
             .whereEqualTo("authorUid", uid)
