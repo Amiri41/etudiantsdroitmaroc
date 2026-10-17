@@ -20,4 +20,9 @@
     <color name="login_subtitle">#33415C</color>
     <color name="login_button_text">#0A1F3D</color>
     <color name="tab_selected_text">#1F63D6</color>
+    <color name="input_fill">#F3F7FD</color>
+    <color name="input_stroke">#DCE6F5</color>
+    <color name="chip_bg">#E3EEFF</color>
+    <color name="chip_text">#1F63D6</color>
+    <color name="hint_blue">#2F7BE0</color>
 </resources>

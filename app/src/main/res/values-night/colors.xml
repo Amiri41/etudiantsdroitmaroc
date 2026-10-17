@@ -22,4 +22,9 @@
     <color name="login_subtitle">#9DB7E3</color>
     <color name="login_button_text">#FFFFFF</color>
     <color name="tab_selected_text">#9DC4FF</color>
+    <color name="input_fill">#232C3E</color>
+    <color name="input_stroke">#2C3444</color>
+    <color name="chip_bg">#1A3A66</color>
+    <color name="chip_text">#9DC4FF</color>
+    <color name="hint_blue">#7DB8FF</color>
 </resources>
