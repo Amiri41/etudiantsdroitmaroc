@@ -70,6 +70,7 @@ class ChatListFragment : Fragment() {
             }
         }
         threadAdapter.updateData(filtered)
+        binding.emptyState.visibility = if (allThreads.isEmpty()) View.VISIBLE else View.GONE
     }
 
     private fun loadData() {
