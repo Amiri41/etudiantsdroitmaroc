@@ -155,7 +155,7 @@
     <select id="videoSubjectSelect"></select>
     <input id="videoTitle" placeholder="عنوان الفيديو">
     <textarea id="videoDescription" placeholder="وصف الفيديو" rows="2"></textarea>
-    <input id="videoYoutubeUrl" placeholder="الصق رابط يوتيوب هنا (youtube.com/watch?v=... أو youtu.be/...)">
+    <input id="videoYoutubeUrl" placeholder="الصق رابط يوتيوب هنا (watch?v=... أو youtu.be/... أو youtube.com/live/... للبث المباشر)">
     <label style="display:flex;align-items:center;gap:8px;font-size:13px;">
       <input type="checkbox" id="videoActive" checked style="width:auto;margin:0;"> نشط (يبان فالتطبيق)
     </label>
@@ -1149,11 +1149,13 @@ async function deletePdf(subjectId, pdfId) {
 }
 
 function extractYoutubeId(url) {
+  url = (url || "").trim();
+  // معرّف خام (11 حرف)
+  if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return url;
   const patterns = [
-    /(?:youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11})/,
-    /(?:youtu\.be\/)([a-zA-Z0-9_-]{11})/,
-    /(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
-    /(?:youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/
+    /[?&]v=([a-zA-Z0-9_-]{11})/,                                        // watch?v=  (حتى مع m.youtube.com وباراميترات أخرى)
+    /youtu\.be\/([a-zA-Z0-9_-]{11})/,                                   // youtu.be/
+    /youtube(?:-nocookie)?\.com\/(?:embed|live|shorts|v)\/([a-zA-Z0-9_-]{11})/  // embed / live (البث المباشر) / shorts
   ];
   for (const p of patterns) {
     const match = url.match(p);

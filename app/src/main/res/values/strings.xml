@@ -52,4 +52,11 @@
     <string name="post_dialog_save">حفظ التعديل</string>
     <string name="post_dialog_cancel">إلغاء</string>
     <string name="post_dialog_publishing">جاري النشر…</string>
+
+    <!-- مشغّل الفيديو -->
+    <string name="video_error_embed">صاحب هاد الفيديو ما سمحش بتشغيلو داخل التطبيق. تقدر تشوفو مباشرة فـ YouTube.</string>
+    <string name="video_error_unavailable">هاد الفيديو ما بقاش متوفر (محذوف أو خاص).</string>
+    <string name="video_open_youtube">▶ افتح فـ YouTube</string>
+    <string name="video_open_youtube_hint">ما خدامش الفيديو؟ افتحو فـ YouTube ›</string>
+    <string name="video_open_failed">ما قدرناش نفتحو، جرب من بعد</string>
 </resources>
