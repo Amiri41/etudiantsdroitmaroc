@@ -89,19 +89,43 @@ class ProfileFragment : Fragment() {
     }
 
     private fun showDarkModeDialog() {
-        val options = arrayOf("فاتح ☀️", "داكن 🌙", "حسب النظام (افتراضي)")
-        val values = arrayOf("light", "dark", "system")
-        val current = com.etudiantsdroitmaroc.app.utils.DarkModeHelper.getSavedMode(requireContext())
-        val checkedIndex = values.indexOf(current).coerceAtLeast(0)
+        val ctx = requireContext()
+        val view = LayoutInflater.from(ctx).inflate(com.etudiantsdroitmaroc.app.R.layout.dialog_theme_mode, null)
+        val values = listOf("light", "dark", "system")
+        val rows = listOf(
+            com.etudiantsdroitmaroc.app.R.id.optLight,
+            com.etudiantsdroitmaroc.app.R.id.optDark,
+            com.etudiantsdroitmaroc.app.R.id.optSystem
+        )
+        val checks = listOf(
+            com.etudiantsdroitmaroc.app.R.id.chkLight,
+            com.etudiantsdroitmaroc.app.R.id.chkDark,
+            com.etudiantsdroitmaroc.app.R.id.chkSystem
+        )
+        val current = com.etudiantsdroitmaroc.app.utils.DarkModeHelper.getSavedMode(ctx)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(ctx).setView(view).create()
 
-        android.app.AlertDialog.Builder(requireContext())
-            .setTitle("مظهر التطبيق")
-            .setSingleChoiceItems(options, checkedIndex) { dialog, which ->
-                com.etudiantsdroitmaroc.app.utils.DarkModeHelper.setMode(requireContext(), values[which])
+        rows.forEachIndexed { i, id ->
+            val row = view.findViewById<View>(id)
+            val selected = values[i] == current
+            row.setBackgroundResource(
+                if (selected) com.etudiantsdroitmaroc.app.R.drawable.bg_option_selected
+                else com.etudiantsdroitmaroc.app.R.drawable.bg_option
+            )
+            view.findViewById<View>(checks[i]).visibility = if (selected) View.VISIBLE else View.INVISIBLE
+            row.setOnClickListener {
+                com.etudiantsdroitmaroc.app.utils.DarkModeHelper.setMode(ctx, values[i])
                 dialog.dismiss()
             }
-            .setNegativeButton("إلغاء", null)
-            .show()
+        }
+        view.findViewById<View>(com.etudiantsdroitmaroc.app.R.id.btnCancelTheme).setOnClickListener { dialog.dismiss() }
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.show()
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.92f).toInt(),
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+        )
     }
 
     private fun confirmDeleteAccount() {
