@@ -210,6 +210,7 @@
       <option value="link">رابط خارجي (يفتح فالمتصفح)</option>
     </select>
     <textarea id="pageContent" placeholder="النص ديال الصفحة، ولا كود HTML إلا اخترتي 'HTML' (الصور خاصها روابط https، وJavaScript ما كيخدمش)" rows="10" style="font-family:monospace;direction:ltr;"></textarea>
+    <input id="pageSubtitle" placeholder="وصف قصير يبان تحت العنوان (اختياري) - مثلا: تعرف على هدف المنصة وفريق العمل">
     <input id="pageUrl" placeholder="الرابط (إلا اخترتي 'رابط') - مثلا https://facebook.com/...">
     <input id="pageOrder" type="number" placeholder="ترتيب العرض" value="1">
     <label style="display:flex;align-items:center;gap:8px;font-size:13px;">
@@ -1264,6 +1265,7 @@ async function addPage() {
   const type = document.getElementById("pageType").value;
   const content = document.getElementById("pageContent").value.trim();
   const url = document.getElementById("pageUrl").value.trim();
+  const subtitle = document.getElementById("pageSubtitle").value.trim();
   const order = parseInt(document.getElementById("pageOrder").value) || 1;
   const active = document.getElementById("pageActive").checked;
   const progressText = document.getElementById("pageProgressText");
@@ -1274,7 +1276,7 @@ async function addPage() {
 
   const docRef = db.collection("pages").doc();
   await docRef.set({
-    id: docRef.id, title, type, content, url, active,
+    id: docRef.id, title, type, content, url, subtitle, active,
     orderIndex: order, iconName: ""
   });
 
@@ -1282,6 +1284,7 @@ async function addPage() {
   document.getElementById("pageTitle").value = "";
   document.getElementById("pageContent").value = "";
   document.getElementById("pageUrl").value = "";
+  document.getElementById("pageSubtitle").value = "";
   loadPagesList();
 }
 
@@ -1293,7 +1296,10 @@ async function toggleActivePage(pageId, newActive) {
 async function editPage(pageId) {
   const doc = await db.collection("pages").doc(pageId).get();
   const page = doc.data();
-  const fields = [{ key: "title", label: "عنوان الصفحة", value: page.title, type: "text" }];
+  const fields = [
+    { key: "title", label: "عنوان الصفحة", value: page.title, type: "text" },
+    { key: "subtitle", label: "وصف قصير تحت العنوان (اختياري)", value: page.subtitle || "", type: "text" }
+  ];
   if (page.type === "link") {
     fields.push({ key: "url", label: "الرابط", value: page.url || "", type: "text" });
   } else {

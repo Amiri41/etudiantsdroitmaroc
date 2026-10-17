@@ -103,6 +103,7 @@ data class AppPage(
     var content: String = "",  // نص الصفحة (إلا type = text)
     var url: String = "",      // رابط خارجي (إلا type = link)
     var iconName: String = "",
+    var subtitle: String = "", // وصف قصير كيبان تحت العنوان (اختياري)
     @get:PropertyName("active") @set:PropertyName("active")
     var active: Boolean = true,
     var orderIndex: Int = 0

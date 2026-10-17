@@ -9,19 +9,47 @@
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@drawable/bg_gradient_toolbar"
+        android:layout_height="100dp"
+        android:background="@drawable/bg_header_gold"
+        android:paddingBottom="6dp"
         app:title="صفحات إضافية"
         app:titleTextColor="@color/white"
+        app:titleTextAppearance="@style/ToolbarTitleBig"
+        app:subtitle="اكتشف المزيد من الموارد التي تساعدك في مسارك القانوني"
+        app:subtitleTextColor="#B8D4FF"
+        app:subtitleTextAppearance="@style/ToolbarSubtitleSmall"
         app:navigationIcon="@drawable/ic_back" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvPages"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:clipToPadding="false"
-        android:paddingHorizontal="12dp"
-        android:paddingTop="14dp"
-        android:paddingBottom="14dp" />
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp"
+        android:paddingTop="18dp"
+        android:paddingBottom="12dp" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:paddingBottom="18dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="معاً نحو مستقبل قانوني أفضل"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="90dp"
+            android:layout_height="3dp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_brand_bar" />
+    </LinearLayout>
 </LinearLayout>
