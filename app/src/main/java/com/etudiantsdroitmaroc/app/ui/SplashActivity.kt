@@ -53,33 +53,22 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun playLogoAnimation() {
-        // كنعطيو عمق للكاميرا باش الدوران يبان بمظهر ثلاثي الأبعاد حقيقي، ماشي مسطح
-        binding.ivLogo.cameraDistance = 14000f
-        binding.ivLogo.rotationY = 100f
-        binding.ivLogo.scaleX = 0.4f
-        binding.ivLogo.scaleY = 0.4f
+        // ظهور نظيف: تكبير خفيف مع تلاشي، بلا دوران ثلاثي الأبعاد (كان كيخلي الشعار يبان مضبب ومعتم)
+        binding.ivLogo.scaleX = 0.85f
+        binding.ivLogo.scaleY = 0.85f
 
-        val rotateIn = ObjectAnimator.ofFloat(binding.ivLogo, "rotationY", 100f, 0f)
-        val scaleXIn = ObjectAnimator.ofFloat(binding.ivLogo, "scaleX", 0.4f, 1f)
-        val scaleYIn = ObjectAnimator.ofFloat(binding.ivLogo, "scaleY", 0.4f, 1f)
+        val scaleXIn = ObjectAnimator.ofFloat(binding.ivLogo, "scaleX", 0.85f, 1f)
+        val scaleYIn = ObjectAnimator.ofFloat(binding.ivLogo, "scaleY", 0.85f, 1f)
         val fadeIn = ObjectAnimator.ofFloat(binding.ivLogo, "alpha", 0f, 1f)
 
         val logoSet = AnimatorSet().apply {
-            playTogether(rotateIn, scaleXIn, scaleYIn, fadeIn)
-            duration = 900
-            interpolator = OvershootInterpolator(1.1f)
-        }
-
-        // تأثير "طيران" خفيف مستمر بعد الدخول (طفو فوق وتحت)
-        val floatUp = ObjectAnimator.ofFloat(binding.ivLogo, "translationY", 0f, -14f).apply {
-            duration = 1000
-            repeatMode = ObjectAnimator.REVERSE
-            repeatCount = 1
+            playTogether(scaleXIn, scaleYIn, fadeIn)
+            duration = 550
+            interpolator = android.view.animation.DecelerateInterpolator(1.6f)
         }
 
         logoSet.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator) {
-                floatUp.start()
                 showWelcomeMessage()
             }
         })
