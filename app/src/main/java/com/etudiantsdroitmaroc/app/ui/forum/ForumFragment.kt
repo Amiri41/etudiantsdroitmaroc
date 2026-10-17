@@ -422,9 +422,15 @@ class ForumFragment : Fragment() {
             .setView(dialogBinding.root)
             .create()
 
+        dialogBinding.btnCloseGroupDialog.setOnClickListener { dialog.dismiss() }
+        dialogBinding.btnCancelGroupDialog.setOnClickListener { dialog.dismiss() }
+
         groupIconPreviewCallback = { uri ->
-            Glide.with(this).load(uri).into(dialogBinding.ivGroupIconPreview)
+            dialogBinding.ivGroupPlaceholder.visibility = View.GONE
+            dialogBinding.ivGroupIconPreview.visibility = View.VISIBLE
+            Glide.with(this).load(uri).centerCrop().into(dialogBinding.ivGroupIconPreview)
         }
+        dialog.setOnDismissListener { groupIconPreviewCallback = null }
 
         dialogBinding.btnPickIcon.setOnClickListener { pickGroupIconLauncher.launch("image/*") }
 
@@ -435,6 +441,8 @@ class ForumFragment : Fragment() {
                 Toast.makeText(context, "دخل اسم ووصف المجموعة", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+            dialogBinding.btnCreateGroup.isEnabled = false
+            dialogBinding.btnCreateGroup.setText(R.string.group_dialog_creating)
             viewLifecycleOwner.lifecycleScope.launch {
                 var iconUrl = ""
                 val iconUri = pickedGroupIconUri
@@ -448,13 +456,15 @@ class ForumFragment : Fragment() {
                     Toast.makeText(context, "تم إنشاء المجموعة ✅", Toast.LENGTH_SHORT).show()
                     loadGroups()
                 } catch (e: Exception) {
-            if (e is kotlinx.coroutines.CancellationException) throw e
+                    if (e is kotlinx.coroutines.CancellationException) throw e
+                    dialogBinding.btnCreateGroup.isEnabled = true
+                    dialogBinding.btnCreateGroup.setText(R.string.group_dialog_create)
                     Toast.makeText(context, "فشل إنشاء المجموعة: ${com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e)}", Toast.LENGTH_SHORT).show()
                 }
             }
         }
 
-        dialog.show()
+        showStyledDialog(dialog)
     }
 
     override fun onDestroyView() {
