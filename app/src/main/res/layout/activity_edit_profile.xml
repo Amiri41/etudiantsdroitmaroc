@@ -9,90 +9,297 @@
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@drawable/bg_gradient_toolbar"
+        android:layout_height="84dp"
+        android:background="@drawable/bg_header_gold"
+        android:paddingBottom="6dp"
         app:title="تعديل البروفايل"
         app:titleTextColor="@color/white"
+        app:titleTextAppearance="@style/ToolbarTitleBig"
         app:navigationIcon="@drawable/ic_back" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp">
 
             <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center">
+                android:layout_width="142dp"
+                android:layout_height="142dp"
+                android:layout_gravity="center_horizontal">
 
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/ivProfilePhoto"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:src="@drawable/ic_profile"
-                    app:civ_border_width="2dp"
-                    app:civ_border_color="@color/gold" />
+                <FrameLayout
+                    android:layout_width="136dp"
+                    android:layout_height="136dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/bg_avatar_ring">
+
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/ivProfilePhoto"
+                        android:layout_width="124dp"
+                        android:layout_height="124dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_profile"
+                        app:civ_border_width="4dp"
+                        app:civ_border_color="#2F7BE0" />
+                </FrameLayout>
 
                 <ImageView
                     android:id="@+id/ivEditPhoto"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_gravity="bottom|end"
-                    android:background="@drawable/dot_online"
-                    android:backgroundTint="@color/gold"
-                    android:padding="6dp"
-                    android:src="@drawable/ic_add" />
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:layout_gravity="bottom|start"
+                    android:background="@drawable/bg_camera_badge_blue"
+                    android:padding="11dp"
+                    android:src="@drawable/ic_camera"
+                    app:tint="@color/white"
+                    android:importantForAccessibility="no" />
             </FrameLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnChangePhoto"
+                android:layout_width="wrap_content"
+                android:layout_height="52dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="14dp"
+                android:minWidth="180dp"
+                android:text="تغيير الصورة"
+                android:textAllCaps="false"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/chip_text"
+                android:background="@drawable/bg_btn_soft_pill"
+                app:backgroundTint="@null"
+                app:cornerRadius="26dp"
+                app:icon="@drawable/ic_camera"
+                app:iconTint="@color/chip_text"
+                app:iconPadding="8dp"
+                app:iconGravity="textStart" />
+
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:hint="الاسم الكامل">
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="يمكنك اختيار صورة من جهازك"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:hint="الجامعة/الكلية">
+                android:layout_marginTop="14dp"
+                app:cardBackgroundColor="@color/card_bg"
+                app:cardCornerRadius="22dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="0dp">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etUniversity"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_height="wrap_content"
+                    android:layoutDirection="rtl"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="18dp"
+                    android:paddingEnd="12dp"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp">
 
-            <com.google.android.material.textfield.TextInputLayout
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="الاسم الكامل"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="13sp" />
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@null"
+                            android:hint="الاسم الكامل"
+                            android:inputType="text"
+                            android:singleLine="true"
+                            android:paddingStart="0dp"
+                            android:paddingEnd="0dp"
+                            android:paddingTop="6dp"
+                            android:paddingBottom="2dp"
+                            android:textColor="@color/text_primary"
+                            android:textColorHint="@color/text_secondary"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="52dp"
+                        android:layout_height="52dp"
+                        android:layout_marginStart="12dp"
+                        android:background="@drawable/bg_icon_circle_soft"
+                        android:padding="13dp"
+                        android:src="@drawable/ic_person"
+                        app:tint="@color/chip_text"
+                        android:importantForAccessibility="no" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:hint="المستوى الدراسي (مثلا: S6، ماستر 1)">
+                android:layout_marginTop="14dp"
+                app:cardBackgroundColor="@color/card_bg"
+                app:cardCornerRadius="22dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="0dp">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etLevel"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_height="wrap_content"
+                    android:layoutDirection="rtl"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="18dp"
+                    android:paddingEnd="12dp"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="الجامعة/الكلية"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="13sp" />
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etUniversity"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@null"
+                            android:hint="الجامعة/الكلية"
+                            android:inputType="text"
+                            android:singleLine="true"
+                            android:paddingStart="0dp"
+                            android:paddingEnd="0dp"
+                            android:paddingTop="6dp"
+                            android:paddingBottom="2dp"
+                            android:textColor="@color/text_primary"
+                            android:textColorHint="@color/text_secondary"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="52dp"
+                        android:layout_height="52dp"
+                        android:layout_marginStart="12dp"
+                        android:background="@drawable/bg_icon_circle_soft"
+                        android:padding="13dp"
+                        android:src="@drawable/ic_account_balance"
+                        app:tint="@color/chip_text"
+                        android:importantForAccessibility="no" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                app:cardBackgroundColor="@color/card_bg"
+                app:cardCornerRadius="22dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layoutDirection="rtl"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="18dp"
+                    android:paddingEnd="12dp"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="المستوى الدراسي"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="13sp" />
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etLevel"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@null"
+                            android:hint="مثلا: S6، ماستر 1"
+                            android:inputType="text"
+                            android:singleLine="true"
+                            android:paddingStart="0dp"
+                            android:paddingEnd="0dp"
+                            android:paddingTop="6dp"
+                            android:paddingBottom="2dp"
+                            android:textColor="@color/text_primary"
+                            android:textColorHint="@color/text_secondary"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="52dp"
+                        android:layout_height="52dp"
+                        android:layout_marginStart="12dp"
+                        android:background="@drawable/bg_icon_circle_soft"
+                        android:padding="13dp"
+                        android:src="@drawable/ic_school"
+                        app:tint="@color/chip_text"
+                        android:importantForAccessibility="no" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSave"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_height="64dp"
+                android:layout_marginTop="26dp"
                 android:text="حفظ التعديلات"
                 android:textAllCaps="false"
-                app:backgroundTint="@color/navy" />
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:background="@drawable/bg_save_button"
+                app:backgroundTint="@null"
+                app:cornerRadius="32dp"
+                app:icon="@drawable/ic_save"
+                app:iconTint="@color/white"
+                app:iconPadding="10dp"
+                app:iconGravity="textStart" />
 
             <ProgressBar
                 android:id="@+id/progressBar"
@@ -101,8 +308,13 @@
                 android:layout_gravity="center"
                 android:layout_marginTop="16dp"
                 android:visibility="gone" />
-
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/bg_login_wave"
+        android:importantForAccessibility="no" />
 </LinearLayout>

@@ -41,6 +41,7 @@ class EditProfileActivity : AppCompatActivity() {
         binding.toolbar.setNavigationOnClickListener { finish() }
         binding.ivEditPhoto.setOnClickListener { pickImageLauncher.launch("image/*") }
         binding.ivProfilePhoto.setOnClickListener { pickImageLauncher.launch("image/*") }
+        binding.btnChangePhoto.setOnClickListener { pickImageLauncher.launch("image/*") }
 
         loadCurrentProfile()
 
