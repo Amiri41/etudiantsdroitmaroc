@@ -8,8 +8,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.View
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import android.view.animation.OvershootInterpolator
 import androidx.appcompat.app.AppCompatActivity
+import com.etudiantsdroitmaroc.app.R
 import com.etudiantsdroitmaroc.app.databinding.ActivitySplashBinding
 import com.etudiantsdroitmaroc.app.ui.auth.LoginActivity
 import com.etudiantsdroitmaroc.app.utils.AdManager
@@ -23,6 +28,20 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // الشاشة كتمتد تحت أشرطة النظام: نزيدو المسافات يدويا بحال صفحة الدخول
+        val top = findViewById<View>(R.id.splashTop)
+        val footer = findViewById<View>(R.id.splashFooter)
+        val topPad = top.paddingTop
+        val footerPad = footer.paddingBottom
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.splashRoot)) { _, insets ->
+            val bars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
+            top.updatePadding(top = topPad + bars.top)
+            footer.updatePadding(bottom = footerPad + bars.bottom)
+            WindowInsetsCompat.CONSUMED
+        }
 
         com.etudiantsdroitmaroc.app.utils.IntroSound.play(this)
         playLogoAnimation()

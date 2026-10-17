@@ -22,7 +22,7 @@ object EdgeToEdgeHelper : Application.ActivityLifecycleCallbacks {
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         if (activity !is AppCompatActivity) return
         WindowCompat.setDecorFitsSystemWindows(activity.window, false)
-        if (activity.javaClass.simpleName == "LoginActivity") {
+        if (activity.javaClass.simpleName == "LoginActivity" || activity.javaClass.simpleName == "SplashActivity") {
             // صفحة الدخول كتتكلف بالمسافات بوحدها، وفيها وضع فاتح بأيقونات داكنة
             val night = (activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
                 Configuration.UI_MODE_NIGHT_YES
@@ -44,7 +44,7 @@ object EdgeToEdgeHelper : Application.ActivityLifecycleCallbacks {
 
     override fun onActivityStarted(activity: Activity) {
         if (activity !is AppCompatActivity) return
-        if (activity.javaClass.simpleName == "LoginActivity") return
+        if (activity.javaClass.simpleName == "LoginActivity" || activity.javaClass.simpleName == "SplashActivity") return
         val content = activity.findViewById<View>(android.R.id.content) ?: return
         val isMain = activity.javaClass.simpleName == "MainActivity"
         val nav = if (isMain) activity.findViewById<View>(R.id.bottom_nav) else null
