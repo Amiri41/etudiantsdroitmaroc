@@ -3,66 +3,95 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="6dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="1dp">
+    android:layout_marginStart="4dp"
+    android:layout_marginEnd="4dp"
+    android:layout_marginTop="6dp"
+    android:layout_marginBottom="6dp"
+    app:cardBackgroundColor="@color/card_bg"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="2dp"
+    app:strokeWidth="0dp">
 
     <LinearLayout
         android:id="@+id/cardRoot"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layoutDirection="rtl"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:padding="12dp">
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="14dp">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/ivAvatar"
-            android:layout_width="54dp"
-            android:layout_height="54dp"
+            android:layout_width="74dp"
+            android:layout_height="74dp"
             android:src="@drawable/ic_profile"
-            app:civ_border_width="2dp"
-            app:civ_border_color="@color/gold" />
+            app:civ_border_width="3dp"
+            app:civ_border_color="#7DB8FF" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="12dp"
+            android:layout_marginStart="14dp"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tvName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:ellipsize="end"
                 android:textStyle="bold"
-                android:textSize="15sp"
+                android:textSize="18sp"
                 android:textColor="@color/text_primary" />
 
             <TextView
                 android:id="@+id/tvSubtitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
                 android:maxLines="1"
                 android:ellipsize="end"
-                android:textSize="12sp"
+                android:textSize="13sp"
                 android:textColor="@color/text_secondary" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPrimaryAction"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="8dp"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="4dp"
+                android:paddingStart="18dp"
+                android:paddingEnd="18dp"
                 android:textAllCaps="false"
-                android:textSize="12sp"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
                 app:backgroundTint="@color/navy_dark"
-                android:textColor="@color/gold"
-                app:cornerRadius="18dp" />
-
+                app:cornerRadius="20dp"
+                app:icon="@drawable/ic_person_add"
+                app:iconSize="18dp"
+                app:iconTint="@color/white"
+                app:iconPadding="6dp"
+                app:iconGravity="textStart" />
         </LinearLayout>
 
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_icon_circle_soft"
+            android:padding="9dp"
+            android:src="@drawable/ic_chevron_left"
+            app:tint="@color/chip_text"
+            android:importantForAccessibility="no" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

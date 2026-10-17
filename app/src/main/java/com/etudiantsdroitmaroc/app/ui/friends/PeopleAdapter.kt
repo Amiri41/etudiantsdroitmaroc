@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.etudiantsdroitmaroc.app.R
 import com.etudiantsdroitmaroc.app.data.model.UserProfile
 import com.etudiantsdroitmaroc.app.databinding.ItemPersonCardBinding
 
@@ -49,13 +50,14 @@ class PeopleAdapter(
         when (mode) {
             PersonMode.FRIEND -> {
                 btn.text = "إزالة"
+                btn.setIconResource(R.drawable.ic_close_x)
                 btn.isEnabled = true
             }
             PersonMode.SUGGESTION -> {
                 when (item.status) {
-                    "friend" -> { btn.text = "أصدقاء ✓"; btn.isEnabled = false }
-                    "pending" -> { btn.text = "طلب مرسل ⏳"; btn.isEnabled = false }
-                    else -> { btn.text = "إضافة صديق"; btn.isEnabled = true }
+                    "friend" -> { btn.text = "أصدقاء"; btn.setIconResource(R.drawable.ic_check); btn.isEnabled = false }
+                    "pending" -> { btn.text = "طلب مرسل"; btn.setIconResource(R.drawable.ic_send); btn.isEnabled = false }
+                    else -> { btn.text = "إضافة صديق"; btn.setIconResource(R.drawable.ic_person_add); btn.isEnabled = true }
                 }
             }
         }

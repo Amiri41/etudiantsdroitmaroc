@@ -6,34 +6,100 @@
     android:orientation="vertical"
     android:background="@color/off_white">
 
-    <androidx.appcompat.widget.Toolbar
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@drawable/bg_gradient_toolbar"
-        app:title="الأصدقاء"
-        app:titleTextColor="@color/white" />
+        android:layout_height="108dp"
+        android:layoutDirection="rtl"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/bg_header_gold"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="6dp">
+
+        <ImageView
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:background="@drawable/bg_circle_translucent"
+            android:padding="14dp"
+            android:src="@drawable/ic_people"
+            android:importantForAccessibility="no" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="14dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="الأصدقاء"
+                android:textColor="@color/white"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="ابحث عن أصدقائك و زملائك في المسار الدراسي"
+                android:textColor="#CFE0FF"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </LinearLayout>
 
     <FrameLayout
         android:id="@+id/bannerAdContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/etSearch"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:hint="ابحث بالاسم..."
-        android:drawableStart="@drawable/ic_search"
-        android:drawablePadding="8dp"
-        android:padding="10dp"
-        android:background="@drawable/bg_input_field" />
+        android:layout_height="56dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="14dp"
+        android:layoutDirection="rtl"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/bg_search_pill"
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp">
+
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:src="@drawable/ic_search"
+            app:tint="@color/navy"
+            android:importantForAccessibility="no" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etSearch"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:background="@null"
+            android:hint="ابحث بالاسم..."
+            android:inputType="text"
+            android:singleLine="true"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary"
+            android:textSize="17sp" />
+    </LinearLayout>
 
     <com.google.android.material.chip.ChipGroup
         android:id="@+id/chipGroupFilter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp"
+        android:layoutDirection="rtl"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="4dp"
+        app:chipSpacingHorizontal="8dp"
         app:singleSelection="true"
         app:selectionRequired="true">
 
@@ -41,24 +107,62 @@
             android:id="@+id/chipAll"
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="52dp"
             android:checked="true"
-            android:text="الكل" />
+            android:text="الكل"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/chip_text_selector"
+            app:chipBackgroundColor="@color/chip_bg_selector"
+            app:chipCornerRadius="26dp"
+            app:chipEndPadding="14dp"
+            app:chipStartPadding="14dp"
+            app:chipIcon="@drawable/ic_people"
+            app:chipIconTint="@color/chip_text_selector"
+            app:chipIconVisible="true"
+            app:checkedIconVisible="false"
+            app:chipStrokeWidth="1dp"
+            app:chipStrokeColor="@color/input_stroke" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipFriends"
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="أصدقاؤك" />
+            android:layout_height="52dp"
+            android:text="أصدقاؤك"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/chip_text_selector"
+            app:chipBackgroundColor="@color/chip_bg_selector"
+            app:chipCornerRadius="26dp"
+            app:chipEndPadding="14dp"
+            app:chipStartPadding="14dp"
+            app:chipIcon="@drawable/ic_people"
+            app:chipIconTint="@color/chip_text_selector"
+            app:chipIconVisible="true"
+            app:checkedIconVisible="false"
+            app:chipStrokeWidth="1dp"
+            app:chipStrokeColor="@color/input_stroke" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipRequests"
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="طلبات الصداقة" />
-
+            android:layout_height="52dp"
+            android:text="طلبات الصداقة"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/chip_text_selector"
+            app:chipBackgroundColor="@color/chip_bg_selector"
+            app:chipCornerRadius="26dp"
+            app:chipEndPadding="14dp"
+            app:chipStartPadding="14dp"
+            app:chipIcon="@drawable/ic_person_add"
+            app:chipIconTint="@color/chip_text_selector"
+            app:chipIconVisible="true"
+            app:checkedIconVisible="false"
+            app:chipStrokeWidth="1dp"
+            app:chipStrokeColor="@color/input_stroke" />
     </com.google.android.material.chip.ChipGroup>
 
     <TextView
@@ -74,6 +178,66 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvPeople"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp" />
 
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="10dp"
+        app:cardBackgroundColor="@color/chip_bg"
+        app:cardCornerRadius="22dp"
+        app:cardElevation="0dp"
+        app:strokeColor="@color/input_stroke"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layoutDirection="rtl"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="انضم إلى زملائك وتوسع دائرة معارفك"
+                    android:textColor="@color/text_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="الأصدقاء هم جزء من رحلتك الجامعية"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="12dp"
+                android:background="@drawable/bg_icon_circle_soft"
+                android:padding="12dp"
+                android:src="@drawable/ic_people"
+                app:tint="@color/chip_text"
+                android:importantForAccessibility="no" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 </LinearLayout>
