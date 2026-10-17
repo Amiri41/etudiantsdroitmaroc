@@ -46,12 +46,21 @@ object EdgeToEdgeHelper : Application.ActivityLifecycleCallbacks {
         if (activity !is AppCompatActivity) return
         if (activity.javaClass.simpleName == "LoginActivity") return
         val content = activity.findViewById<View>(android.R.id.content) ?: return
+        val isMain = activity.javaClass.simpleName == "MainActivity"
+        val nav = if (isMain) activity.findViewById<View>(R.id.bottom_nav) else null
+        val navBasePad = nav?.paddingBottom ?: 0
         ViewCompat.setOnApplyWindowInsetsListener(content) { v, insets ->
             val bars = insets.getInsets(
                 WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
             )
             val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
-            v.setPadding(bars.left, bars.top, bars.right, maxOf(bars.bottom, ime.bottom))
+            if (nav != null) {
+                // الشريط السفلي كيمتد تحت شريط الإيماءات بنفس لونو
+                v.setPadding(bars.left, bars.top, bars.right, 0)
+                nav.setPadding(nav.paddingLeft, nav.paddingTop, nav.paddingRight, navBasePad + bars.bottom)
+            } else {
+                v.setPadding(bars.left, bars.top, bars.right, maxOf(bars.bottom, ime.bottom))
+            }
             WindowInsetsCompat.CONSUMED
         }
         ViewCompat.requestApplyInsets(content)

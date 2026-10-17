@@ -5,10 +5,10 @@
     android:layout_height="wrap_content"
     android:layout_marginStart="4dp"
     android:layout_marginEnd="4dp"
-    android:layout_marginTop="6dp"
-    android:layout_marginBottom="6dp"
+    android:layout_marginTop="5dp"
+    android:layout_marginBottom="5dp"
     app:cardBackgroundColor="@color/card_bg"
-    app:cardCornerRadius="24dp"
+    app:cardCornerRadius="20dp"
     app:cardElevation="2dp"
     app:strokeWidth="0dp">
 
@@ -22,15 +22,15 @@
         android:clickable="true"
         android:focusable="true"
         android:foreground="?attr/selectableItemBackground"
-        android:paddingStart="14dp"
-        android:paddingEnd="14dp"
-        android:paddingTop="14dp"
-        android:paddingBottom="14dp">
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/ivAvatar"
-            android:layout_width="74dp"
-            android:layout_height="74dp"
+            android:layout_width="63dp"
+            android:layout_height="63dp"
             android:src="@drawable/ic_profile"
             app:civ_border_width="3dp"
             app:civ_border_color="#7DB8FF" />
@@ -39,7 +39,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="14dp"
+            android:layout_marginStart="12dp"
             android:orientation="vertical">
 
             <TextView
@@ -49,7 +49,7 @@
                 android:singleLine="true"
                 android:ellipsize="end"
                 android:textStyle="bold"
-                android:textSize="18sp"
+                android:textSize="15sp"
                 android:textColor="@color/text_primary" />
 
             <TextView
@@ -59,37 +59,37 @@
                 android:layout_marginTop="2dp"
                 android:maxLines="1"
                 android:ellipsize="end"
-                android:textSize="13sp"
+                android:textSize="11sp"
                 android:textColor="@color/text_secondary" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPrimaryAction"
                 android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_marginTop="8dp"
+                android:layout_height="34dp"
+                android:layout_marginTop="7dp"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
-                android:paddingStart="18dp"
-                android:paddingEnd="18dp"
+                android:paddingStart="15dp"
+                android:paddingEnd="15dp"
                 android:textAllCaps="false"
-                android:textSize="14sp"
+                android:textSize="12sp"
                 android:textStyle="bold"
                 android:textColor="@color/white"
                 app:backgroundTint="@color/navy_dark"
-                app:cornerRadius="20dp"
+                app:cornerRadius="17dp"
                 app:icon="@drawable/ic_person_add"
-                app:iconSize="18dp"
+                app:iconSize="15dp"
                 app:iconTint="@color/white"
-                app:iconPadding="6dp"
+                app:iconPadding="5dp"
                 app:iconGravity="textStart" />
         </LinearLayout>
 
         <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="8dp"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:layout_marginStart="7dp"
             android:background="@drawable/bg_icon_circle_soft"
-            android:padding="9dp"
+            android:padding="8dp"
             android:src="@drawable/ic_chevron_left"
             app:tint="@color/chip_text"
             android:importantForAccessibility="no" />

@@ -14,81 +14,81 @@
         android:layout_weight="1"
         android:orientation="vertical"
         android:gravity="center"
-        android:paddingStart="28dp"
-        android:paddingEnd="28dp"
-        android:paddingTop="16dp">
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="14dp">
 
         <ImageView
-            android:layout_width="190dp"
-            android:layout_height="190dp"
+            android:layout_width="162dp"
+            android:layout_height="162dp"
             android:src="@drawable/splash_logo"
             android:contentDescription="@string/app_name" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="17dp"
             android:text="مرحباً بك"
             android:textColor="@color/login_title"
-            android:textSize="32sp"
+            android:textSize="27sp"
             android:textStyle="bold" />
 
         <View
-            android:layout_width="44dp"
+            android:layout_width="37dp"
             android:layout_height="3dp"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="5dp"
             android:background="@drawable/bg_brand_bar" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="10dp"
             android:text="في مجتمع طلبة القانون بالمغرب"
             android:textColor="@color/login_subtitle"
-            android:textSize="16sp" />
+            android:textSize="14sp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnGoogleSignIn"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="32dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="27dp"
             android:text="@string/login_with_google"
             android:textAllCaps="false"
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="@color/login_button_text"
             android:background="@drawable/bg_login_button"
             app:backgroundTint="@null"
-            app:cornerRadius="28dp"
+            app:cornerRadius="24dp"
             app:icon="@drawable/ic_google"
             app:iconTint="@null"
-            app:iconPadding="12dp"
+            app:iconPadding="10dp"
             app:iconGravity="textStart" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="26dp"
+            android:layout_marginTop="22dp"
             android:layoutDirection="rtl"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <View
-                android:layout_width="22dp"
+                android:layout_width="19dp"
                 android:layout_height="2dp"
                 android:background="@drawable/bg_brand_bar" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:text="معاً نحو مستقبل قانوني أفضل"
                 android:textColor="@color/login_title"
-                android:textSize="14sp" />
+                android:textSize="12sp" />
 
             <View
-                android:layout_width="22dp"
+                android:layout_width="19dp"
                 android:layout_height="2dp"
                 android:background="@drawable/bg_brand_bar" />
         </LinearLayout>
@@ -98,9 +98,9 @@
         android:id="@+id/loginFooter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="150dp"
+        android:minHeight="128dp"
         android:background="@drawable/bg_login_wave"
-        android:paddingBottom="18dp">
+        android:paddingBottom="15dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -114,12 +114,12 @@
                 android:layout_height="wrap_content"
                 android:text="بتسجيل الدخول كتوافق على:"
                 android:textColor="#B8C4DA"
-                android:textSize="11sp" />
+                android:textSize="9sp" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="5dp"
                 android:layoutDirection="rtl"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
@@ -128,24 +128,24 @@
                     android:id="@+id/tvTerms"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="8dp"
+                    android:padding="7dp"
                     android:text="الشروط والاستخدام"
                     android:textColor="@color/white"
-                    android:textSize="13sp" />
+                    android:textSize="11sp" />
 
                 <View
                     android:layout_width="1dp"
-                    android:layout_height="14dp"
+                    android:layout_height="12dp"
                     android:background="#5AA9FF" />
 
                 <TextView
                     android:id="@+id/tvPrivacy"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="8dp"
+                    android:padding="7dp"
                     android:text="سياسة الخصوصية"
                     android:textColor="@color/white"
-                    android:textSize="13sp" />
+                    android:textSize="11sp" />
             </LinearLayout>
         </LinearLayout>
     </FrameLayout>

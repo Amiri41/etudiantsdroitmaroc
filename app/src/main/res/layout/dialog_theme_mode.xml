@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:layoutDirection="rtl"
     android:background="@drawable/bg_dialog_round"
-    android:padding="20dp">
+    android:padding="17dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,10 +16,10 @@
         android:gravity="center_vertical">
 
         <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
             android:background="@drawable/bg_icon_purple"
-            android:padding="12dp"
+            android:padding="10dp"
             android:src="@drawable/ic_dark_mode"
             app:tint="@color/white"
             android:importantForAccessibility="no" />
@@ -28,7 +28,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="14dp"
+            android:layout_marginStart="12dp"
             android:orientation="vertical">
 
             <TextView
@@ -36,7 +36,7 @@
                 android:layout_height="wrap_content"
                 android:text="مظهر التطبيق"
                 android:textColor="@color/text_primary"
-                android:textSize="22sp"
+                android:textSize="19sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -45,7 +45,7 @@
                 android:layout_marginTop="2dp"
                 android:text="اختر المظهر اللي يناسبك"
                 android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
+                android:textSize="11sp" />
         </LinearLayout>
     </LinearLayout>
 
@@ -53,24 +53,24 @@
         android:id="@+id/optLight"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:minHeight="72dp"
+        android:layout_marginTop="10dp"
+        android:minHeight="61dp"
         android:layoutDirection="rtl"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:clickable="true"
         android:focusable="true"
         android:foreground="?attr/selectableItemBackground"
-        android:paddingStart="12dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp">
+        android:paddingStart="10dp"
+        android:paddingEnd="14dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
 
         <ImageView
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="41dp"
+            android:layout_height="41dp"
             android:background="@drawable/bg_icon_orange_solid"
-            android:padding="12dp"
+            android:padding="10dp"
             android:src="@drawable/ic_sun"
             app:tint="@color/white"
             android:importantForAccessibility="no" />
@@ -79,7 +79,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="14dp"
+            android:layout_marginStart="12dp"
             android:orientation="vertical">
 
             <TextView
@@ -87,7 +87,7 @@
                 android:layout_height="wrap_content"
                 android:text="فاتح"
                 android:textColor="@color/text_primary"
-                android:textSize="18sp"
+                android:textSize="15sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -96,15 +96,15 @@
                 android:layout_marginTop="2dp"
                 android:text="خلفية بيضاء مريحة فالنهار"
                 android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
+                android:textSize="11sp" />
         </LinearLayout>
 
         <ImageView
             android:id="@+id/chkLight"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:background="@drawable/bg_check_circle"
-            android:padding="6dp"
+            android:padding="5dp"
             android:src="@drawable/ic_check"
             app:tint="@color/white"
             android:visibility="invisible"
@@ -115,24 +115,24 @@
         android:id="@+id/optDark"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:minHeight="72dp"
+        android:layout_marginTop="10dp"
+        android:minHeight="61dp"
         android:layoutDirection="rtl"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:clickable="true"
         android:focusable="true"
         android:foreground="?attr/selectableItemBackground"
-        android:paddingStart="12dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp">
+        android:paddingStart="10dp"
+        android:paddingEnd="14dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
 
         <ImageView
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="41dp"
+            android:layout_height="41dp"
             android:background="@drawable/bg_icon_purple"
-            android:padding="12dp"
+            android:padding="10dp"
             android:src="@drawable/ic_dark_mode"
             app:tint="@color/white"
             android:importantForAccessibility="no" />
@@ -141,7 +141,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="14dp"
+            android:layout_marginStart="12dp"
             android:orientation="vertical">
 
             <TextView
@@ -149,7 +149,7 @@
                 android:layout_height="wrap_content"
                 android:text="داكن"
                 android:textColor="@color/text_primary"
-                android:textSize="18sp"
+                android:textSize="15sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -158,15 +158,15 @@
                 android:layout_marginTop="2dp"
                 android:text="خلفية غامقة تريح العينين فالليل"
                 android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
+                android:textSize="11sp" />
         </LinearLayout>
 
         <ImageView
             android:id="@+id/chkDark"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:background="@drawable/bg_check_circle"
-            android:padding="6dp"
+            android:padding="5dp"
             android:src="@drawable/ic_check"
             app:tint="@color/white"
             android:visibility="invisible"
@@ -177,24 +177,24 @@
         android:id="@+id/optSystem"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:minHeight="72dp"
+        android:layout_marginTop="10dp"
+        android:minHeight="61dp"
         android:layoutDirection="rtl"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:clickable="true"
         android:focusable="true"
         android:foreground="?attr/selectableItemBackground"
-        android:paddingStart="12dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp">
+        android:paddingStart="10dp"
+        android:paddingEnd="14dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
 
         <ImageView
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="41dp"
+            android:layout_height="41dp"
             android:background="@drawable/bg_icon_blue"
-            android:padding="12dp"
+            android:padding="10dp"
             android:src="@drawable/ic_smartphone"
             app:tint="@color/white"
             android:importantForAccessibility="no" />
@@ -203,7 +203,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="14dp"
+            android:layout_marginStart="12dp"
             android:orientation="vertical">
 
             <TextView
@@ -211,7 +211,7 @@
                 android:layout_height="wrap_content"
                 android:text="حسب النظام"
                 android:textColor="@color/text_primary"
-                android:textSize="18sp"
+                android:textSize="15sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -220,15 +220,15 @@
                 android:layout_marginTop="2dp"
                 android:text="يتبع إعدادات هاتفك (افتراضي)"
                 android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
+                android:textSize="11sp" />
         </LinearLayout>
 
         <ImageView
             android:id="@+id/chkSystem"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:background="@drawable/bg_check_circle"
-            android:padding="6dp"
+            android:padding="5dp"
             android:src="@drawable/ic_check"
             app:tint="@color/white"
             android:visibility="invisible"
@@ -238,14 +238,14 @@
     <TextView
         android:id="@+id/btnCancelTheme"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginTop="10dp"
+        android:layout_height="41dp"
+        android:layout_marginTop="8dp"
         android:gravity="center"
         android:clickable="true"
         android:focusable="true"
         android:foreground="?attr/selectableItemBackground"
         android:text="إلغاء"
         android:textColor="@color/text_secondary"
-        android:textSize="16sp"
+        android:textSize="14sp"
         android:textStyle="bold" />
 </LinearLayout>

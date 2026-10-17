@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item><shape android:shape="rectangle"><solid android:color="#F5F8FD" /></shape></item>
+    <item android:drawable="@drawable/art_scales" android:gravity="top|end" android:top="60dp" android:end="-24dp" />
+    <item android:drawable="@drawable/art_skyline" android:gravity="bottom|fill_horizontal" />
+</layer-list>

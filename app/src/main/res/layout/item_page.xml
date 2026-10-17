@@ -4,12 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="2dp"
-    android:layout_marginBottom="14dp"
+    android:layout_marginBottom="12dp"
     android:clickable="true"
     android:focusable="true"
     android:foreground="?attr/selectableItemBackground"
     app:cardBackgroundColor="@color/card_bg"
-    app:cardCornerRadius="26dp"
+    app:cardCornerRadius="22dp"
     app:cardElevation="3dp"
     app:strokeWidth="0dp">
 
@@ -19,17 +19,17 @@
         android:layoutDirection="rtl"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:minHeight="88dp"
-        android:paddingStart="14dp"
-        android:paddingEnd="18dp"
-        android:paddingTop="14dp"
-        android:paddingBottom="14dp">
+        android:minHeight="75dp"
+        android:paddingStart="12dp"
+        android:paddingEnd="15dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp">
 
         <ImageView
             android:id="@+id/ivPageIcon"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:padding="15dp"
+            android:layout_width="51dp"
+            android:layout_height="51dp"
+            android:padding="13dp"
             app:tint="@color/white"
             android:importantForAccessibility="no" />
 
@@ -37,8 +37,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="14dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="7dp"
             android:orientation="vertical">
 
             <TextView
@@ -46,7 +46,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/text_primary"
-                android:textSize="18sp"
+                android:textSize="15sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -55,15 +55,15 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:textColor="@color/text_secondary"
-                android:textSize="13sp"
+                android:textSize="11sp"
                 android:visibility="gone" />
         </LinearLayout>
 
         <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
             android:background="@drawable/bg_icon_circle_soft"
-            android:padding="9dp"
+            android:padding="8dp"
             android:src="@drawable/ic_chevron_left"
             app:tint="@color/chip_text"
             android:importantForAccessibility="no" />

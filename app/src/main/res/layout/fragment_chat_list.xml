@@ -4,23 +4,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/off_white">
+    android:background="@drawable/bg_screen">
 
     <LinearLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="96dp"
+        android:layout_height="82dp"
         android:layoutDirection="rtl"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:background="@drawable/bg_gradient_toolbar"
-        android:paddingStart="22dp"
-        android:paddingEnd="22dp"
+        android:paddingStart="19dp"
+        android:paddingEnd="19dp"
         android:paddingBottom="4dp">
 
         <ImageView
-            android:layout_width="38dp"
-            android:layout_height="38dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:src="@drawable/ic_chat_outline"
             android:importantForAccessibility="no" />
 
@@ -28,10 +28,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="14dp"
+            android:layout_marginStart="12dp"
             android:text="@string/nav_chat"
             android:textColor="@color/white"
-            android:textSize="28sp"
+            android:textSize="24sp"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -45,22 +45,22 @@
         android:layout_height="wrap_content"
         android:layoutDirection="rtl"
         android:orientation="horizontal"
-        android:paddingStart="18dp"
-        android:paddingEnd="18dp"
-        android:paddingTop="14dp">
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp"
+        android:paddingTop="12dp">
 
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
+            android:layout_height="34dp"
             android:gravity="center_vertical"
             android:background="@drawable/bg_pill_green_soft"
             android:drawableEnd="@drawable/dot_green_plain"
-            android:drawablePadding="10dp"
-            android:paddingStart="18dp"
-            android:paddingEnd="18dp"
+            android:drawablePadding="8dp"
+            android:paddingStart="15dp"
+            android:paddingEnd="15dp"
             android:text="@string/online"
             android:textColor="@color/green"
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -70,25 +70,25 @@
         android:layout_height="wrap_content"
         android:layoutDirection="rtl"
         android:orientation="horizontal"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp" />
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="10dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="14dp"
+        android:layout_marginEnd="14dp"
+        android:layout_marginTop="8dp"
         android:layoutDirection="rtl"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:background="@drawable/bg_search_pill"
-        android:paddingStart="18dp"
-        android:paddingEnd="18dp">
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp">
 
         <ImageView
-            android:layout_width="26dp"
-            android:layout_height="26dp"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:src="@drawable/ic_search"
             app:tint="@color/navy"
             android:importantForAccessibility="no" />
@@ -98,14 +98,14 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="8dp"
             android:background="@null"
             android:hint="ابحث في المحادثات..."
             android:inputType="text"
             android:singleLine="true"
             android:textColor="@color/text_primary"
             android:textColorHint="@color/text_secondary"
-            android:textSize="17sp" />
+            android:textSize="14sp" />
     </LinearLayout>
 
     <FrameLayout
@@ -118,10 +118,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="8dp" />
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="7dp" />
 
         <LinearLayout
             android:id="@+id/emptyState"
@@ -133,27 +133,27 @@
             android:visibility="gone">
 
             <ImageView
-                android:layout_width="200dp"
-                android:layout_height="150dp"
+                android:layout_width="170dp"
+                android:layout_height="128dp"
                 android:src="@drawable/ill_empty_chat"
                 android:importantForAccessibility="no" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="5dp"
                 android:text="ابدأ محادثة جديدة"
                 android:textColor="@color/text_secondary"
-                android:textSize="22sp"
+                android:textSize="19sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="5dp"
                 android:text="تواصل مع زملائك وشارك أفكارك ومواردك"
                 android:textColor="@color/text_secondary"
-                android:textSize="15sp" />
+                android:textSize="13sp" />
         </LinearLayout>
     </FrameLayout>
 </LinearLayout>

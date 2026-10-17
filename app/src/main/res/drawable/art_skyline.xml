@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="360dp" android:height="170dp"
+    android:viewportWidth="360" android:viewportHeight="170">
+    <!-- مباني -->
+    <path android:fillColor="#DCE7F7" android:pathData="M0,118 h26 v52 h-26z M26,98 h24 v72 h-24z M50,126 h20 v44 h-20z" />
+    <!-- مبنى بأعمدة (محكمة) -->
+    <path android:fillColor="#DCE7F7" android:pathData="M74,96 L122,72 L170,96z M76,98 h92 v72 h-92z" />
+    <path android:fillColor="#CBDCF2" android:pathData="M86,104 h6 v66 h-6z M104,104 h6 v66 h-6z M122,104 h6 v66 h-6z M140,104 h6 v66 h-6z M156,104 h6 v66 h-6z" />
+    <!-- صومعة -->
+    <path android:fillColor="#DCE7F7" android:pathData="M204,64 h20 v106 h-20z M201,56 h26 v8 h-26z M207,40 h14 v16 h-14z M214,22 l7,18 h-14z" />
+    <path android:fillColor="#CBDCF2" android:pathData="M210,76 h8 v10 h-8z M210,96 h8 v10 h-8z M210,116 h8 v10 h-8z" />
+    <!-- مباني يمين -->
+    <path android:fillColor="#DCE7F7" android:pathData="M232,110 h28 v60 h-28z M260,86 h22 v84 h-22z M282,120 h22 v50 h-22z" />
+    <!-- نخلة -->
+    <path android:strokeColor="#DCE7F7" android:strokeWidth="3" android:strokeLineCap="round"
+        android:pathData="M326,170 Q322,130 332,98 M332,98 Q312,92 302,104 M332,98 Q322,82 306,82 M332,98 Q344,80 360,86 M332,98 Q352,98 358,112" />
+    <path android:fillColor="#DCE7F7" android:pathData="M306,170 h6 v-26 h-6z" />
+    <!-- أرضية -->
+    <path android:fillColor="#DCE7F7" android:pathData="M0,164 h360 v6 h-360z" />
+</vector>
