@@ -151,7 +151,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="تواصل مع زملائك وشارك أفكارك وموادك"
+                android:text="تواصل مع زملائك وشارك أفكارك ومواردك"
                 android:textColor="@color/text_secondary"
                 android:textSize="15sp" />
         </LinearLayout>
