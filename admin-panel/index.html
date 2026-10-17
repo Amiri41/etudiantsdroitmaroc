@@ -7,7 +7,6 @@
 <style>
   * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
   body { margin: 0; background: #F7F8FA; color: #1A1A1A; }
-  header { background: #0A1F3D; color: #F5B324; padding: 16px 20px; font-weight: bold; font-size: 18px; }
   .container { max-width: 800px; margin: 20px auto; padding: 0 16px; }
   .card { background: white; border-radius: 12px; padding: 18px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
   h2 { margin-top: 0; color: #12305C; font-size: 16px; }
@@ -37,39 +36,203 @@
     #editModalOverlay { align-items: center; }
     #editModalCard { border-radius: 16px; }
   }
+
+/* ================= Admin shell (sidebar + topbar + pages) ================= */
+:root { --navy-d:#0A1F3D; --navy:#12305C; --blue:#1F63D6; --gold:#F5B324; --line:#E6EBF3; --muted:#6B7280; }
+body { background:#F3F6FB; }
+#adminPanel { min-height:100vh; }
+#sidebar { position:fixed; top:0; right:0; bottom:0; width:264px; background:linear-gradient(180deg,#0A1F3D 0%,#0B2A5A 100%); color:#fff; z-index:1000; display:flex; flex-direction:column; transition:transform .25s ease; overflow-y:auto; }
+#sidebarOverlay { display:none; position:fixed; inset:0; background:rgba(10,31,61,.55); z-index:999; }
+.brand { display:flex; align-items:center; gap:12px; padding:20px 18px 16px; }
+.brand-logo { width:46px; height:46px; border-radius:14px; background:#fff; display:flex; align-items:center; justify-content:center; font-size:26px; flex:none; }
+.brand-title { font-weight:bold; font-size:15px; color:#fff; }
+.brand-sub { font-size:10px; color:#9FB4D3; letter-spacing:.4px; margin-top:2px; direction:ltr; text-align:right; }
+#sidebar nav { padding:8px 12px; flex:1; }
+.nav-item { display:flex; align-items:center; gap:12px; padding:13px 14px; margin-bottom:6px; border-radius:12px; color:#DCE6F7; text-decoration:none; font-size:15px; cursor:pointer; user-select:none; }
+.nav-item:hover { background:rgba(255,255,255,.08); }
+.nav-item .ico { width:26px; text-align:center; font-size:18px; }
+.nav-item.active { background:var(--gold); color:var(--navy-d); font-weight:bold; }
+.nav-badge { margin-right:auto; background:#E14B4B; color:#fff; border-radius:10px; font-size:11px; padding:1px 7px; font-weight:bold; }
+.nav-badge.zero { display:none; }
+.side-status { margin:14px; padding:12px 14px; border-radius:12px; background:rgba(255,255,255,.07); font-size:12px; color:#CFE0FA; }
+.side-status b { color:#fff; display:block; margin-top:2px; font-size:13px; }
+#main { margin-right:264px; min-height:100vh; min-width:0; }
+.topbar { position:sticky; top:0; z-index:500; background:#fff; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:12px; padding:12px 20px; }
+.topbar .shell-btn { width:auto; margin:0; }
+#menuBtn { display:none; background:#EEF2FA; color:var(--navy-d); border:none; border-radius:10px; font-size:20px; padding:6px 12px; }
+.topbar-title { font-size:18px; font-weight:bold; color:var(--navy-d); flex:1; }
+.bell { position:relative; width:auto; margin:0; background:#EEF2FA; color:var(--navy-d); border:none; border-radius:12px; padding:8px 12px; font-size:18px; }
+.bell .nav-badge { position:absolute; top:-4px; left:-4px; margin:0; }
+.user-chip { display:flex; align-items:center; gap:8px; font-size:14px; color:var(--navy-d); font-weight:bold; }
+.user-chip .av { width:34px; height:34px; border-radius:50%; background:var(--navy-d); color:var(--gold); display:flex; align-items:center; justify-content:center; font-size:18px; }
+#logoutBtn { width:auto; margin:0; background:#FDECEC; color:#C0392B; border:none; border-radius:10px; padding:8px 14px; font-size:13px; }
+.content { padding:20px; max-width:1180px; margin:0 auto; min-width:0; }
+html, body { overflow-x:hidden; }
+.page { display:none; }
+.page.active { display:block; }
+.page:not(#page-dashboard) { max-width:860px; margin:0 auto; }
+.card { border-radius:16px; box-shadow:0 2px 10px rgba(10,31,61,.06); border:1px solid var(--line); }
+.card.flash { animation:flash 1.4s ease; }
+@keyframes flash { 0%,60% { box-shadow:0 0 0 3px var(--gold); } 100% { box-shadow:0 2px 10px rgba(10,31,61,.06); } }
+
+/* ---- dashboard ---- */
+.hero { background:linear-gradient(120deg,#0A1F3D 0%,#12408F 100%); color:#fff; border-radius:18px; padding:26px 28px; display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:18px; }
+.hero h1 { margin:0 0 8px; font-size:24px; }
+.hero p { margin:0; color:#CFE0FA; font-size:14px; }
+.hero .bar { width:120px; height:3px; background:var(--gold); border-radius:2px; margin-top:14px; }
+.hero-ico { width:64px; height:64px; border-radius:50%; background:rgba(245,179,36,.18); display:flex; align-items:center; justify-content:center; font-size:34px; flex:none; }
+.kpis { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin-bottom:18px; }
+.kpi { background:#fff; border:1px solid var(--line); border-radius:16px; padding:16px; text-align:center; box-shadow:0 2px 10px rgba(10,31,61,.05); }
+.kpi .ico { width:50px; height:50px; border-radius:50%; margin:0 auto 10px; display:flex; align-items:center; justify-content:center; font-size:24px; }
+.kpi .lbl { font-size:13px; color:var(--muted); }
+.kpi .val { font-size:28px; font-weight:bold; color:var(--navy-d); margin:2px 0; }
+.kpi .sub { font-size:12px; color:#2E9E5B; min-height:18px; }
+.kpi .sub.flat { color:var(--muted); }
+.panel { min-width:0; background:#fff; border:1px solid var(--line); border-radius:16px; padding:18px; margin-bottom:18px; box-shadow:0 2px 10px rgba(10,31,61,.05); }
+.panel-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.panel-head h3 { margin:0; font-size:16px; color:var(--navy); }
+.link-btn { width:auto; margin:0; background:none; border:none; color:var(--blue); font-size:13px; padding:4px 6px; cursor:pointer; font-weight:bold; }
+.quick { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:12px; }
+.quick .qa { width:auto; margin:0; border:none; border-radius:14px; color:#fff; padding:16px 8px; font-size:13px; font-weight:bold; display:flex; flex-direction:column; align-items:center; gap:8px; }
+.quick .qa .qi { font-size:22px; }
+.qa.g { background:linear-gradient(135deg,#22A857,#1B8F49); } .qa.b { background:linear-gradient(135deg,#2F7BE0,#1F63D6); }
+.qa.p { background:linear-gradient(135deg,#9B5CF0,#7C3AED); } .qa.o { background:linear-gradient(135deg,#F7B733,#F59E0B); color:#0A1F3D; }
+.qa.r { background:linear-gradient(135deg,#F2677A,#E14B66); } .qa.t { background:linear-gradient(135deg,#27B7C9,#0E9FB3); }
+.grid2 { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:18px; }
+.grid2 .panel { margin-bottom:18px; }
+.row-item { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid #EEF1F6; }
+.row-item:last-child { border-bottom:none; }
+.row-item .thumb { width:46px; height:46px; border-radius:10px; background:#E8EEF8; object-fit:cover; flex:none; display:flex; align-items:center; justify-content:center; font-size:20px; overflow:hidden; }
+.row-item .thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+.row-item .av { width:42px; height:42px; border-radius:50%; background:#E8EEF8; overflow:hidden; flex:none; display:flex; align-items:center; justify-content:center; font-size:18px; position:relative; }
+.row-item .av img { width:100%; height:100%; object-fit:cover; display:block; }
+.row-item .meta { flex:1; min-width:0; }
+.row-item .t1 { font-weight:bold; font-size:14px; color:var(--navy-d); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.row-item .t2 { font-size:12px; color:var(--muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.dot { display:inline-block; width:9px; height:9px; border-radius:50%; background:#2E9E5B; margin-left:5px; }
+.chip { display:inline-block; font-size:11px; font-weight:bold; border-radius:10px; padding:3px 10px; flex:none; }
+.chip.on { background:#E3F6EA; color:#1B8F49; } .chip.off { background:#FDE8E8; color:#D13B3B; } .chip.warn { background:#FFF3D6; color:#B7791F; }
+.count-pill { background:#EEF2FA; color:var(--navy); border-radius:10px; font-size:12px; font-weight:bold; padding:3px 10px; flex:none; }
+.empty { text-align:center; color:var(--muted); font-size:13px; padding:18px 0; }
+
+/* ---- login ---- */
+#loginScreen { max-width:none; margin:0; padding:0; min-height:100vh; display:flex; align-items:center; justify-content:center; background:linear-gradient(160deg,#0A1F3D,#12408F); }
+.login-card { background:#fff; border-radius:20px; padding:28px 24px; width:100%; max-width:380px; margin:20px; text-align:center; box-shadow:0 12px 40px rgba(0,0,0,.25); }
+.login-card .brand-logo { margin:0 auto 12px; width:64px; height:64px; font-size:34px; background:#EEF2FA; }
+.login-card h1 { margin:0 0 4px; font-size:19px; color:var(--navy-d); }
+.login-card p.sub { margin:0 0 14px; color:var(--muted); font-size:13px; }
+
+/* ---- responsive ---- */
+@media (max-width: 960px) {
+  #sidebar { transform:translateX(100%); }
+  #sidebar.open { transform:translateX(0); box-shadow:-8px 0 30px rgba(0,0,0,.3); }
+  #sidebarOverlay.open { display:block; }
+  #main { margin-right:0; }
+  #menuBtn { display:block; }
+  .kpis { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .quick { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .grid2 { grid-template-columns:minmax(0,1fr); }
+  .user-chip span.nm { display:none; }
+  .content { padding:14px; }
+  .hero { padding:20px; } .hero h1 { font-size:20px; }
+}
+
 </style>
 </head>
 <body>
-
-<header>⚖️ لوحة تحكم - ÉTUDIANTS EN DROIT MAROC</header>
-
-<div id="loginScreen" class="container">
-  <p>سجل الدخول بحساب الأدمن (إيميل وكلمة السر) باش تقدر تزيد المحتوى</p>
-  <input type="email" id="loginEmail" placeholder="الإيميل" style="max-width:320px;margin:8px auto;display:block;">
-  <input type="password" id="loginPassword" placeholder="كلمة السر" style="max-width:320px;margin:8px auto;display:block;">
-  <button onclick="loginWithEmail()">تسجيل الدخول</button>
-  <p id="loginError" style="color:#c00;font-size:13px;"></p>
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="brand-logo">⚖️</div>
+    <h1>لوحة تحكم الأدمين</h1>
+    <p class="sub">ÉTUDIANTS EN DROIT MAROC</p>
+    <input type="email" id="loginEmail" placeholder="الإيميل">
+    <input type="password" id="loginPassword" placeholder="كلمة السر" onkeydown="if(event.key==='Enter')loginWithEmail()">
+    <button onclick="loginWithEmail()">تسجيل الدخول</button>
+    <p id="loginError" style="color:#c00;font-size:13px;"></p>
+  </div>
 </div>
 
-<div id="adminPanel" class="container hidden">
+<div id="adminPanel" class="hidden">
+  <div id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
+  <aside id="sidebar">
+    <div class="brand">
+      <div class="brand-logo">⚖️</div>
+      <div><div class="brand-title">طلبة القانون - المغرب</div><div class="brand-sub">ETUDIANTS EN DROIT - MAROC</div></div>
+    </div>
+    <nav>
+      <a class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')"><span class="ico">🏠</span><span>لوحة التحكم</span></a>
+      <a class="nav-item" data-page="content" onclick="showPage('content')"><span class="ico">📚</span><span>المواد والملفات</span></a>
+      <a class="nav-item" data-page="videos" onclick="showPage('videos')"><span class="ico">🎥</span><span>الفيديوهات</span></a>
+      <a class="nav-item" data-page="pages" onclick="showPage('pages')"><span class="ico">📄</span><span>الصفحات</span></a>
+      <a class="nav-item" data-page="home" onclick="showPage('home')"><span class="ico">🎛️</span><span>الصفحة الرئيسية</span></a>
+      <a class="nav-item" data-page="notify" onclick="showPage('notify')"><span class="ico">📢</span><span>الإشعارات والبانر</span></a>
+      <a class="nav-item" data-page="reports" onclick="showPage('reports')"><span class="ico">🚨</span><span>الإبلاغات</span><span class="nav-badge zero" id="navReportsBadge">0</span></a>
+    </nav>
+    <div class="side-status">آخر تحديث للأرقام<b id="dashUpdated">—</b></div>
+  </aside>
 
-  <div class="card">
-    <h2>🚨 الإبلاغات (Reports)</h2>
-    <div id="reportsList">جاري التحميل…</div>
-  </div>
+  <div id="main">
+    <div class="topbar">
+      <button id="menuBtn" class="shell-btn" onclick="toggleSidebar(true)" aria-label="القائمة">☰</button>
+      <div class="topbar-title" id="topbarTitle">لوحة التحكم</div>
+      <button class="bell" onclick="showPage('reports')" aria-label="الإبلاغات">🔔<span class="nav-badge zero" id="bellBadge">0</span></button>
+      <div class="user-chip"><div class="av">⚖️</div><span class="nm">مرحبا المدير</span></div>
+      <button id="logoutBtn" onclick="logoutAdmin()">خروج</button>
+    </div>
+    <div class="content">
+      <section class="page active" id="page-dashboard">
+      <div class="hero">
+        <div>
+          <h1>مرحبا بك فلوحة التحكم</h1>
+          <p>من هنا تقدر تدبر محتوى التطبيق بكل سهولة.</p>
+          <div class="bar"></div>
+        </div>
+        <div class="hero-ico">⚖️</div>
+      </div>
 
-  <div class="card">
-    <h2>🎛️ ترتيب الصفحة الرئيسية والإعلانات</h2>
-    <p style="font-size:12px;color:#666;line-height:1.7;">
-      كل سطر هو قسم ولا مكان إعلان (7 أماكن). فعّل ✔ باش يبان، ورتّب بالأسهم.
-      القسم المخفي كيتحيد والباقي كيتزحلق فبلاصتو. الإعلانات المتتالية كيبان غير الأول فيهم.
-    </p>
-    <div id="homeRows"></div>
-    <button style="margin-top:14px;" onclick="saveSectionsConfig()">حفظ</button>
-    <p id="cfgProgressText"></p>
-  </div>
+      <div class="kpis">
+        <div class="kpi"><div class="ico" style="background:#E8F7EE">👥</div><div class="lbl">عدد الطلاب</div><div class="val" id="kpiStudents">—</div><div class="sub flat" id="kpiStudentsSub"></div></div>
+        <div class="kpi"><div class="ico" style="background:#E8F0FD">📚</div><div class="lbl">المواد</div><div class="val" id="kpiSubjects">—</div><div class="sub flat" id="kpiSubjectsSub"></div></div>
+        <div class="kpi"><div class="ico" style="background:#F1E9FD">📝</div><div class="lbl">المنشورات</div><div class="val" id="kpiPosts">—</div><div class="sub" id="kpiPostsSub"></div></div>
+        <div class="kpi"><div class="ico" style="background:#FFF1DA">🧑‍🤝‍🧑</div><div class="lbl">المجموعات</div><div class="val" id="kpiGroups">—</div><div class="sub" id="kpiGroupsSub"></div></div>
+      </div>
 
-  <div class="card">
+      <div class="panel">
+        <div class="panel-head"><h3>⚡ إجراءات سريعة</h3></div>
+        <div class="quick">
+          <button class="qa g" onclick="goTo('content','card-addSubject')"><span class="qi">➕</span>إضافة مادة</button>
+          <button class="qa b" onclick="goTo('content','card-addPdf')"><span class="qi">📄</span>إضافة PDF</button>
+          <button class="qa p" onclick="goTo('videos','card-addVideo')"><span class="qi">🎥</span>إضافة فيديو</button>
+          <button class="qa o" onclick="goTo('pages','card-addPage')"><span class="qi">📑</span>إضافة صفحة</button>
+          <button class="qa r" onclick="goTo('notify','card-broadcast')"><span class="qi">📤</span>إرسال إشعار</button>
+          <button class="qa t" onclick="goTo('reports')"><span class="qi">🚨</span>الإبلاغات</button>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="panel">
+          <div class="panel-head"><h3>📚 المواد الحالية</h3><button class="link-btn" onclick="showPage('content')">عرض الكل ›</button></div>
+          <div id="dashSubjects"><div class="empty">جاري التحميل…</div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>🟢 آخر المتصلين</h3></div>
+          <div id="dashUsers"><div class="empty">جاري التحميل…</div></div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="panel">
+          <div class="panel-head"><h3>📝 آخر المنشورات</h3></div>
+          <div id="dashPosts"><div class="empty">جاري التحميل…</div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>🚨 آخر الإبلاغات</h3><button class="link-btn" onclick="showPage('reports')">عرض الكل ›</button></div>
+          <div id="dashReports"><div class="empty">جاري التحميل…</div></div>
+        </div>
+      </div>
+</section>
+      <section class="page" id="page-content">
+  <div class="card" id="card-chapters">
     <h2>📚 إدارة الفصول (ديناميكية)</h2>
     <select id="chapterSectionSelect">
       <option value="private">القانون الخاص</option>
@@ -82,53 +245,7 @@
     <div id="chaptersList" style="margin-top:10px;"></div>
   </div>
 
-  <div class="card">
-    <h2>🎥 فصول الفيديوهات (شجرة مستقلة تماما عن PDF)</h2>
-    <select id="videoChapterSectionSelect">
-      <option value="private">القانون الخاص</option>
-      <option value="public">القانون العام</option>
-    </select>
-    <input id="videoChapterName" placeholder="اسم الفصل (مثلا: الفصل 1)">
-    <input id="videoChapterOrder" type="number" placeholder="ترتيب العرض" value="1">
-    <button onclick="addVideoChapter()">إضافة فصل الفيديو</button>
-    <p id="videoChapterProgressText"></p>
-    <div id="videoChaptersList" style="margin-top:10px;"></div>
-  </div>
-
-  <div class="card">
-    <h2>🎥 مواد الفيديوهات (شجرة مستقلة تماما عن PDF)</h2>
-    <input id="videoSubjectName" placeholder="اسم مادة الفيديو (مثلا: مقدمة القانون المدني)">
-    <select id="videoSubjectSection" onchange="loadVideoChaptersIntoSelect()">
-      <option value="private">القانون الخاص</option>
-      <option value="public">القانون العام</option>
-    </select>
-    <select id="videoSubjectChapter"></select>
-    <input id="videoSubjectOrder" type="number" placeholder="ترتيب العرض" value="1">
-    <label style="font-size:12px;color:#666;">صورة/أيقونة مادة الفيديو (اختياري - نفس مقاس مادة PDF)</label>
-    <input id="videoSubjectIconInput" type="file" accept="image/*">
-    <img id="videoSubjectIconPreview" class="hidden" style="max-width:100px;border-radius:8px;margin-bottom:10px;" />
-    <button onclick="addVideoSubject()">حفظ مادة الفيديو</button>
-    <p id="videoSubjectProgressText"></p>
-    <div id="videoSubjectsList" style="margin-top:10px;"></div>
-  </div>
-
-  <div class="card">
-    <h2>📤 إرسال إشعار لجميع المستخدمين</h2>
-    <p style="font-size:12px;color:#666;margin-bottom:8px;">كيوصل كإشعار حتى للي التطبيق مسدود عندهم، والضغط عليه كيوديهم لصفحة احترافية بشاشة كاملة</p>
-    <select id="broadcastType">
-      <option value="promo">إعلان / عرض</option>
-      <option value="update">تحديث جديد</option>
-    </select>
-    <input id="broadcastTitle" placeholder="العنوان">
-    <textarea id="broadcastMessage" placeholder="النص" rows="3"></textarea>
-    <input id="broadcastImageInput" type="file" accept="image/*">
-    <img id="broadcastImagePreview" class="hidden" style="max-width:120px;border-radius:8px;margin-bottom:10px;" />
-    <input id="broadcastLink" placeholder="رابط (اختياري)">
-    <button onclick="sendBroadcast()">🚀 إرسال للجميع</button>
-    <p id="broadcastProgressText"></p>
-  </div>
-
-  <div class="card">
+  <div class="card" id="card-addSubject">
     <h2>🏷️ زيادة مادة</h2>
     <input id="subjectName" placeholder="اسم المادة (مثلا: القانون المدني)">
     <select id="subjectSection" onchange="toggleSemesterField()">
@@ -150,40 +267,7 @@
     <p id="subjectProgressText"></p>
   </div>
 
-  <div class="card">
-    <h2>🎥 إضافة فيديو (يوتيوب)</h2>
-    <select id="videoSubjectSelect"></select>
-    <input id="videoTitle" placeholder="عنوان الفيديو">
-    <textarea id="videoDescription" placeholder="وصف الفيديو" rows="2"></textarea>
-    <input id="videoYoutubeUrl" placeholder="الصق رابط يوتيوب هنا (watch?v=... أو youtu.be/... أو youtube.com/live/... للبث المباشر)">
-    <label style="display:flex;align-items:center;gap:8px;font-size:13px;">
-      <input type="checkbox" id="videoActive" checked style="width:auto;margin:0;"> نشط (يبان فالتطبيق)
-    </label>
-    <button onclick="addVideo()">حفظ الفيديو</button>
-    <p id="videoProgressText"></p>
-    <div id="videosList" style="margin-top:10px;"></div>
-  </div>
-  <div class="card">
-    <h2>📢 بانر إعلان شاشة كاملة (يبان ملي يحل المستخدم التطبيق)</h2>
-    <select id="annType">
-      <option value="promo">إعلان / عرض</option>
-      <option value="update">تحديث جديد متوفر</option>
-    </select>
-    <input id="annTitle" placeholder="العنوان">
-    <textarea id="annMessage" placeholder="النص" rows="3"></textarea>
-    <input id="annImageInput" type="file" accept="image/*">
-    <img id="annImagePreview" class="hidden" style="max-width:120px;border-radius:8px;margin-bottom:10px;" />
-    <input id="annLink" placeholder="رابط (اختياري) - يفتح ملي يضغط المستخدم على البانر">
-    <label style="font-size:12px;color:#666;">كل شحال من دقيقة يتكرر البانر (0 = مرة وحدة بس)</label>
-    <input id="annInterval" type="number" placeholder="مثلا: 15" value="0" min="0">
-    <label style="display:flex;align-items:center;gap:8px;font-size:13px;">
-      <input type="checkbox" id="annActive" style="width:auto;margin:0;"> نشط (يبان للمستخدمين)
-    </label>
-    <button onclick="saveAnnouncement()">حفظ ونشر</button>
-    <p id="annProgressText"></p>
-  </div>
-
-  <div class="card">
+  <div class="card" id="card-addPdf">
     <h2>📄 زيادة PDF لمادة</h2>
     <p style="font-size:12px;color:#666;">
       1. ارفع ملف الـ PDF لـ GitHub (فأي repo، مثلا فولدر <code>pdfs/</code>)<br>
@@ -201,7 +285,58 @@
     <p id="progressText"></p>
   </div>
 
-  <div class="card">
+  <div class="card" id="card-contentList">
+    <h2>📚 المحتوى الحالي</h2>
+    <div id="contentList">جاري التحميل…</div>
+  </div>
+
+</section>
+      <section class="page" id="page-videos">
+  <div class="card" id="card-videoChapters">
+    <h2>🎥 فصول الفيديوهات (شجرة مستقلة تماما عن PDF)</h2>
+    <select id="videoChapterSectionSelect">
+      <option value="private">القانون الخاص</option>
+      <option value="public">القانون العام</option>
+    </select>
+    <input id="videoChapterName" placeholder="اسم الفصل (مثلا: الفصل 1)">
+    <input id="videoChapterOrder" type="number" placeholder="ترتيب العرض" value="1">
+    <button onclick="addVideoChapter()">إضافة فصل الفيديو</button>
+    <p id="videoChapterProgressText"></p>
+    <div id="videoChaptersList" style="margin-top:10px;"></div>
+  </div>
+
+  <div class="card" id="card-videoSubjects">
+    <h2>🎥 مواد الفيديوهات (شجرة مستقلة تماما عن PDF)</h2>
+    <input id="videoSubjectName" placeholder="اسم مادة الفيديو (مثلا: مقدمة القانون المدني)">
+    <select id="videoSubjectSection" onchange="loadVideoChaptersIntoSelect()">
+      <option value="private">القانون الخاص</option>
+      <option value="public">القانون العام</option>
+    </select>
+    <select id="videoSubjectChapter"></select>
+    <input id="videoSubjectOrder" type="number" placeholder="ترتيب العرض" value="1">
+    <label style="font-size:12px;color:#666;">صورة/أيقونة مادة الفيديو (اختياري - نفس مقاس مادة PDF)</label>
+    <input id="videoSubjectIconInput" type="file" accept="image/*">
+    <img id="videoSubjectIconPreview" class="hidden" style="max-width:100px;border-radius:8px;margin-bottom:10px;" />
+    <button onclick="addVideoSubject()">حفظ مادة الفيديو</button>
+    <p id="videoSubjectProgressText"></p>
+    <div id="videoSubjectsList" style="margin-top:10px;"></div>
+  </div>
+
+  <div class="card" id="card-addVideo">
+    <h2>🎥 إضافة فيديو (يوتيوب)</h2>
+    <select id="videoSubjectSelect"></select>
+    <input id="videoTitle" placeholder="عنوان الفيديو">
+    <textarea id="videoDescription" placeholder="وصف الفيديو" rows="2"></textarea>
+    <input id="videoYoutubeUrl" placeholder="الصق رابط يوتيوب هنا (watch?v=... أو youtu.be/... أو youtube.com/live/... للبث المباشر)">
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;">
+      <input type="checkbox" id="videoActive" checked style="width:auto;margin:0;"> نشط (يبان فالتطبيق)
+    </label>
+    <button onclick="addVideo()">حفظ الفيديو</button>
+    <p id="videoProgressText"></p>
+    <div id="videosList" style="margin-top:10px;"></div>
+  </div></section>
+      <section class="page" id="page-pages">
+  <div class="card" id="card-addPage">
     <h2>📄 زيادة صفحة (من نحن، الخصوصية، روابط...)</h2>
     <input id="pageTitle" placeholder="عنوان الصفحة (مثلا: من نحن)">
     <select id="pageType">
@@ -220,16 +355,68 @@
     <p id="pageProgressText"></p>
   </div>
 
-  <div class="card">
+  <div class="card" id="card-pagesList">
     <h2>📑 الصفحات الحالية</h2>
     <div id="pagesList">جاري التحميل…</div>
   </div>
-
+</section>
+      <section class="page" id="page-home">
   <div class="card">
-    <h2>📚 المحتوى الحالي</h2>
-    <div id="contentList">جاري التحميل…</div>
+    <h2>🎛️ ترتيب الصفحة الرئيسية والإعلانات</h2>
+    <p style="font-size:12px;color:#666;line-height:1.7;">
+      كل سطر هو قسم ولا مكان إعلان (7 أماكن). فعّل ✔ باش يبان، ورتّب بالأسهم.
+      القسم المخفي كيتحيد والباقي كيتزحلق فبلاصتو. الإعلانات المتتالية كيبان غير الأول فيهم.
+    </p>
+    <div id="homeRows"></div>
+    <button style="margin-top:14px;" onclick="saveSectionsConfig()">حفظ</button>
+    <p id="cfgProgressText"></p>
+  </div>
+</section>
+      <section class="page" id="page-notify">
+  <div class="card" id="card-broadcast">
+    <h2>📤 إرسال إشعار لجميع المستخدمين</h2>
+    <p style="font-size:12px;color:#666;margin-bottom:8px;">كيوصل كإشعار حتى للي التطبيق مسدود عندهم، والضغط عليه كيوديهم لصفحة احترافية بشاشة كاملة</p>
+    <select id="broadcastType">
+      <option value="promo">إعلان / عرض</option>
+      <option value="update">تحديث جديد</option>
+    </select>
+    <input id="broadcastTitle" placeholder="العنوان">
+    <textarea id="broadcastMessage" placeholder="النص" rows="3"></textarea>
+    <input id="broadcastImageInput" type="file" accept="image/*">
+    <img id="broadcastImagePreview" class="hidden" style="max-width:120px;border-radius:8px;margin-bottom:10px;" />
+    <input id="broadcastLink" placeholder="رابط (اختياري)">
+    <button onclick="sendBroadcast()">🚀 إرسال للجميع</button>
+    <p id="broadcastProgressText"></p>
   </div>
 
+  <div class="card" id="card-announcement">
+    <h2>📢 بانر إعلان شاشة كاملة (يبان ملي يحل المستخدم التطبيق)</h2>
+    <select id="annType">
+      <option value="promo">إعلان / عرض</option>
+      <option value="update">تحديث جديد متوفر</option>
+    </select>
+    <input id="annTitle" placeholder="العنوان">
+    <textarea id="annMessage" placeholder="النص" rows="3"></textarea>
+    <input id="annImageInput" type="file" accept="image/*">
+    <img id="annImagePreview" class="hidden" style="max-width:120px;border-radius:8px;margin-bottom:10px;" />
+    <input id="annLink" placeholder="رابط (اختياري) - يفتح ملي يضغط المستخدم على البانر">
+    <label style="font-size:12px;color:#666;">كل شحال من دقيقة يتكرر البانر (0 = مرة وحدة بس)</label>
+    <input id="annInterval" type="number" placeholder="مثلا: 15" value="0" min="0">
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;">
+      <input type="checkbox" id="annActive" style="width:auto;margin:0;"> نشط (يبان للمستخدمين)
+    </label>
+    <button onclick="saveAnnouncement()">حفظ ونشر</button>
+    <p id="annProgressText"></p>
+  </div>
+</section>
+      <section class="page" id="page-reports">
+  <div class="card">
+    <h2>🚨 الإبلاغات (Reports)</h2>
+    <div id="reportsList">جاري التحميل…</div>
+  </div>
+</section>
+    </div>
+  </div>
 </div>
 
 <div id="editModalOverlay" class="hidden">
@@ -393,9 +580,14 @@ auth.onAuthStateChanged(user => {
     loadVideoSubjectsIntoVideoSelect();
     loadReportsList();
     toggleSemesterField();
+    initShell();
+    loadDashboard();
   } else if (user) {
     alert("هاد الحساب ماشي أدمن");
     auth.signOut();
+  } else {
+    document.getElementById("adminPanel").classList.add("hidden");
+    document.getElementById("loginScreen").classList.remove("hidden");
   }
 });
 
@@ -1394,6 +1586,250 @@ async function deleteReport(reportId) {
   await db.collection("reports").doc(reportId).delete();
   loadReportsList();
 }
+
+/* ======================= Shell: التنقل + لوحة التحكم (أرقام حقيقية من Firestore فقط) ======================= */
+
+const _PAGE_TITLES = {
+  dashboard: "لوحة التحكم", content: "المواد والملفات", videos: "الفيديوهات",
+  pages: "الصفحات", home: "الصفحة الرئيسية", notify: "الإشعارات والبانر", reports: "الإبلاغات"
+};
+
+function toggleSidebar(open) {
+  document.getElementById("sidebar").classList.toggle("open", open);
+  document.getElementById("sidebarOverlay").classList.toggle("open", open);
+}
+
+function showPage(name, anchorId) {
+  if (!_PAGE_TITLES[name]) name = "dashboard";
+  document.querySelectorAll(".page").forEach(p => p.classList.toggle("active", p.id === "page-" + name));
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.toggle("active", n.dataset.page === name));
+  document.getElementById("topbarTitle").textContent = _PAGE_TITLES[name];
+  toggleSidebar(false);
+  try { history.replaceState(null, "", "#" + name); } catch (e) {}
+  const anchor = anchorId && document.getElementById(anchorId);
+  if (anchor) {
+    anchor.scrollIntoView({ behavior: "smooth", block: "start" });
+    anchor.classList.add("flash");
+    setTimeout(() => anchor.classList.remove("flash"), 1500);
+  } else {
+    window.scrollTo({ top: 0 });
+  }
+  if (name === "dashboard" || name === "reports") refreshReportBadge();
+}
+
+function goTo(page, anchorId) { showPage(page, anchorId); }
+
+function initShell() {
+  const fromHash = (location.hash || "").replace("#", "");
+  showPage(_PAGE_TITLES[fromHash] ? fromHash : "dashboard");
+  if (!window._reportsTimer) window._reportsTimer = setInterval(refreshReportBadge, 60000);
+}
+
+function logoutAdmin() { auth.signOut(); }
+
+/* ---------- أدوات صغيرة (بلا innerHTML لأي بيانات جاية من المستخدمين) ---------- */
+
+function _el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text !== undefined && text !== null) e.textContent = text;
+  return e;
+}
+
+function _httpsUrl(u) { return typeof u === "string" && u.startsWith("https://") ? u : ""; }
+
+function _relTime(ts) {
+  const m = Math.floor((Date.now() - ts) / 60000);
+  if (!(m >= 0)) return "الآن";
+  if (m < 1) return "الآن";
+  if (m < 60) return "منذ " + m + " د";
+  const h = Math.floor(m / 60);
+  if (h < 24) return "منذ " + h + " س";
+  const d = Math.floor(h / 24);
+  return d === 1 ? "أمس" : "منذ " + d + " أيام";
+}
+
+async function _countOf(q) {
+  try {
+    if (typeof q.count === "function") {
+      const s = await q.count().get();
+      return s.data().count;
+    }
+  } catch (e) { /* نرجعو للطريقة العادية */ }
+  const snap = await q.get();
+  return snap.size;
+}
+
+const _sectionLabels = { private: "القانون الخاص", public: "القانون العام", master: "ماستر", phd: "دكتوراه", general: "مواضيع عامة" };
+const _targetLabels = { post: "منشور", comment: "تعليق", message: "رسالة", user: "مستخدم" };
+
+function _setText(id, text) { const e = document.getElementById(id); if (e) e.textContent = text; }
+
+function _fillList(id, nodes, emptyText) {
+  const box = document.getElementById(id);
+  if (!box) return;
+  box.innerHTML = "";
+  if (!nodes || nodes.length === 0) { box.appendChild(_el("div", "empty", emptyText)); return; }
+  nodes.forEach(n => box.appendChild(n));
+}
+
+function _avatar(url, fallback, cls) {
+  const wrap = _el("div", cls || "av");
+  const safe = _httpsUrl(url);
+  if (safe) {
+    const img = document.createElement("img");
+    img.src = safe;
+    img.alt = "";
+    img.onerror = () => { wrap.textContent = fallback; };
+    wrap.appendChild(img);
+  } else {
+    wrap.textContent = fallback;
+  }
+  return wrap;
+}
+
+function _growthText(snap, now) {
+  if (!snap) return { text: "", flat: true };
+  const WEEK = 7 * 24 * 3600 * 1000;
+  let thisWeek = 0, prevWeek = 0;
+  snap.forEach(doc => {
+    const t = doc.data().createdAt || 0;
+    if (t >= now - WEEK) thisWeek++;
+    else if (t >= now - 2 * WEEK) prevWeek++;
+  });
+  if (thisWeek === 0) return { text: "ماكاين جديد هاد الأسبوع", flat: true };
+  let text = "↑ " + thisWeek + " جديد هاد الأسبوع";
+  if (prevWeek > 0) {
+    const pct = Math.round(((thisWeek - prevWeek) / prevWeek) * 100);
+    text += " (" + (pct >= 0 ? "+" : "") + pct + "%)";
+  }
+  return { text, flat: false };
+}
+
+function _setReportsBadge(n) {
+  ["navReportsBadge", "bellBadge"].forEach(id => {
+    const e = document.getElementById(id);
+    if (!e) return;
+    e.textContent = n;
+    e.classList.toggle("zero", !(n > 0));
+  });
+}
+
+async function refreshReportBadge() {
+  try {
+    const n = await _countOf(db.collection("reports").where("status", "==", "pending"));
+    _setReportsBadge(n);
+  } catch (e) { console.warn("reports badge", e); }
+}
+
+/* ---------- لوحة التحكم ---------- */
+
+async function loadDashboard() {
+  const now = Date.now();
+  const WEEK = 7 * 24 * 3600 * 1000;
+  const safe = async (fn) => { try { return await fn(); } catch (e) { console.warn("dashboard:", e); return null; } };
+
+  const [students, activeNow, subjectsSnap, postsTotal, postsRecent, groupsTotal, groupsRecent,
+         pendingReports, reportsSnap, usersSnap, postsLatest] = await Promise.all([
+    safe(() => _countOf(db.collection("users"))),
+    safe(() => _countOf(db.collection("users").where("lastSeen", ">", now - 120000))),
+    safe(() => db.collection("subjects").orderBy("orderIndex").get()),
+    safe(() => _countOf(db.collection("posts"))),
+    safe(() => db.collection("posts").where("createdAt", ">=", now - 2 * WEEK).get()),
+    safe(() => _countOf(db.collection("forum_groups"))),
+    safe(() => db.collection("forum_groups").where("createdAt", ">=", now - 2 * WEEK).get()),
+    safe(() => _countOf(db.collection("reports").where("status", "==", "pending"))),
+    safe(() => db.collection("reports").orderBy("createdAt", "desc").limit(5).get()),
+    safe(() => db.collection("users").orderBy("lastSeen", "desc").limit(5).get()),
+    safe(() => db.collection("posts").orderBy("createdAt", "desc").limit(5).get())
+  ]);
+
+  // ----- الأرقام -----
+  _setText("kpiStudents", students === null ? "—" : String(students));
+  _setText("kpiStudentsSub", activeNow === null ? "" : "نشطين دابا: " + activeNow);
+  _setText("kpiPosts", postsTotal === null ? "—" : String(postsTotal));
+  _setText("kpiGroups", groupsTotal === null ? "—" : String(groupsTotal));
+  [["kpiPostsSub", postsRecent], ["kpiGroupsSub", groupsRecent]].forEach(([id, snap]) => {
+    const g = _growthText(snap, now);
+    const e = document.getElementById(id);
+    e.textContent = g.text;
+    e.classList.toggle("flat", g.flat);
+  });
+  if (pendingReports !== null) _setReportsBadge(pendingReports);
+
+  // ----- المواد + عدد الملفات (من subjects/{id}/pdfs) -----
+  const subjects = subjectsSnap ? subjectsSnap.docs.map(d => ({ id: d.id, ...d.data() })) : [];
+  _setText("kpiSubjects", subjectsSnap ? String(subjects.length) : "—");
+  const pdfCounts = {};
+  await Promise.all(subjects.map(async s => {
+    const n = await safe(() => _countOf(db.collection("subjects").doc(s.id).collection("pdfs")));
+    pdfCounts[s.id] = n === null ? 0 : n;
+  }));
+  const totalPdfs = Object.values(pdfCounts).reduce((a, b) => a + b, 0);
+  _setText("kpiSubjectsSub", subjectsSnap ? totalPdfs + " ملف PDF" : "");
+
+  _fillList("dashSubjects", subjects.slice(0, 5).map(s => {
+    const row = _el("div", "row-item");
+    row.appendChild(_avatar(s.iconUrl, "📘", "thumb"));
+    const meta = _el("div", "meta");
+    meta.appendChild(_el("div", "t1", s.name || "—"));
+    const label = _sectionLabels[s.section || s.category] || (s.section || s.category || "");
+    meta.appendChild(_el("div", "t2", label + " • " + (pdfCounts[s.id] || 0) + " ملف"));
+    row.appendChild(meta);
+    const active = s.active !== false;
+    row.appendChild(_el("span", "chip " + (active ? "on" : "off"), active ? "مفعلة" : "معطلة"));
+    return row;
+  }), "ماكاين حتى مادة");
+
+  // ----- آخر المتصلين (lastSeen) -----
+  _fillList("dashUsers", usersSnap ? usersSnap.docs.map(d => {
+    const u = d.data();
+    const online = (u.lastSeen || 0) > now - 120000;
+    const row = _el("div", "row-item");
+    row.appendChild(_avatar(u.photoUrl, "👤", "av"));
+    const meta = _el("div", "meta");
+    meta.appendChild(_el("div", "t1", u.name || "—"));
+    const sub = [u.university, u.level].filter(Boolean).join(" · ");
+    meta.appendChild(_el("div", "t2", sub || "—"));
+    row.appendChild(meta);
+    row.appendChild(_el("span", "chip " + (online ? "on" : "warn"), online ? "متصل" : _relTime(u.lastSeen || 0)));
+    return row;
+  }) : [], "ماكاين حتى مستخدم");
+
+  // ----- آخر المنشورات -----
+  _fillList("dashPosts", postsLatest ? postsLatest.docs.map(d => {
+    const p = d.data();
+    const row = _el("div", "row-item");
+    if (_httpsUrl(p.imageUrl)) row.appendChild(_avatar(p.imageUrl, "📝", "thumb"));
+    else row.appendChild(_avatar(p.authorPhotoUrl, "📝", "thumb"));
+    const meta = _el("div", "meta");
+    const content = (p.content || "").trim();
+    meta.appendChild(_el("div", "t1", content ? content.slice(0, 70) : "📷 صورة"));
+    meta.appendChild(_el("div", "t2", (p.authorName || "—") + " · " + _relTime(p.createdAt || 0)));
+    row.appendChild(meta);
+    row.appendChild(_el("span", "count-pill", "👍 " + (p.likesCount || 0) + "  💬 " + (p.commentsCount || 0)));
+    return row;
+  }) : [], "ماكاين حتى منشور");
+
+  // ----- آخر الإبلاغات -----
+  _fillList("dashReports", reportsSnap ? reportsSnap.docs.map(d => {
+    const r = d.data();
+    const row = _el("div", "row-item");
+    row.style.cursor = "pointer";
+    row.onclick = () => showPage("reports");
+    row.appendChild(_el("div", "thumb", "🚨"));
+    const meta = _el("div", "meta");
+    meta.appendChild(_el("div", "t1", (_targetLabels[r.targetType] || r.targetType || "") + ": " + (r.reason || "—")));
+    meta.appendChild(_el("div", "t2", (r.reporterName || "—") + " · " + _relTime(r.createdAt || 0)));
+    row.appendChild(meta);
+    const pending = (r.status || "pending") === "pending";
+    row.appendChild(_el("span", "chip " + (pending ? "warn" : "on"), pending ? "قيد المراجعة" : "تمت المراجعة"));
+    return row;
+  }) : [], "ماكاين حتى إبلاغ 👌");
+
+  _setText("dashUpdated", new Date().toLocaleTimeString("ar-MA", { hour: "2-digit", minute: "2-digit" }));
+}
+
 </script>
 
 </body>
