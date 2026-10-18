@@ -248,14 +248,13 @@ class ForumFragment : Fragment() {
 
     private fun loadPosts() {
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
+            com.etudiantsdroitmaroc.app.utils.cacheThenServer(onError = { e ->
+                android.widget.Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), android.widget.Toast.LENGTH_LONG).show()
+            }) {
                 blockedUids = chatRepository.getBlockedUids()
                 allPosts = repository.getPosts().filter { it.authorUid !in blockedUids }
                 postsLoaded = true
                 applyFilters()
-            } catch (e: Exception) {
-            if (e is kotlinx.coroutines.CancellationException) throw e
-                Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -381,13 +380,12 @@ class ForumFragment : Fragment() {
 
     private fun loadGroups() {
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
+            com.etudiantsdroitmaroc.app.utils.cacheThenServer(onError = { e ->
+                android.widget.Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), android.widget.Toast.LENGTH_SHORT).show()
+            }) {
                 allGroups = groupRepository.getGroups()
                 groupsLoaded = true
                 applyFilters()
-            } catch (e: Exception) {
-            if (e is kotlinx.coroutines.CancellationException) throw e
-                Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }

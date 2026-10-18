@@ -75,13 +75,12 @@ class ChatListFragment : Fragment() {
 
     private fun loadData() {
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
+            com.etudiantsdroitmaroc.app.utils.cacheThenServer(onError = { e ->
+                android.widget.Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), android.widget.Toast.LENGTH_LONG).show()
+            }) {
                 onlineAdapter.updateData(repository.getOnlineUsers())
                 allThreads = repository.getMyThreads()
                 filterThreads(binding.etSearch.text?.toString().orEmpty())
-            } catch (e: Exception) {
-            if (e is kotlinx.coroutines.CancellationException) throw e
-                android.widget.Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), android.widget.Toast.LENGTH_LONG).show()
             }
         }
     }

@@ -7,6 +7,7 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.ktx.Firebase
+import com.etudiantsdroitmaroc.app.utils.getFast
 import kotlinx.coroutines.tasks.await
 
 class ForumRepository {
@@ -18,8 +19,7 @@ class ForumRepository {
         val snapshot = firestore.collection("posts")
             .orderBy("createdAt", Query.Direction.DESCENDING)
             .limit(50)
-            .get()
-            .await()
+            .getFast()
         return snapshot.toObjects()
     }
 
@@ -47,15 +47,14 @@ class ForumRepository {
     suspend fun getFriendUids(): Set<String> {
         val uid = auth.currentUser?.uid ?: return emptySet()
         val snapshot = firestore.collection("users").document(uid)
-            .collection("friends").get().await()
+            .collection("friends").getFast()
         return snapshot.documents.map { it.id }.toSet()
     }
 
     suspend fun getPostsByUser(uid: String): List<Post> {
         val snapshot = firestore.collection("posts")
             .whereEqualTo("authorUid", uid)
-            .get()
-            .await()
+            .getFast()
         return snapshot.toObjects<Post>().sortedByDescending { it.createdAt }
     }
 
@@ -85,7 +84,7 @@ class ForumRepository {
             .collection("likes").document(user.uid)
         val postRef = firestore.collection("posts").document(postId)
 
-        val existing = likeRef.get().await()
+        val existing = likeRef.getFast()
         return if (existing.exists()) {
             likeRef.delete().await()
             postRef.update("likesCount", com.google.firebase.firestore.FieldValue.increment(-1)).await()
@@ -100,15 +99,14 @@ class ForumRepository {
     suspend fun isLikedByMe(postId: String): Boolean {
         val user = auth.currentUser ?: return false
         val doc = firestore.collection("posts").document(postId)
-            .collection("likes").document(user.uid).get().await()
+            .collection("likes").document(user.uid).getFast()
         return doc.exists()
     }
     suspend fun getComments(postId: String): List<Comment> {
         val snapshot = firestore.collection("posts").document(postId)
             .collection("comments")
             .orderBy("createdAt", Query.Direction.ASCENDING)
-            .get()
-            .await()
+            .getFast()
         return snapshot.toObjects()
     }
 

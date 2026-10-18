@@ -11,6 +11,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.ktx.Firebase
+import com.etudiantsdroitmaroc.app.utils.getFast
 import kotlinx.coroutines.tasks.await
 
 class ChatRepository {
@@ -25,8 +26,7 @@ class ChatRepository {
         val snapshot = firestore.collection("chat_threads")
             .whereArrayContains("participantUids", myUid)
             .orderBy("lastMessageAt", Query.Direction.DESCENDING)
-            .get()
-            .await()
+            .getFast()
         return snapshot.toObjects<ChatThread>().filter { thread ->
             val otherUid = thread.participantUids.firstOrNull { it != myUid }
             otherUid == null || !blocked.contains(otherUid)
@@ -34,13 +34,13 @@ class ChatRepository {
     }
 
     suspend fun getUserProfile(uid: String): UserProfile? {
-        val doc = firestore.collection("users").document(uid).get().await()
+        val doc = firestore.collection("users").document(uid).getFast()
         return doc.toObject<UserProfile>()
     }
 
     suspend fun isFriend(otherUid: String): Boolean {
         val doc = firestore.collection("users").document(myUid)
-            .collection("friends").document(otherUid).get().await()
+            .collection("friends").document(otherUid).getFast()
         return doc.exists()
     }
 
@@ -71,7 +71,7 @@ class ChatRepository {
             .set(request).await()
 
         try {
-            val otherDoc = firestore.collection("users").document(otherUid).get().await()
+            val otherDoc = firestore.collection("users").document(otherUid).getFast()
             val fcmToken = otherDoc.getString("fcmToken")
             if (!fcmToken.isNullOrBlank()) {
                 PushNotifier.sendNotification(fcmToken, request.fromName, "بعث ليك طلب صداقة 👋")
@@ -82,14 +82,14 @@ class ChatRepository {
     /** واش كاين طلب صداقة معلق مني للشخص هادا */
     suspend fun hasPendingRequestTo(otherUid: String): Boolean {
         val doc = firestore.collection("users").document(otherUid)
-            .collection("incoming_requests").document(myUid).get().await()
+            .collection("incoming_requests").document(myUid).getFast()
         return doc.exists()
     }
 
     suspend fun getIncomingRequests(): List<FriendRequest> {
         val snapshot = firestore.collection("users").document(myUid)
             .collection("incoming_requests")
-            .get().await()
+            .getFast()
         return snapshot.toObjects()
     }
 
@@ -113,7 +113,7 @@ class ChatRepository {
     suspend fun getIncomingRequestsCount(): Int {
         return try {
             firestore.collection("users").document(myUid)
-                .collection("incoming_requests").get().await().size()
+                .collection("incoming_requests").getFast().size()
         } catch (e: Exception) {
             if (e is kotlinx.coroutines.CancellationException) throw e
             0
@@ -129,13 +129,13 @@ class ChatRepository {
 
     suspend fun getAllUsers(): List<UserProfile> {
         val blocked = getBlockedUids()
-        val snapshot = firestore.collection("users").get().await()
+        val snapshot = firestore.collection("users").getFast()
         return snapshot.toObjects<UserProfile>().filter { it.uid != myUid && !blocked.contains(it.uid) }
     }
 
     suspend fun getMyFriendsUids(): Set<String> {
         val snapshot = firestore.collection("users").document(myUid)
-            .collection("friends").get().await()
+            .collection("friends").getFast()
         return snapshot.documents.map { it.id }.toSet()
     }
 
@@ -144,7 +144,7 @@ class ChatRepository {
         if (friendUids.isEmpty()) return emptyList()
         return friendUids.mapNotNull { uid ->
             try {
-                firestore.collection("users").document(uid).get().await()
+                firestore.collection("users").document(uid).getFast()
                     .toObject(UserProfile::class.java)
             } catch (e: Exception) {
             if (e is kotlinx.coroutines.CancellationException) throw e
@@ -166,7 +166,7 @@ class ChatRepository {
 
     suspend fun getBlockedUids(): Set<String> {
         val snapshot = firestore.collection("users").document(myUid)
-            .collection("blocked").get().await()
+            .collection("blocked").getFast()
         return snapshot.documents.map { it.id }.toSet()
     }
 
@@ -184,7 +184,7 @@ class ChatRepository {
     suspend fun getOrCreateThread(otherUid: String, otherName: String): String {
         val threadId = listOf(myUid, otherUid).sorted().joinToString("_")
         val docRef = firestore.collection("chat_threads").document(threadId)
-        val existing = docRef.get().await()
+        val existing = docRef.getFast()
 
         if (!existing.exists()) {
             val myName = auth.currentUser?.displayName ?: ""
@@ -200,11 +200,11 @@ class ChatRepository {
 
     private suspend fun notifyOtherParticipant(threadId: String, previewText: String) {
         try {
-            val threadDoc = firestore.collection("chat_threads").document(threadId).get().await()
+            val threadDoc = firestore.collection("chat_threads").document(threadId).getFast()
             val thread = threadDoc.toObject<ChatThread>() ?: return
             val otherUid = thread.participantUids.firstOrNull { it != myUid } ?: return
 
-            val otherUserDoc = firestore.collection("users").document(otherUid).get().await()
+            val otherUserDoc = firestore.collection("users").document(otherUid).getFast()
             val fcmToken = otherUserDoc.getString("fcmToken") ?: return
 
             val myName = auth.currentUser?.displayName ?: "رسالة جديدة"
@@ -268,7 +268,7 @@ class ChatRepository {
     }
 
     private suspend fun getOtherParticipantUid(threadId: String): String? {
-        val doc = firestore.collection("chat_threads").document(threadId).get().await()
+        val doc = firestore.collection("chat_threads").document(threadId).getFast()
         val thread = doc.toObject<ChatThread>() ?: return null
         return thread.participantUids.firstOrNull { it != myUid }
     }
@@ -285,7 +285,7 @@ class ChatRepository {
         return try {
             val snapshot = firestore.collection("chat_threads")
                 .whereArrayContains("participantUids", myUid)
-                .get().await()
+                .getFast()
             snapshot.toObjects<ChatThread>().sumOf { (it.unreadCounts[myUid] ?: 0L).toInt() }
         } catch (e: Exception) {
             if (e is kotlinx.coroutines.CancellationException) throw e
@@ -297,8 +297,7 @@ class ChatRepository {
         val snapshot = firestore.collection("chat_threads").document(threadId)
             .collection("messages")
             .orderBy("sentAt", Query.Direction.ASCENDING)
-            .get()
-            .await()
+            .getFast()
         return snapshot.toObjects()
     }
 
@@ -309,8 +308,7 @@ class ChatRepository {
         val blocked = getBlockedUids()
         val snapshot = firestore.collection("users")
             .whereEqualTo("isOnline", true)
-            .get()
-            .await()
+            .getFast()
         return snapshot.toObjects<UserProfile>()
             .filter { it.uid != myUid && it.lastSeen >= recentThreshold && !blocked.contains(it.uid) }
     }

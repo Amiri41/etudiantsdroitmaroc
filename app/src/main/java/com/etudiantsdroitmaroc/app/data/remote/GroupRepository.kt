@@ -9,6 +9,7 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.ktx.Firebase
+import com.etudiantsdroitmaroc.app.utils.getFast
 import kotlinx.coroutines.tasks.await
 
 class GroupRepository {
@@ -35,7 +36,7 @@ class GroupRepository {
     suspend fun getGroups(): List<ForumGroup> {
         val snapshot = firestore.collection("forum_groups")
             .orderBy("createdAt", Query.Direction.DESCENDING)
-            .get().await()
+            .getFast()
         return snapshot.toObjects()
     }
 
@@ -57,7 +58,7 @@ class GroupRepository {
         val snapshot = firestore.collection("forum_groups").document(groupId)
             .collection("messages")
             .orderBy("sentAt", Query.Direction.ASCENDING)
-            .get().await()
+            .getFast()
         return snapshot.toObjects()
     }
 
@@ -99,7 +100,7 @@ class GroupRepository {
     fun isGroupAdmin(group: ForumGroup): Boolean = group.creatorUid == myUid
 
     suspend fun getGroup(groupId: String): ForumGroup? {
-        return firestore.collection("forum_groups").document(groupId).get().await()
+        return firestore.collection("forum_groups").document(groupId).getFast()
             .toObject(ForumGroup::class.java)
     }
 
@@ -107,7 +108,7 @@ class GroupRepository {
         val group = getGroup(groupId) ?: return emptyList()
         return group.memberUids.mapNotNull { uid ->
             try {
-                firestore.collection("users").document(uid).get().await()
+                firestore.collection("users").document(uid).getFast()
                     .toObject(UserProfile::class.java)
             } catch (e: Exception) {
             if (e is kotlinx.coroutines.CancellationException) throw e
@@ -136,7 +137,7 @@ class GroupRepository {
     /** حذف المجموعة كاملة (الأدمين فقط) - كيمسح الرسائل والمجموعة نفسها */
     suspend fun deleteGroup(groupId: String) {
         val messages = firestore.collection("forum_groups").document(groupId)
-            .collection("messages").get().await()
+            .collection("messages").getFast()
         val batch = firestore.batch()
         messages.documents.forEach { batch.delete(it.reference) }
         batch.delete(firestore.collection("forum_groups").document(groupId))

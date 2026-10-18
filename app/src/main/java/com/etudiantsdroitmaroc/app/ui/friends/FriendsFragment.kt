@@ -92,7 +92,9 @@ class FriendsFragment : Fragment() {
 
     private fun loadSuggestions() {
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
+            com.etudiantsdroitmaroc.app.utils.cacheThenServer(onError = { e ->
+                android.widget.Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), android.widget.Toast.LENGTH_SHORT).show()
+            }) {
                 val allUsers = repository.getAllUsers()
                 val friendUids = repository.getMyFriendsUids()
 
@@ -113,21 +115,17 @@ class FriendsFragment : Fragment() {
                 }
 
                 showPeople(finalItems, PersonMode.SUGGESTION)
-            } catch (e: Exception) {
-            if (e is kotlinx.coroutines.CancellationException) throw e
-                Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }
 
     private fun loadFriends() {
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
+            com.etudiantsdroitmaroc.app.utils.cacheThenServer(onError = { e ->
+                android.widget.Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), android.widget.Toast.LENGTH_SHORT).show()
+            }) {
                 val friends = repository.getMyFriends()
                 showPeople(friends.map { PersonItem(it, "friend") }, PersonMode.FRIEND)
-            } catch (e: Exception) {
-            if (e is kotlinx.coroutines.CancellationException) throw e
-                Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -184,7 +182,9 @@ class FriendsFragment : Fragment() {
 
     private fun loadRequests() {
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
+            com.etudiantsdroitmaroc.app.utils.cacheThenServer(onError = { e ->
+                android.widget.Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), android.widget.Toast.LENGTH_SHORT).show()
+            }) {
                 val requests = repository.getIncomingRequests()
                 isRequestsTab = true
                 currentRequests = requests
@@ -198,9 +198,6 @@ class FriendsFragment : Fragment() {
                 )
                 binding.rvPeople.adapter = adapter
                 binding.tvEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
-            } catch (e: Exception) {
-            if (e is kotlinx.coroutines.CancellationException) throw e
-                Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }

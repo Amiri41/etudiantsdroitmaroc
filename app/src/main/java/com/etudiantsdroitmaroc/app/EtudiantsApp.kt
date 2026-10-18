@@ -67,6 +67,7 @@ class EtudiantsApp : Application() {
     override fun onCreate() {
         super.onCreate()
         registerActivityLifecycleCallbacks(com.etudiantsdroitmaroc.app.utils.EdgeToEdgeHelper)
+        com.etudiantsdroitmaroc.app.utils.NetworkStatus.init(this)
 
         // Firebase (محمي بـ try/catch باش إلا كريش هو نفسه، الـ handler لي حطينا
         // فـ attachBaseContext يقدر يمسكو ويسجلو محليا حتى لو Firebase ماخدمش)
@@ -109,6 +110,7 @@ class EtudiantsApp : Application() {
         try {
             val settings = FirebaseFirestoreSettings.Builder()
                 .setPersistenceEnabled(true)
+                .setCacheSizeBytes(FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED)
                 .build()
             Firebase.firestore.firestoreSettings = settings
         } catch (_: Exception) {
