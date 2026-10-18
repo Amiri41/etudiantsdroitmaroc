@@ -82,6 +82,10 @@ class ForumFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        var wasOffline = false
+        com.etudiantsdroitmaroc.app.utils.NetworkStatus.online.observe(viewLifecycleOwner) { on ->
+            if (on) { if (wasOffline) { wasOffline = false; loadPosts(); loadGroups() } } else wasOffline = true
+        }
 
         adapter = ForumFeedAdapter(
             requireContext(), emptyList(),

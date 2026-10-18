@@ -137,7 +137,7 @@ class GroupRepository {
     /** حذف المجموعة كاملة (الأدمين فقط) - كيمسح الرسائل والمجموعة نفسها */
     suspend fun deleteGroup(groupId: String) {
         val messages = firestore.collection("forum_groups").document(groupId)
-            .collection("messages").getFast()
+            .collection("messages").get().await()
         val batch = firestore.batch()
         messages.documents.forEach { batch.delete(it.reference) }
         batch.delete(firestore.collection("forum_groups").document(groupId))

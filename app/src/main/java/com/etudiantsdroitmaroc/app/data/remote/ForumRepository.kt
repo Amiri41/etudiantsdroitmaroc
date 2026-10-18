@@ -84,7 +84,7 @@ class ForumRepository {
             .collection("likes").document(user.uid)
         val postRef = firestore.collection("posts").document(postId)
 
-        val existing = likeRef.getFast()
+        val existing = likeRef.get().await()
         return if (existing.exists()) {
             likeRef.delete().await()
             postRef.update("likesCount", com.google.firebase.firestore.FieldValue.increment(-1)).await()

@@ -36,6 +36,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         bottomNav = findViewById(R.id.bottom_nav)
+        val offlineBanner = findViewById<android.view.View>(R.id.tvOfflineBanner)
+        com.etudiantsdroitmaroc.app.utils.NetworkStatus.online.observe(this) { on ->
+            offlineBanner.visibility = if (on) android.view.View.GONE else android.view.View.VISIBLE
+        }
         currentTabId = savedInstanceState?.getInt(KEY_TAB, R.id.homeFragment) ?: R.id.homeFragment
 
         // أول مرة: نزيدو الصفحة الرئيسية. فالمرات الأخرى النظام كيرجع الصفحات اللي كانت محفوظة.

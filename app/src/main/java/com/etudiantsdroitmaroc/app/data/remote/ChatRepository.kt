@@ -81,9 +81,13 @@ class ChatRepository {
 
     /** واش كاين طلب صداقة معلق مني للشخص هادا */
     suspend fun hasPendingRequestTo(otherUid: String): Boolean {
-        val doc = firestore.collection("users").document(otherUid)
-            .collection("incoming_requests").document(myUid).getFast()
-        return doc.exists()
+        return try {
+            firestore.collection("users").document(otherUid)
+                .collection("incoming_requests").document(myUid).getFast().exists()
+        } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
+            false
+        }
     }
 
     suspend fun getIncomingRequests(): List<FriendRequest> {
@@ -142,14 +146,18 @@ class ChatRepository {
     suspend fun getMyFriends(): List<UserProfile> {
         val friendUids = getMyFriendsUids()
         if (friendUids.isEmpty()) return emptyList()
-        return friendUids.mapNotNull { uid ->
-            try {
-                firestore.collection("users").document(uid).getFast()
-                    .toObject(UserProfile::class.java)
-            } catch (e: Exception) {
-            if (e is kotlinx.coroutines.CancellationException) throw e
-                null
-            }
+        return kotlinx.coroutines.coroutineScope {
+            friendUids.map { uid ->
+                kotlinx.coroutines.async {
+                    try {
+                        firestore.collection("users").document(uid).getFast()
+                            .toObject(UserProfile::class.java)
+                    } catch (e: Exception) {
+                        if (e is kotlinx.coroutines.CancellationException) throw e
+                        null
+                    }
+                }
+            }.let { jobs -> kotlinx.coroutines.awaitAll(*jobs.toTypedArray()) }.filterNotNull()
         }
     }
 

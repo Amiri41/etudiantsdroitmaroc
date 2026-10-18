@@ -57,8 +57,9 @@ class ThreadAdapter(
         if (cached != null) {
             applyUserInfo(holder, cached)
         } else if (otherUid.isNotEmpty()) {
-            Firebase.firestore.collection("users").document(otherUid).get()
-                .addOnSuccessListener { doc ->
+            val ref = Firebase.firestore.collection("users").document(otherUid)
+            val onDoc = { doc: com.google.firebase.firestore.DocumentSnapshot ->
+                if (doc.exists()) {
                     val info = UserCache(
                         photoUrl = doc.getString("photoUrl") ?: "",
                         isOnline = doc.getBoolean("isOnline") ?: false
@@ -68,6 +69,10 @@ class ThreadAdapter(
                         applyUserInfo(holder, info)
                     }
                 }
+            }
+            // الكاش أولا (فوري)، ومن بعد السيرفر (تحديث)
+            ref.get(com.google.firebase.firestore.Source.CACHE).addOnSuccessListener { onDoc(it) }
+            ref.get(com.google.firebase.firestore.Source.SERVER).addOnSuccessListener { onDoc(it) }
         }
     }
 

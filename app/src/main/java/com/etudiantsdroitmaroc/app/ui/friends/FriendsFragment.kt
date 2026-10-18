@@ -36,6 +36,10 @@ class FriendsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        var wasOffline = false
+        com.etudiantsdroitmaroc.app.utils.NetworkStatus.online.observe(viewLifecycleOwner) { on ->
+            if (on) { if (wasOffline) { wasOffline = false; reloadCurrent() } } else wasOffline = true
+        }
         binding.rvPeople.layoutManager = LinearLayoutManager(context)
 
         com.etudiantsdroitmaroc.app.utils.BannerAdHelper.attach(requireContext(), binding.bannerAdContainer)
@@ -76,7 +80,11 @@ class FriendsFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        // نعاود نحدث الحالة الحالية ملي المستخدم يرجع لهاد الصفحة
+        reloadCurrent()
+    }
+
+    private fun reloadCurrent() {
+        // نعاود نحدث الحالة الحالية ملي المستخدم يرجع لهاد الصفحة ولا يرجع النت
         when (binding.chipGroupFilter.checkedChipId) {
             binding.chipAll.id -> loadSuggestions()
             binding.chipFriends.id -> loadFriends()
@@ -107,11 +115,14 @@ class FriendsFragment : Fragment() {
                 }
 
                 // نفحصو الطلبات المعلقة (لكل شخص ماشي صديق بعد) بصفة موازية بسيطة
-                val finalItems = items.map { item ->
-                    if (item.status == "none") {
-                        val pending = repository.hasPendingRequestTo(item.profile.uid)
-                        if (pending) item.copy(status = "pending") else item
-                    } else item
+                val finalItems = kotlinx.coroutines.coroutineScope {
+                    items.map { item ->
+                        kotlinx.coroutines.async {
+                            if (item.status == "none" && repository.hasPendingRequestTo(item.profile.uid)) {
+                                item.copy(status = "pending")
+                            } else item
+                        }
+                    }.let { jobs -> kotlinx.coroutines.awaitAll(*jobs.toTypedArray()) }
                 }
 
                 showPeople(finalItems, PersonMode.SUGGESTION)
