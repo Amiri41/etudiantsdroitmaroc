@@ -1,5 +1,8 @@
 package com.etudiantsdroitmaroc.app.data.remote
 
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import com.etudiantsdroitmaroc.app.data.model.ChatMessage
 import com.etudiantsdroitmaroc.app.data.model.ChatThread
 import com.etudiantsdroitmaroc.app.data.model.FriendRequest
@@ -146,9 +149,9 @@ class ChatRepository {
     suspend fun getMyFriends(): List<UserProfile> {
         val friendUids = getMyFriendsUids()
         if (friendUids.isEmpty()) return emptyList()
-        return kotlinx.coroutines.coroutineScope {
+        return coroutineScope {
             friendUids.map { uid ->
-                kotlinx.coroutines.async {
+                async {
                     try {
                         firestore.collection("users").document(uid).getFast()
                             .toObject(UserProfile::class.java)
@@ -157,7 +160,7 @@ class ChatRepository {
                         null
                     }
                 }
-            }.let { jobs -> kotlinx.coroutines.awaitAll(*jobs.toTypedArray()) }.filterNotNull()
+            }.awaitAll().filterNotNull()
         }
     }
 

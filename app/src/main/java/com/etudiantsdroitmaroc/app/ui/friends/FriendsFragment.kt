@@ -1,5 +1,8 @@
 package com.etudiantsdroitmaroc.app.ui.friends
 
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -115,14 +118,14 @@ class FriendsFragment : Fragment() {
                 }
 
                 // نفحصو الطلبات المعلقة (لكل شخص ماشي صديق بعد) بصفة موازية بسيطة
-                val finalItems = kotlinx.coroutines.coroutineScope {
+                val finalItems = coroutineScope {
                     items.map { item ->
-                        kotlinx.coroutines.async {
+                        async {
                             if (item.status == "none" && repository.hasPendingRequestTo(item.profile.uid)) {
                                 item.copy(status = "pending")
                             } else item
                         }
-                    }.let { jobs -> kotlinx.coroutines.awaitAll(*jobs.toTypedArray()) }
+                    }.awaitAll()
                 }
 
                 showPeople(finalItems, PersonMode.SUGGESTION)
