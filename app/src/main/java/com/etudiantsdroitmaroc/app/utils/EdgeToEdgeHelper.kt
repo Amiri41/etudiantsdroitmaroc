@@ -48,7 +48,6 @@ object EdgeToEdgeHelper : Application.ActivityLifecycleCallbacks {
         val content = activity.findViewById<View>(android.R.id.content) ?: return
         val isMain = activity.javaClass.simpleName == "MainActivity"
         val nav = if (isMain) activity.findViewById<View>(R.id.bottom_nav) else null
-        val navBasePad = nav?.paddingBottom ?: 0
         ViewCompat.setOnApplyWindowInsetsListener(content) { v, insets ->
             val bars = insets.getInsets(
                 WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
@@ -56,8 +55,13 @@ object EdgeToEdgeHelper : Application.ActivityLifecycleCallbacks {
             val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
             if (nav != null) {
                 // الشريط السفلي كيمتد تحت شريط الإيماءات بنفس لونو
+                // المسافة الأصلية كنحفظوها مرة وحدة فقط فالـ view (tag). قبل، كنا كنقراوها من جديد
+                // فكل onStart (الرجوع من شاشة أخرى أو من الخلفية) وكنزيدو عليها شريط النظام، فكانت كتكبر
+                // وكيطلع الشريط السفلي لنص الشاشة.
+                val basePad = (nav.getTag(R.id.bottom_nav) as? Int)
+                    ?: nav.paddingBottom.also { nav.setTag(R.id.bottom_nav, it) }
                 v.setPadding(bars.left, bars.top, bars.right, 0)
-                nav.setPadding(nav.paddingLeft, nav.paddingTop, nav.paddingRight, navBasePad + bars.bottom)
+                nav.setPadding(nav.paddingLeft, nav.paddingTop, nav.paddingRight, basePad + bars.bottom)
             } else {
                 v.setPadding(bars.left, bars.top, bars.right, maxOf(bars.bottom, ime.bottom))
             }
