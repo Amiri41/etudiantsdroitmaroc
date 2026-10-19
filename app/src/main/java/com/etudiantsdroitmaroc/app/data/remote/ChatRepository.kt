@@ -198,7 +198,7 @@ class ChatRepository {
         return threadId
     }
 
-    private suspend fun notifyOtherParticipant(threadId: String, previewText: String) {
+    private suspend fun notifyOtherParticipant(threadId: String, previewText: String, messageId: String = "") {
         try {
             val threadDoc = firestore.collection("chat_threads").document(threadId).get().await()
             val thread = threadDoc.toObject<ChatThread>() ?: return
@@ -210,7 +210,7 @@ class ChatRepository {
             val myName = auth.currentUser?.displayName ?: "رسالة جديدة"
             PushNotifier.sendNotification(
                 fcmToken, myName, previewText,
-                mapOf("kind" to "chat", "threadId" to threadId, "otherUid" to myUid, "otherName" to myName)
+                mapOf("kind" to "chat", "threadId" to threadId, "otherUid" to myUid, "otherName" to myName, "messageId" to messageId)
             )
         } catch (e: Exception) {
             if (e is kotlinx.coroutines.CancellationException) throw e
@@ -240,7 +240,7 @@ class ChatRepository {
         }
         firestore.collection("chat_threads").document(threadId).update(updates).await()
 
-        notifyOtherParticipant(threadId, "📷 صورة")
+        notifyOtherParticipant(threadId, "📷 صورة", message.id)
     }
 
     suspend fun sendMessage(threadId: String, text: String) {
@@ -264,7 +264,43 @@ class ChatRepository {
         }
         firestore.collection("chat_threads").document(threadId).update(updates).await()
 
-        notifyOtherParticipant(threadId, text)
+        notifyOtherParticipant(threadId, text, message.id)
+    }
+
+    /**
+     * ملي المستخدم كيشوف المحادثة: الرسائل الواردة كتولي "تمت قراءتها" (✓✓ زرقاء عند المرسل).
+     * كنحدثو غير الرسائل اللي ما تقراوش (وكنزيدو وقت الوصول إلا ما كانش).
+     */
+    suspend fun markIncomingMessagesSeen(threadId: String, messages: List<ChatMessage>) {
+        val pending = messages.filter { it.senderUid != myUid && !it.seen && it.id.isNotEmpty() }
+        if (pending.isEmpty()) return
+        try {
+            val now = System.currentTimeMillis()
+            val batch = firestore.batch()
+            pending.forEach { m ->
+                val ref = firestore.collection("chat_threads").document(threadId)
+                    .collection("messages").document(m.id)
+                val updates = mutableMapOf<String, Any>("seen" to true, "seenAt" to now)
+                if (m.deliveredAt == 0L) updates["deliveredAt"] = now
+                batch.update(ref, updates)
+            }
+            batch.commit().await()
+        } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
+            // ما نكسروش الدردشة إلا فشل التحديث (مثلا القواعد مازال ما تنشراتش)
+        }
+    }
+
+    /** وصلات الرسالة لتطبيق المستقبل (كيتنادى من استقبال الإشعار): ✓✓ رمادية عند المرسل */
+    suspend fun markMessageDelivered(threadId: String, messageId: String) {
+        if (threadId.isEmpty() || messageId.isEmpty()) return
+        try {
+            val ref = firestore.collection("chat_threads").document(threadId)
+                .collection("messages").document(messageId)
+            ref.update("deliveredAt", System.currentTimeMillis()).await()
+        } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
+        }
     }
 
     private suspend fun getOtherParticipantUid(threadId: String): String? {

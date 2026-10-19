@@ -92,6 +92,8 @@ data class ChatMessage(
     var imageUrl: String = "",
     var sentAt: Long = System.currentTimeMillis(),
     var seen: Boolean = false,
+    var deliveredAt: Long = 0L, // وقت وصول الرسالة لتطبيق المستقبل (0 = ما وصلاتش)
+    var seenAt: Long = 0L,      // وقت قراءتها
     var participantUids: List<String> = emptyList() // مكررة عمدا هنا باش قواعد الأمان تتحقق بلا ما تحتاج تقرا الوثيقة الأصل (كيفادي مشكل السباق مع المحادثات الجداد)
 )
 

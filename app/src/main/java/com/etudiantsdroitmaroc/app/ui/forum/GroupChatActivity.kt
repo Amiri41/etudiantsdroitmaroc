@@ -121,7 +121,7 @@ class GroupChatActivity : AppCompatActivity() {
     }
 
     private fun confirmDelete(message: GroupMessage) {
-        AlertDialog.Builder(this)
+        com.etudiantsdroitmaroc.app.ui.common.AppDialog.Builder(this)
             .setTitle("حذف الرسالة")
             .setMessage("واش متأكد بغيتي تحيد هاد الرسالة؟")
             .setPositiveButton("حذف") { _, _ ->

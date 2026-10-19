@@ -11,32 +11,42 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@drawable/bg_gradient_toolbar"
-        app:titleTextColor="@color/white"
         app:navigationIcon="@drawable/ic_back">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/ivOtherAvatar"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:src="@drawable/ic_profile"
-                app:civ_border_width="1dp"
-                app:civ_border_color="@color/gold" />
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_profile" />
 
-            <TextView
-                android:id="@+id/tvOtherName"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
-                android:textColor="@color/gold"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:orientation="vertical">
 
+                <TextView
+                    android:id="@+id/tvOtherName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvOtherStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#CFE3FF"
+                    android:textSize="12sp"
+                    android:visibility="gone" />
+            </LinearLayout>
         </LinearLayout>
 
         <ImageView
@@ -44,11 +54,10 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="end|center_vertical"
-            android:padding="8dp"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="8dp"
             android:src="@drawable/ic_more_vert"
-            app:tint="@color/gold" />
-
+            app:tint="@color/white" />
     </androidx.appcompat.widget.Toolbar>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -56,44 +65,59 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="8dp" />
+        android:clipToPadding="false"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/card_bg"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="8dp"
-        android:background="@color/white"
-        android:gravity="center_vertical">
+        android:paddingStart="10dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="8dp">
 
         <ImageView
             android:id="@+id/btnAttachImage"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:padding="6dp"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:background="@drawable/bg_circle_navy_soft"
+            android:contentDescription="@string/chat_type_message"
+            android:padding="10dp"
             android:src="@drawable/ic_add"
-            app:tint="@color/navy" />
+            app:tint="#1F63D6" />
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etMessage"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="4dp"
-            android:hint="@string/chat_type_message"
-            android:background="@drawable/bg_input_field"
-            android:padding="10dp" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabSend"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="46dp"
             android:layout_marginStart="8dp"
-            app:fabSize="mini"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_input_pill"
+            android:hint="@string/chat_type_message"
+            android:inputType="textMultiLine|textCapSentences"
+            android:maxLines="4"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/fabSend"
+            android:layout_width="46dp"
+            android:layout_height="46dp"
+            android:background="@drawable/bg_forum_fab"
+            android:clickable="true"
+            android:contentDescription="@string/chat_type_message"
+            android:elevation="3dp"
+            android:focusable="true"
+            android:padding="12dp"
             android:src="@drawable/ic_send"
-            app:backgroundTint="@color/navy"
             app:tint="@color/white" />
-
     </LinearLayout>
-
 </LinearLayout>

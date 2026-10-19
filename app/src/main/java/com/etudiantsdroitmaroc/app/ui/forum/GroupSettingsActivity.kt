@@ -99,7 +99,7 @@ class GroupSettingsActivity : AppCompatActivity() {
     }
 
     private fun confirmRemoveMember(member: UserProfile) {
-        AlertDialog.Builder(this)
+        com.etudiantsdroitmaroc.app.ui.common.AppDialog.Builder(this)
             .setTitle("حظر العضو")
             .setMessage("متأكد بغيتي تحيد ${member.name} من المجموعة؟")
             .setPositiveButton("حظر") { _, _ ->
@@ -113,7 +113,7 @@ class GroupSettingsActivity : AppCompatActivity() {
     }
 
     private fun confirmDeleteGroup() {
-        AlertDialog.Builder(this)
+        com.etudiantsdroitmaroc.app.ui.common.AppDialog.Builder(this)
             .setTitle("حذف المجموعة")
             .setMessage("غادي يتمسح كل شيء (الرسائل والمجموعة) بلا رجعة. متأكد؟")
             .setPositiveButton("حذف نهائيا") { _, _ ->

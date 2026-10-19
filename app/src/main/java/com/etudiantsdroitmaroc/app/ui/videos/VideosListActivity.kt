@@ -92,7 +92,7 @@ class VideosListActivity : AppCompatActivity() {
     }
 
     private fun openVideo(video: VideoLesson) {
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        com.etudiantsdroitmaroc.app.ui.common.AppDialog.Builder(this)
             .setTitle("مشاهدة الفيديو")
             .setMessage("شوف إعلان قصير باش تفتح هاد الفيديو")
             .setPositiveButton("شوف الإعلان وكمل") { _, _ ->

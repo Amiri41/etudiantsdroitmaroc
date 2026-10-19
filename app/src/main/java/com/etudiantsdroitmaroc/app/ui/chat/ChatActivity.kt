@@ -1,6 +1,20 @@
 package com.etudiantsdroitmaroc.app.ui.chat
 
 import android.os.Bundle
+import android.view.View
+import android.view.ViewGroup
+import android.view.ViewOutlineProvider
+import android.widget.FrameLayout
+import android.widget.TextView
+import androidx.core.content.ContextCompat
+import com.etudiantsdroitmaroc.app.R
+import com.etudiantsdroitmaroc.app.databinding.DialogChatBackgroundBinding
+import com.etudiantsdroitmaroc.app.ui.common.AppDialog
+import com.google.firebase.firestore.ListenerRegistration
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -23,6 +37,10 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var adapter: MessageAdapter
     private lateinit var threadId: String
     private var otherUid: String = ""
+    private var messagesListener: ListenerRegistration? = null
+    private var statusListener: ListenerRegistration? = null
+    private var lastMessages: List<ChatMessage> = emptyList()
+    private var inForeground = false
 
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
@@ -41,8 +59,6 @@ class ChatActivity : AppCompatActivity() {
         binding.toolbar.setNavigationOnClickListener { finish() }
         binding.btnChatMenu.setOnClickListener { showChatMenu() }
 
-        applySavedBackground()
-
         lifecycleScope.launch { repository.markThreadAsRead(threadId) }
 
         if (otherUid.isNotEmpty()) {
@@ -55,13 +71,17 @@ class ChatActivity : AppCompatActivity() {
                 }
         }
 
-        adapter = MessageAdapter(emptyList()) { message ->
-            ReportDialog.show(
-                this, lifecycleScope,
-                targetType = "message", targetId = message.id,
-                targetOwnerUid = otherUid, targetOwnerName = binding.tvOtherName.text.toString()
-            )
-        }
+        adapter = MessageAdapter(
+            emptyList(),
+            onReportClick = { message ->
+                ReportDialog.show(
+                    this, lifecycleScope,
+                    targetType = "message", targetId = message.id,
+                    targetOwnerUid = otherUid, targetOwnerName = binding.tvOtherName.text.toString()
+                )
+            },
+            onInfoClick = { message -> showMessageInfo(message) }
+        )
         binding.rvMessages.layoutManager = LinearLayoutManager(this)
         binding.rvMessages.setHasFixedSize(true)
         binding.rvMessages.adapter = adapter
@@ -69,21 +89,83 @@ class ChatActivity : AppCompatActivity() {
         binding.fabSend.setOnClickListener { sendMessage() }
         binding.btnAttachImage.setOnClickListener { pickImageLauncher.launch("image/*") }
 
+        applySavedBackground()
+        listenOtherStatus()
         listenForMessages()
     }
 
     /** Real-time listener - كل رسالة جديدة كتبان مباشرة بلا ما نعاود نطلب من جديد */
     private fun listenForMessages() {
-        Firebase.firestore.collection("chat_threads").document(threadId)
+        messagesListener = Firebase.firestore.collection("chat_threads").document(threadId)
             .collection("messages")
             .orderBy("sentAt")
             .addSnapshotListener { snapshot, _ ->
                 val messages: List<ChatMessage> = snapshot?.toObjects() ?: emptyList()
+                lastMessages = messages
                 adapter.updateData(messages)
                 if (messages.isNotEmpty()) {
                     binding.rvMessages.scrollToPosition(messages.size - 1)
                 }
+                markSeenIfVisible()
             }
+    }
+
+    /** ملي المستخدم كيشوف المحادثة: كنعلمو الرسائل الواردة بـ "تمت قراءتها" (✓✓ زرقاء عند المرسل) */
+    private fun markSeenIfVisible() {
+        if (!inForeground) return
+        if (lastMessages.none { it.senderUid != currentUid() && !it.seen }) return
+        val snapshot = lastMessages
+        lifecycleScope.launch { repository.markIncomingMessagesSeen(threadId, snapshot) }
+    }
+
+    private fun currentUid() = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
+
+    /** حالة الطرف الآخر فالهيدر: "متصل الآن" ولا "آخر ظهور ..." */
+    private fun listenOtherStatus() {
+        if (otherUid.isEmpty()) return
+        statusListener = Firebase.firestore.collection("users").document(otherUid)
+            .addSnapshotListener { doc, _ ->
+                if (doc == null || !doc.exists()) return@addSnapshotListener
+                val online = doc.getBoolean("isOnline") == true
+                val lastSeen = doc.getLong("lastSeen") ?: 0L
+                val text = statusText(online, lastSeen)
+                binding.tvOtherStatus.visibility = if (text == null) View.GONE else View.VISIBLE
+                binding.tvOtherStatus.text = text
+            }
+    }
+
+    private fun statusText(online: Boolean, lastSeen: Long): String? {
+        val now = System.currentTimeMillis()
+        if (online && now - lastSeen < 2 * 60 * 1000L) return "متصل الآن"
+        if (lastSeen <= 0L) return null
+        return "آخر ظهور " + whenText(lastSeen)
+    }
+
+    /** "اليوم الساعة 09:11" / "أمس الساعة 21:03" / "17 أكتوبر 2026 الساعة 14:50" */
+    private fun whenText(ts: Long): String {
+        val time = SimpleDateFormat("HH:mm", Locale.US).format(Date(ts))
+        val c = Calendar.getInstance().apply { timeInMillis = ts }
+        val today = Calendar.getInstance()
+        val yesterday = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -1) }
+        fun same(a: Calendar, b: Calendar) =
+            a.get(Calendar.YEAR) == b.get(Calendar.YEAR) && a.get(Calendar.DAY_OF_YEAR) == b.get(Calendar.DAY_OF_YEAR)
+        return when {
+            same(c, today) -> "اليوم الساعة $time"
+            same(c, yesterday) -> "أمس الساعة $time"
+            else -> SimpleDateFormat("d MMMM yyyy", Locale("ar")).format(Date(ts)) + " الساعة $time"
+        }
+    }
+
+    /** معلومات الرسالة (ضغطة مطولة على رسالة ديالي): وقت التسليم والقراءة */
+    private fun showMessageInfo(message: ChatMessage) {
+        val sent = whenText(message.sentAt)
+        val delivered = if (message.deliveredAt > 0L) whenText(message.deliveredAt) else "—"
+        val seen = if (message.seen && message.seenAt > 0L) whenText(message.seenAt) else if (message.seen) "تمت" else "—"
+        AppDialog.Builder(this)
+            .setTitle("معلومات الرسالة")
+            .setMessage("✓ تبعتات: $sent\n\n✓✓ وصلات: $delivered\n\n✓✓ تقراات: $seen")
+            .setPositiveButton("تمام")
+            .show()
     }
 
     private fun sendMessage() {
@@ -124,8 +206,9 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun confirmBlockUser() {
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        AppDialog.Builder(this)
             .setTitle("حظر المستخدم")
+            .setIcon(R.drawable.ic_block)
             .setMessage("ملي تحظرو، ما غاديش يبان ليك فلوائح المتصلين ولا المحادثات. متأكد؟")
             .setPositiveButton("حظر") { _, _ ->
                 lifecycleScope.launch {
@@ -139,8 +222,9 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun confirmClearChat() {
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        AppDialog.Builder(this)
             .setTitle("مسح المحادثة")
+            .setIcon(R.drawable.ic_delete_forever)
             .setMessage("غادي يتمسح كل التاريخ ديال هاد المحادثة. متأكد؟")
             .setPositiveButton("مسح") { _, _ ->
                 lifecycleScope.launch {
@@ -153,53 +237,116 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun showBackgroundPicker() {
-        val dialogView = layoutInflater.inflate(com.etudiantsdroitmaroc.app.R.layout.dialog_chat_background, null)
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(this).setView(dialogView).create()
+        val pb = DialogChatBackgroundBinding.inflate(layoutInflater)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this).setView(pb.root).create()
+        val saved = getSharedPreferences("chat_prefs", MODE_PRIVATE).getString(prefsKey(), null) ?: "default"
+        val density = resources.displayMetrics.density
+        val night = isNightMode()
 
-        val colorViews = listOf(
-            com.etudiantsdroitmaroc.app.R.id.colorDefault,
-            com.etudiantsdroitmaroc.app.R.id.color1,
-            com.etudiantsdroitmaroc.app.R.id.color2,
-            com.etudiantsdroitmaroc.app.R.id.color3,
-            com.etudiantsdroitmaroc.app.R.id.color4,
-            com.etudiantsdroitmaroc.app.R.id.color5,
-            com.etudiantsdroitmaroc.app.R.id.color6,
-            com.etudiantsdroitmaroc.app.R.id.color7
-        )
-        for (id in colorViews) {
-            val view = dialogView.findViewById<android.view.View>(id)
-            view.setOnClickListener {
-                val colorHex = it.tag as String
-                saveBackground(colorHex)
+        ChatWallpapers.all.forEach { wp ->
+            val card = FrameLayout(this).apply {
+                layoutParams = android.widget.GridLayout.LayoutParams().apply {
+                    width = (96 * density).toInt()
+                    height = (132 * density).toInt()
+                    setMargins((6 * density).toInt(), (6 * density).toInt(), (6 * density).toInt(), (6 * density).toInt())
+                }
+                outlineProvider = object : ViewOutlineProvider() {
+                    override fun getOutline(view: View, outline: android.graphics.Outline) {
+                        outline.setRoundRect(0, 0, view.width, view.height, 14 * density)
+                    }
+                }
+                clipToOutline = true
+            }
+            val preview = View(this)
+            if (wp.drawableRes != 0) {
+                preview.background = ContextCompat.getDrawable(this, wp.drawableRes)
+            } else {
+                preview.setBackgroundColor(ContextCompat.getColor(this, R.color.off_white))
+            }
+            card.addView(preview, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+
+            val label = TextView(this).apply {
+                text = wp.label
+                textSize = 12f
+                setTextColor(0xFF0A1F3D.toInt())
+                setBackgroundResource(R.drawable.bg_date_chip)
+                setPadding((10 * density).toInt(), (3 * density).toInt(), (10 * density).toInt(), (3 * density).toInt())
+            }
+            card.addView(label, FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
+                android.view.Gravity.BOTTOM or android.view.Gravity.CENTER_HORIZONTAL
+            ).apply { bottomMargin = (8 * density).toInt() })
+
+            if (wp.key == saved || (wp.key == "default" && saved.startsWith("#"))) {
+                val ring = View(this).apply { setBackgroundResource(R.drawable.bg_wallpaper_selected) }
+                card.addView(ring, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+            }
+            card.setOnClickListener {
+                saveBackground(wp.key)
                 dialog.dismiss()
             }
+            pb.wallpaperGrid.addView(card)
         }
-        dialog.show()
+        AppDialog.styleWindow(this, dialog)
     }
 
     private fun prefsKey() = "chat_bg_$threadId"
 
-    private fun saveBackground(colorHex: String) {
+    private fun saveBackground(key: String) {
         getSharedPreferences("chat_prefs", MODE_PRIVATE).edit()
-            .putString(prefsKey(), colorHex).apply()
+            .putString(prefsKey(), key).apply()
         applySavedBackground()
     }
 
+    private fun isNightMode() =
+        (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
+            android.content.res.Configuration.UI_MODE_NIGHT_YES
+
+    /** كنطبقو الخلفية المحفوظة (نقش أو لون قديم) وكنعلمو الـ adapter واش الخلفية داكنة باش تتبدل ألوان الفقاعات */
     private fun applySavedBackground() {
-        val colorHex = getSharedPreferences("chat_prefs", MODE_PRIVATE)
-            .getString(prefsKey(), null) ?: return
-        try {
-            binding.rvMessages.setBackgroundColor(android.graphics.Color.parseColor(colorHex))
-        } catch (_: Exception) { }
+        val saved = getSharedPreferences("chat_prefs", MODE_PRIVATE).getString(prefsKey(), null)
+        val wp = ChatWallpapers.find(saved)
+        var dark = false
+        when {
+            wp != null && wp.drawableRes != 0 -> {
+                binding.rvMessages.background = ContextCompat.getDrawable(this, wp.drawableRes)
+                dark = wp.dark
+            }
+            saved != null && saved.startsWith("#") -> {
+                // خلفية بلون قديم (من النسخ السابقة)
+                try {
+                    val color = android.graphics.Color.parseColor(saved)
+                    binding.rvMessages.setBackgroundColor(color)
+                    dark = androidx.core.graphics.ColorUtils.calculateLuminance(color) < 0.4
+                } catch (_: Exception) {
+                    binding.rvMessages.setBackgroundColor(ContextCompat.getColor(this, R.color.off_white))
+                    dark = isNightMode()
+                }
+            }
+            else -> {
+                binding.rvMessages.setBackgroundColor(ContextCompat.getColor(this, R.color.off_white))
+                dark = isNightMode()
+            }
+        }
+        if (::adapter.isInitialized) adapter.setDarkBackground(dark)
     }
 
     override fun onResume() {
         super.onResume()
+        inForeground = true
         if (::threadId.isInitialized) com.etudiantsdroitmaroc.app.utils.ActiveChat.threadId = threadId
+        markSeenIfVisible()
     }
 
     override fun onPause() {
         super.onPause()
+        inForeground = false
         com.etudiantsdroitmaroc.app.utils.ActiveChat.threadId = null
+    }
+
+    override fun onDestroy() {
+        messagesListener?.remove()
+        statusListener?.remove()
+        super.onDestroy()
     }
 }
