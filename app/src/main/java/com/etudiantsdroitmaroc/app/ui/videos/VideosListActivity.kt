@@ -92,18 +92,8 @@ class VideosListActivity : AppCompatActivity() {
     }
 
     private fun openVideo(video: VideoLesson) {
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("مشاهدة الفيديو")
-            .setMessage("شوف إعلان قصير باش تفتح هاد الفيديو")
-            .setPositiveButton("شوف الإعلان وكمل") { _, _ ->
-                AdManager.showRewarded(
-                    this,
-                    onReward = { launchVideoPlayer(video) },
-                    onUnavailable = { launchVideoPlayer(video) }
-                )
-            }
-            .setNegativeButton("إلغاء", null)
-            .show()
+        // الفيديو كيتشغل مباشرة (حيدنا شرط مشاهدة الإعلان)
+        launchVideoPlayer(video)
     }
 
     private fun launchVideoPlayer(video: VideoLesson) {

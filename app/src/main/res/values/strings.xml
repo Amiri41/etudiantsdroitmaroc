@@ -59,4 +59,6 @@
     <string name="video_open_youtube">▶ افتح فـ YouTube</string>
     <string name="video_open_youtube_hint">ما خدامش الفيديو؟ افتحو فـ YouTube ›</string>
     <string name="video_open_failed">ما قدرناش نفتحو، جرب من بعد</string>
+    <string name="video_error_offline">ماكاينش انترنت. الفيديوهات كتحتاج انترنت باش تتشغل.</string>
+    <string name="video_error_timeout">الفيديو ما بغاش يتشغل داخل التطبيق. جرب تفتحو فـ YouTube.</string>
 </resources>

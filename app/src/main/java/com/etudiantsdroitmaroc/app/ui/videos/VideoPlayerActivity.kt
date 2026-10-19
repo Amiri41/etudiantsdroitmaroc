@@ -6,6 +6,8 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.Message
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +26,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.etudiantsdroitmaroc.app.R
 import com.etudiantsdroitmaroc.app.databinding.ActivityVideoPlayerBinding
+import com.etudiantsdroitmaroc.app.utils.NetworkStatus
 import com.etudiantsdroitmaroc.app.utils.YoutubeIds
 
 /**
@@ -38,6 +41,9 @@ class VideoPlayerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityVideoPlayerBinding
     private var videoId = ""
     private var retriedNoCookie = false
+    private var started = false
+    private val handler = Handler(Looper.getMainLooper())
+    private val watchdog = Runnable { onWatchdogFired() }
 
     private var customView: View? = null
     private var customViewCallback: WebChromeClient.CustomViewCallback? = null
@@ -69,6 +75,11 @@ class VideoPlayerActivity : AppCompatActivity() {
             setSupportMultipleWindows(true)
         }
         binding.webView.addJavascriptInterface(PlayerBridge(), "AndroidBridge")
+        binding.webView.webViewClient = object : WebViewClient() {
+            override fun onReceivedError(view: WebView, request: WebResourceRequest, error: android.webkit.WebResourceError) {
+                if (request.isForMainFrame) runOnUiThread { showErrorOverlay(R.string.video_error_embed) }
+            }
+        }
         binding.webView.webChromeClient = object : WebChromeClient() {
             override fun onShowCustomView(view: View, callback: CustomViewCallback) {
                 if (customView != null) {
@@ -114,20 +125,36 @@ class VideoPlayerActivity : AppCompatActivity() {
 
     private fun loadPlayer(noCookie: Boolean) {
         binding.videoErrorOverlay.visibility = View.GONE
+        handler.removeCallbacks(watchdog)
+
+        if (NetworkStatus.online.value == false) {
+            showErrorOverlay(R.string.video_error_offline)
+            return
+        }
+        if (videoId.isEmpty()) {
+            showErrorOverlay(R.string.video_error_unavailable)
+            return
+        }
+
         val host = if (noCookie) "https://www.youtube-nocookie.com" else "https://www.youtube.com"
+        // iframe بنفسنا مع referrerpolicy="strict-origin" (يوتيوب كيطلب Referer باش يتفادى الخطأ 153)
         val html = """
             <!DOCTYPE html><html><head>
+            <meta charset="utf-8">
+            <meta name="referrer" content="strict-origin">
             <meta name="viewport" content="width=device-width, initial-scale=1">
-            <style>html,body{margin:0;height:100%;background:#000}#player{position:absolute;top:0;left:0;width:100%;height:100%}</style>
-            </head><body><div id="player"></div>
+            <style>html,body{margin:0;height:100%;background:#000}iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}</style>
+            </head><body>
+            <iframe id="player" referrerpolicy="strict-origin"
+              src="$host/embed/$videoId?enablejsapi=1&playsinline=1&rel=0&fs=1&autoplay=1&origin=$ORIGIN"
+              allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe>
             <script src="https://www.youtube.com/iframe_api"></script>
             <script>
             function onYouTubeIframeAPIReady() {
               new YT.Player('player', {
-                host: '$host', width: '100%', height: '100%', videoId: '$videoId',
-                playerVars: { playsinline: 1, rel: 0, fs: 1, origin: '$ORIGIN' },
                 events: {
-                  onReady: function (e) { try { e.target.playVideo(); } catch (x) {} },
+                  onReady: function (e) { AndroidBridge.onPlayerReady(); try { e.target.playVideo(); } catch (x) {} },
+                  onStateChange: function (e) { if (e.data === 1 || e.data === 3) AndroidBridge.onPlayerReady(); },
                   onError: function (e) { AndroidBridge.onPlayerError(e.data); }
                 }
               });
@@ -135,10 +162,36 @@ class VideoPlayerActivity : AppCompatActivity() {
             </script></body></html>
         """.trimIndent()
         binding.webView.loadDataWithBaseURL("$ORIGIN/", html, "text/html", "utf-8", null)
+        // إلا ما تشغل الفيديو فـ 12 ثانية (WebView قديم، خطأ صامت...) كنعاودو ولا كنبينو الزر
+        handler.postDelayed(watchdog, 12_000L)
     }
 
-    /** كيتنادى من JavaScript ملي المشغّل يرجع خطأ */
+    private fun onWatchdogFired() {
+        if (started) return
+        if (!retriedNoCookie) {
+            retriedNoCookie = true
+            loadPlayer(noCookie = true)
+        } else {
+            showErrorOverlay(R.string.video_error_timeout)
+        }
+    }
+
+    private fun showErrorOverlay(messageRes: Int) {
+        handler.removeCallbacks(watchdog)
+        binding.tvVideoError.setText(messageRes)
+        binding.videoErrorOverlay.visibility = View.VISIBLE
+    }
+
+    /** كيتنادى من JavaScript */
     private inner class PlayerBridge {
+        @JavascriptInterface
+        fun onPlayerReady() {
+            runOnUiThread {
+                started = true
+                handler.removeCallbacks(watchdog)
+            }
+        }
+
         @JavascriptInterface
         fun onPlayerError(code: Int) {
             runOnUiThread { handlePlayerError(code) }
@@ -150,13 +203,11 @@ class VideoPlayerActivity : AppCompatActivity() {
         val embedIssue = code == 101 || code == 150 || code == 152 || code == 153 || code == 5
         if (embedIssue && !retriedNoCookie) {
             retriedNoCookie = true
+            started = false
             loadPlayer(noCookie = true)
             return
         }
-        binding.tvVideoError.setText(
-            if (code == 100) R.string.video_error_unavailable else R.string.video_error_embed
-        )
-        binding.videoErrorOverlay.visibility = View.VISIBLE
+        showErrorOverlay(if (code == 100) R.string.video_error_unavailable else R.string.video_error_embed)
     }
 
     private fun openInYoutube() {
@@ -221,6 +272,7 @@ class VideoPlayerActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        handler.removeCallbacks(watchdog)
         if (customView != null) exitFullscreen()
         binding.webView.destroy()
         super.onDestroy()
