@@ -106,13 +106,12 @@ class UserProfileActivity : AppCompatActivity() {
 
     private fun loadUserPosts() {
         lifecycleScope.launch {
-            try {
+            com.etudiantsdroitmaroc.app.utils.cacheThenServer(onError = { e ->
+                Toast.makeText(this@UserProfileActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
+            }) {
                 val posts = forumRepository.getPostsByUser(targetUid)
                 postsAdapter.updateData(posts)
                 binding.emptyState.visibility = if (posts.isEmpty()) View.VISIBLE else View.GONE
-            } catch (e: Exception) {
-            if (e is kotlinx.coroutines.CancellationException) throw e
-                Toast.makeText(this@UserProfileActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -159,7 +158,9 @@ class UserProfileActivity : AppCompatActivity() {
 
     private fun loadProfile() {
         lifecycleScope.launch {
-            try {
+            com.etudiantsdroitmaroc.app.utils.cacheThenServer(onError = { e ->
+                Toast.makeText(this@UserProfileActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
+            }) {
                 val profile = repository.getUserProfile(targetUid)
                 if (profile != null) {
                     targetName = profile.name
@@ -174,9 +175,6 @@ class UserProfileActivity : AppCompatActivity() {
                     }
                 }
                 updateFriendButtonState()
-            } catch (e: Exception) {
-            if (e is kotlinx.coroutines.CancellationException) throw e
-                Toast.makeText(this@UserProfileActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }

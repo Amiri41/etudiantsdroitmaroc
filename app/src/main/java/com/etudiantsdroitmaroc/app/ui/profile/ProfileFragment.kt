@@ -12,6 +12,7 @@ import com.etudiantsdroitmaroc.app.data.model.UserProfile
 import com.etudiantsdroitmaroc.app.data.remote.AuthRepository
 import com.etudiantsdroitmaroc.app.databinding.FragmentProfileBinding
 import com.etudiantsdroitmaroc.app.ui.auth.LoginActivity
+import com.etudiantsdroitmaroc.app.utils.getFast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
@@ -198,7 +199,7 @@ class ProfileFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val doc = Firebase.firestore.collection("users").document(user.uid).get().await()
+                val doc = Firebase.firestore.collection("users").document(user.uid).getFast()
                 val profile = doc.toObject<UserProfile>()
                 if (profile != null) {
                     val parts = listOfNotNull(

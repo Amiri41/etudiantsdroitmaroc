@@ -79,13 +79,12 @@ class GroupChatActivity : AppCompatActivity() {
 
     private fun loadMessages() {
         lifecycleScope.launch {
-            try {
+            com.etudiantsdroitmaroc.app.utils.cacheThenServer(onError = { e ->
+                Toast.makeText(this@GroupChatActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
+            }) {
                 val messages = repository.getGroupMessages(groupId)
                 adapter.updateData(messages)
                 binding.rvMessages.scrollToPosition(maxOf(0, messages.size - 1))
-            } catch (e: Exception) {
-            if (e is kotlinx.coroutines.CancellationException) throw e
-                Toast.makeText(this@GroupChatActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), Toast.LENGTH_SHORT).show()
             }
         }
     }

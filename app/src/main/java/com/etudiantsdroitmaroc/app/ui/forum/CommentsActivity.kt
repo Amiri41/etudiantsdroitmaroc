@@ -52,8 +52,12 @@ class CommentsActivity : AppCompatActivity() {
 
     private fun loadComments() {
         lifecycleScope.launch {
-            adapter.updateData(repository.getComments(postId))
-            binding.rvComments.scrollToPosition(maxOf(0, adapter.itemCount - 1))
+            com.etudiantsdroitmaroc.app.utils.cacheThenServer(onError = { e ->
+                android.widget.Toast.makeText(this@CommentsActivity, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), android.widget.Toast.LENGTH_SHORT).show()
+            }) {
+                adapter.updateData(repository.getComments(postId))
+                binding.rvComments.scrollToPosition(maxOf(0, adapter.itemCount - 1))
+            }
         }
     }
 
