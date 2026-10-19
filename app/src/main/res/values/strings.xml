@@ -61,4 +61,16 @@
     <string name="video_open_failed">ما قدرناش نفتحو، جرب من بعد</string>
     <string name="video_error_offline">ماكاينش انترنت. الفيديوهات كتحتاج انترنت باش تتشغل.</string>
     <string name="video_error_timeout">الفيديو ما بغاش يتشغل داخل التطبيق. جرب تفتحو فـ YouTube.</string>
+
+    <!-- نافذة إنشاء مجموعة -->
+    <string name="group_dialog_title">إنشاء مجموعة جديدة</string>
+    <string name="group_dialog_subtitle">ابدأ مجموعة وشارك أفكارك، ملفاتك ونقاشاتك مع زملائك.</string>
+    <string name="group_dialog_image_title">صورة المجموعة</string>
+    <string name="group_dialog_image_hint">اضغط لإضافة صورة من معرضك.</string>
+    <string name="group_dialog_name_label">اسم المجموعة</string>
+    <string name="group_dialog_name_hint">أدخل اسماً مميزاً لمجموعتك…</string>
+    <string name="group_dialog_desc_label">الوصف والهدف من المجموعة</string>
+    <string name="group_dialog_desc_hint">اكتب وصفاً مختصراً يوضح فكرة المجموعة…</string>
+    <string name="group_dialog_create">إنشاء المجموعة</string>
+    <string name="group_dialog_creating">جاري الإنشاء…</string>
 </resources>
