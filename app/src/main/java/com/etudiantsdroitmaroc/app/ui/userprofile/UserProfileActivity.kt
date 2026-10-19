@@ -143,7 +143,7 @@ class UserProfileActivity : AppCompatActivity() {
     }
 
     private fun confirmDeletePost(post: Post) {
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        com.etudiantsdroitmaroc.app.ui.common.AppDialog.Builder(this)
             .setTitle("حذف المنشور")
             .setMessage("متأكد بغيتي تحذف هاد المنشور؟")
             .setPositiveButton("حذف") { _, _ ->

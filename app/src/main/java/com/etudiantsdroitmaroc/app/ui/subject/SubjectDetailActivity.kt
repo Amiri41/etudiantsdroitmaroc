@@ -138,7 +138,7 @@ class SubjectDetailActivity : AppCompatActivity() {
     }
 
     private fun downloadPdf(pdf: PdfDocument) {
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        com.etudiantsdroitmaroc.app.ui.common.AppDialog.Builder(this)
             .setTitle("تحميل الملف")
             .setMessage("شوف إعلان قصير باش تحمل هاد الملف وتقدر تقراه بلا أنترنت")
             .setPositiveButton("شوف الإعلان وحمل") { _, _ ->

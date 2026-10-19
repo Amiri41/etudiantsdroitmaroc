@@ -369,7 +369,7 @@ class ForumFragment : Fragment() {
     }
 
     private fun confirmDeletePost(post: Post) {
-        AlertDialog.Builder(requireContext())
+        com.etudiantsdroitmaroc.app.ui.common.AppDialog.Builder(requireContext())
             .setTitle("حذف المنشور")
             .setMessage("متأكد بغيتي تحذف هاد المنشور؟")
             .setPositiveButton("حذف") { _, _ ->

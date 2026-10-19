@@ -47,14 +47,11 @@ class FriendsFragment : Fragment() {
 
         com.etudiantsdroitmaroc.app.utils.BannerAdHelper.attach(requireContext(), binding.bannerAdContainer)
 
-        binding.chipGroupFilter.setOnCheckedStateChangeListener { _, checkedIds ->
-            binding.etSearch.setText("")
-            when (checkedIds.firstOrNull()) {
-                binding.chipAll.id -> loadSuggestions()
-                binding.chipFriends.id -> loadFriends()
-                binding.chipRequests.id -> loadRequests()
-            }
-        }
+        // التبويبات التلاتة (الكل / أصدقاؤك / طلبات الصداقة) فسطر واحد بحال المنتدى
+        binding.chipAll.setOnClickListener { selectFilter(FILTER_ALL) }
+        binding.chipFriends.setOnClickListener { selectFilter(FILTER_FRIENDS) }
+        binding.chipRequests.setOnClickListener { selectFilter(FILTER_REQUESTS) }
+        styleFilterTabs()
 
         binding.etSearch.addTextChangedListener(object : android.text.TextWatcher {
             override fun afterTextChanged(s: android.text.Editable?) {
@@ -86,13 +83,48 @@ class FriendsFragment : Fragment() {
         reloadCurrent()
     }
 
+    /** كيعاود يحدث الفلتر الحالي: ملي المستعمل يرجع للصفحة ولا ملي يرجع الانترنت */
     private fun reloadCurrent() {
-        // نعاود نحدث الحالة الحالية ملي المستخدم يرجع لهاد الصفحة ولا يرجع النت
-        when (binding.chipGroupFilter.checkedChipId) {
-            binding.chipAll.id -> loadSuggestions()
-            binding.chipFriends.id -> loadFriends()
-            binding.chipRequests.id -> loadRequests()
+        loadCurrentFilter()
+    }
+
+    private var currentFilter = FILTER_ALL
+
+    private fun selectFilter(filter: Int) {
+        currentFilter = filter
+        binding.etSearch.setText("")
+        styleFilterTabs()
+        loadCurrentFilter()
+    }
+
+    private fun loadCurrentFilter() {
+        when (currentFilter) {
+            FILTER_ALL -> loadSuggestions()
+            FILTER_FRIENDS -> loadFriends()
+            FILTER_REQUESTS -> loadRequests()
         }
+    }
+
+    private fun styleFilterTabs() {
+        styleTab(binding.chipAll, currentFilter == FILTER_ALL)
+        styleTab(binding.chipFriends, currentFilter == FILTER_FRIENDS)
+        styleTab(binding.chipRequests, currentFilter == FILTER_REQUESTS)
+    }
+
+    private fun styleTab(tab: android.widget.TextView, selected: Boolean) {
+        tab.setBackgroundResource(if (selected) com.etudiantsdroitmaroc.app.R.drawable.bg_btn_blue_solid else 0)
+        val color = androidx.core.content.ContextCompat.getColor(
+            requireContext(),
+            if (selected) com.etudiantsdroitmaroc.app.R.color.white else com.etudiantsdroitmaroc.app.R.color.text_primary
+        )
+        tab.setTextColor(color)
+        androidx.core.widget.TextViewCompat.setCompoundDrawableTintList(tab, android.content.res.ColorStateList.valueOf(color))
+    }
+
+    companion object {
+        private const val FILTER_ALL = 0
+        private const val FILTER_FRIENDS = 1
+        private const val FILTER_REQUESTS = 2
     }
 
     private fun openProfile(profile: UserProfile) {

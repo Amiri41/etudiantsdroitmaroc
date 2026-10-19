@@ -130,7 +130,7 @@ class ProfileFragment : Fragment() {
     }
 
     private fun confirmDeleteAccount() {
-        android.app.AlertDialog.Builder(requireContext())
+        com.etudiantsdroitmaroc.app.ui.common.AppDialog.Builder(requireContext())
             .setTitle("حذف الحساب نهائيا")
             .setMessage("هاد العملية ماغاديش ترجع فيها. غادي يتحذف حسابك، البروفايل، الأصدقاء والمنشورات ديالك. التعليقات والرسائل الخاصة اللي بعتي كتبقى، وتقدر تطلب مسحها بالإيميل. متأكد بغيتي تكمل؟")
             .setPositiveButton("حذف نهائيا") { _, _ -> deleteAccount() }

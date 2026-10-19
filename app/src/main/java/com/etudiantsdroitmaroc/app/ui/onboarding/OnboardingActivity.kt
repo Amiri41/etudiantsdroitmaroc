@@ -32,21 +32,21 @@ class OnboardingActivity : AppCompatActivity() {
         }
     }
 
-    private data class Page(val emoji: String, val title: String, val description: String)
+    private data class Page(val iconRes: Int, val title: String, val description: String)
 
     private val pages = listOf(
         Page(
-            "⚖️",
+            R.drawable.ic_scales_line,
             "مرحبا بيك فـ ÉTUDIANTS EN DROIT MAROC",
             "منصة اجتماعية وتعليمية كاملة لطلبة القانون بالمغرب، كل شي محتاجو فبلاصة واحدة."
         ),
         Page(
-            "📚",
+            R.drawable.ic_menu_book,
             "مواد، ملخصات، وفيديوهات",
             "مواد مرتبة حسب الفصول، ملخصات PDF جاهزة، وفيديوهات شرح لكل مادة."
         ),
         Page(
-            "💬",
+            R.drawable.ic_forum,
             "مجتمع طلبة كامل",
             "دردش مع زملائك، شارك فالمنتدى، وتبادل المعرفة مع طلبة القانون فكل المغرب."
         )
@@ -91,7 +91,7 @@ class OnboardingActivity : AppCompatActivity() {
                 params.marginStart = (4 * resources.displayMetrics.density).toInt()
                 params.marginEnd = (4 * resources.displayMetrics.density).toInt()
                 layoutParams = params
-                setBackgroundResource(R.drawable.bg_circle_white)
+                setBackgroundResource(R.drawable.bg_dot_blue)
             }
         }
         dots.forEach { binding.dotsIndicator.addView(it) }
@@ -100,7 +100,7 @@ class OnboardingActivity : AppCompatActivity() {
 
     private fun updateDots(activeIndex: Int) {
         dots.forEachIndexed { index, dot ->
-            dot.alpha = if (index == activeIndex) 1f else 0.3f
+            dot.alpha = if (index == activeIndex) 1f else 0.25f
         }
     }
 
@@ -120,7 +120,7 @@ class OnboardingActivity : AppCompatActivity() {
 
         override fun onBindViewHolder(holder: VH, position: Int) {
             val page = pages[position]
-            holder.binding.tvEmoji.text = page.emoji
+            holder.binding.ivIcon.setImageResource(page.iconRes)
             holder.binding.tvTitle.text = page.title
             holder.binding.tvDescription.text = page.description
         }

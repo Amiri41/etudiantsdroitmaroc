@@ -15,6 +15,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
 
 private const val CHANNEL_ID = "etudiants_general"
 private const val CHAT_CHANNEL_ID = "etudiants_messages"
@@ -40,6 +41,14 @@ class NotificationService : FirebaseMessagingService() {
         val body = message.notification?.body ?: message.data["body"] ?: message.data["message"] ?: ""
 
         if (message.data["kind"] == "chat" || message.data["threadId"] != null) {
+            // الرسالة وصلات لهاد الهاتف: نعلمو المرسل ب ✓✓ (وصلات)
+            val tid = message.data["threadId"].orEmpty()
+            val mid = message.data["messageId"].orEmpty()
+            if (tid.isNotEmpty() && mid.isNotEmpty() && FirebaseAuth.getInstance().currentUser != null) {
+                kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                    com.etudiantsdroitmaroc.app.data.remote.ChatRepository().markMessageDelivered(tid, mid)
+                }
+            }
             showChatNotification(
                 title = title,
                 body = body,
