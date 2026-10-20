@@ -2,6 +2,7 @@ package com.etudiantsdroitmaroc.app.utils
 
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.Source
@@ -49,6 +50,66 @@ suspend fun DocumentReference.getFast(): DocumentSnapshot {
     } catch (e: Exception) {
         get(Source.CACHE).await()
     }
+}
+
+// ---------------------------------------------------------------------------------------------
+// قراءة "صارمة" للمحادثات: getFast() كيخبي أي خطأ ويرجع الكاش (حتى فارغ)، فالمحادثات كتبان فارغة بلا ما نعرفو العلة.
+// هنا: كنرجعو للكاش غير فالمهلة وانقطاع الشبكة، وإلا كان الكاش فارغ كنطلعو خطأ واضح. أخطاء الصلاحيات
+// والـ index (FAILED_PRECONDITION) كنطلعوها دايما وكنسجلوها فـ Logcat (الرسالة فيها رابط إنشاء الـ index).
+// ---------------------------------------------------------------------------------------------
+
+private const val STRICT_SERVER_TIMEOUT_MS = 8000L
+
+/** السيرفر ما جاوبش فالوقت وما كاين حتى شي فالكاش: خطأ شبكة (كيتعرض للمستخدم برسالة واضحة بدل لائحة فارغة) */
+class SlowConnectionException : java.io.IOException("Server did not answer in time and cache is empty")
+
+private fun isTransient(e: FirebaseFirestoreException) =
+    e.code == FirebaseFirestoreException.Code.UNAVAILABLE ||
+        e.code == FirebaseFirestoreException.Code.DEADLINE_EXCEEDED
+
+suspend fun Query.getFastStrict(): QuerySnapshot {
+    if (coroutineContext[CacheOnly.Key] != null) return get(Source.CACHE).await()
+    return try {
+        withTimeout(STRICT_SERVER_TIMEOUT_MS) { get(Source.SERVER).await() }
+    } catch (e: TimeoutCancellationException) {
+        queryCacheOrThrow(SlowConnectionException())
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: FirebaseFirestoreException) {
+        if (isTransient(e)) queryCacheOrThrow(e) else {
+            android.util.Log.e("EDM", "Firestore query failed: ${e.code} - ${e.message}", e)
+            throw e
+        }
+    }
+}
+
+private suspend fun Query.queryCacheOrThrow(cause: Exception): QuerySnapshot {
+    val cached = get(Source.CACHE).await()
+    if (cached.isEmpty) throw cause
+    return cached
+}
+
+/** مستند: النتيجة من السيرفر مضمونة. فالمهلة/انقطاع الشبكة كنرجعو غير مستند موجود فالكاش، وإلا خطأ (ما كنخمنوش). */
+suspend fun DocumentReference.getFastStrict(): DocumentSnapshot {
+    if (coroutineContext[CacheOnly.Key] != null) return get(Source.CACHE).await()
+    return try {
+        withTimeout(STRICT_SERVER_TIMEOUT_MS) { get(Source.SERVER).await() }
+    } catch (e: TimeoutCancellationException) {
+        docCacheOrThrow(SlowConnectionException())
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: FirebaseFirestoreException) {
+        if (isTransient(e)) docCacheOrThrow(e) else {
+            android.util.Log.e("EDM", "Firestore doc read failed: ${e.code} - ${e.message}", e)
+            throw e
+        }
+    }
+}
+
+private suspend fun DocumentReference.docCacheOrThrow(cause: Exception): DocumentSnapshot {
+    val cached = get(Source.CACHE).await()
+    if (!cached.exists()) throw cause
+    return cached
 }
 
 /**

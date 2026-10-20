@@ -15,6 +15,8 @@ import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.ktx.Firebase
 import com.etudiantsdroitmaroc.app.utils.getFast
+import com.etudiantsdroitmaroc.app.utils.getFastStrict
+import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
 
 class ChatRepository {
@@ -29,7 +31,7 @@ class ChatRepository {
         val snapshot = firestore.collection("chat_threads")
             .whereArrayContains("participantUids", myUid)
             .orderBy("lastMessageAt", Query.Direction.DESCENDING)
-            .getFast()
+            .getFastStrict() // ما كنخبيوش أخطاء الصلاحيات/الـ index: كتبان للمستخدم عوض لائحة فارغة
         return snapshot.toObjects<ChatThread>().filter { thread ->
             val otherUid = thread.participantUids.firstOrNull { it != myUid }
             otherUid == null || !blocked.contains(otherUid)
@@ -195,16 +197,34 @@ class ChatRepository {
     suspend fun getOrCreateThread(otherUid: String, otherName: String): String {
         val threadId = listOf(myUid, otherUid).sorted().joinToString("_")
         val docRef = firestore.collection("chat_threads").document(threadId)
-        val existing = docRef.getFast()
+        // قراءة مضمونة من السيرفر. قبل، فالمهلة كنرجعو لكاش فارغ ونكتبو المحادثة من جديد (كنمسحو lastMessage والعدادات)
+        val existing = try {
+            docRef.getFastStrict()
+        } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
+            null // ما قدرناش نتأكدو
+        }
+        if (existing?.exists() == true) return threadId
 
-        if (!existing.exists()) {
-            val myName = auth.currentUser?.displayName ?: ""
+        val myName = auth.currentUser?.displayName ?: ""
+        if (existing != null) {
+            // السيرفر أكد بلي المحادثة ما كايناش: إنشاء كامل
             val thread = ChatThread(
                 id = threadId,
                 participantUids = listOf(myUid, otherUid),
                 participantNames = mapOf(myUid to myName, otherUid to otherName)
             )
             docRef.set(thread).await()
+        } else {
+            // ما تأكدناش: كنكتبو غير بيانات التعريف (merge) باش ما نمسحو محادثة موجودة
+            docRef.set(
+                mapOf(
+                    "id" to threadId,
+                    "participantUids" to listOf(myUid, otherUid),
+                    "participantNames" to mapOf(myUid to myName, otherUid to otherName)
+                ),
+                SetOptions.merge()
+            ).await()
         }
         return threadId
     }
@@ -315,7 +335,15 @@ class ChatRepository {
     }
 
     private suspend fun getOtherParticipantUid(threadId: String): String? {
-        val doc = firestore.collection("chat_threads").document(threadId).getFast()
+        // معرّف المحادثة = UID جوج مرتبين بينهم "_" (شوف getOrCreateThread): كنستخرجو الآخر بلا شبكة.
+        // قبل، كنقراو الوثيقة بـ getFast وفغياب الكاش كنرجعو null، والرسالة كتتسجل بلا الطرف الآخر فـ participantUids
+        // (يعني ما يقدرش يقراها حسب القواعد، وما كيتزادش عداد ولا إشعار).
+        val parts = threadId.split("_")
+        if (parts.size == 2 && myUid in parts) {
+            val other = if (parts[0] == myUid) parts[1] else parts[0]
+            if (other.isNotEmpty() && other != myUid) return other
+        }
+        val doc = firestore.collection("chat_threads").document(threadId).getFastStrict()
         val thread = doc.toObject<ChatThread>() ?: return null
         return thread.participantUids.firstOrNull { it != myUid }
     }

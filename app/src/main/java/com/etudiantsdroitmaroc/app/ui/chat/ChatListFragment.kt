@@ -14,6 +14,7 @@ import com.etudiantsdroitmaroc.app.data.remote.ChatRepository
 import com.etudiantsdroitmaroc.app.databinding.FragmentChatListBinding
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ChatListFragment : Fragment() {
 
@@ -79,14 +80,49 @@ class ChatListFragment : Fragment() {
 
     private fun loadData() {
         viewLifecycleOwner.lifecycleScope.launch {
-            com.etudiantsdroitmaroc.app.utils.cacheThenServer(onError = { e ->
-                android.widget.Toast.makeText(context, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e), android.widget.Toast.LENGTH_LONG).show()
-            }) {
-                onlineAdapter.updateData(repository.getOnlineUsers())
+            _binding?.errorState?.visibility = View.GONE
+
+            // المتصلين: ما خاصهمش يوقفو المحادثات إلا فشلو
+            launch {
+                try {
+                    onlineAdapter.updateData(repository.getOnlineUsers())
+                } catch (e: Exception) {
+                    if (e is kotlinx.coroutines.CancellationException) throw e
+                    android.util.Log.w("EDM", "online users failed", e)
+                }
+            }
+
+            // 1) عرض فوري من الكاش
+            try {
+                allThreads = withContext(com.etudiantsdroitmaroc.app.utils.CacheOnly()) { repository.getMyThreads() }
+                _binding?.let { filterThreads(it.etSearch.text?.toString().orEmpty()) }
+            } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
+            }
+
+            // 2) السيرفر. الفشل ما كيتخباش: إلا كانت اللائحة فارغة كتبان حالة خطأ بزر إعادة المحاولة
+            try {
                 allThreads = repository.getMyThreads()
-                filterThreads(binding.etSearch.text?.toString().orEmpty())
+                _binding?.let {
+                    it.errorState.visibility = View.GONE
+                    filterThreads(it.etSearch.text?.toString().orEmpty())
+                }
+            } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                android.util.Log.e("EDM", "chat list load failed", e)
+                val message = com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(e)
+                if (allThreads.isEmpty()) showLoadError(message)
+                else android.widget.Toast.makeText(context, message, android.widget.Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    private fun showLoadError(message: String) {
+        val b = _binding ?: return
+        b.emptyState.visibility = View.GONE
+        b.errorState.visibility = View.VISIBLE
+        b.tvLoadError.text = message
+        b.btnRetryChats.setOnClickListener { loadData() }
     }
 
     private fun openUserProfile(user: UserProfile) {

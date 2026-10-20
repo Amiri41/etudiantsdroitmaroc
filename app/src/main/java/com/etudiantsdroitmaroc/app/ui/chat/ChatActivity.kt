@@ -100,7 +100,13 @@ class ChatActivity : AppCompatActivity() {
         messagesListener = Firebase.firestore.collection("chat_threads").document(threadId)
             .collection("messages")
             .orderBy("sentAt")
-            .addSnapshotListener { snapshot, _ ->
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    // قبل، الخطأ كان كيتجاهل وكتبان محادثة فارغة (مثلا رفض صلاحية)
+                    android.util.Log.e("EDM", "messages listener failed: ${error.code} - ${error.message}", error)
+                    Toast.makeText(this, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(error), Toast.LENGTH_LONG).show()
+                    return@addSnapshotListener
+                }
                 val messages: List<ChatMessage> = snapshot?.toObjects() ?: emptyList()
                 lastMessages = messages
                 adapter.updateData(messages)
