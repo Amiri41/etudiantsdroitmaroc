@@ -106,7 +106,8 @@ class ForumFragment : Fragment() {
                 ReportDialog.show(
                     requireContext(), lifecycleScope,
                     targetType = "post", targetId = post.id,
-                    targetOwnerUid = post.authorUid, targetOwnerName = post.authorName
+                    targetOwnerUid = post.authorUid, targetOwnerName = post.authorName,
+                    targetPath = "posts/${post.id}"
                 )
             },
             onBlockClick = { post ->

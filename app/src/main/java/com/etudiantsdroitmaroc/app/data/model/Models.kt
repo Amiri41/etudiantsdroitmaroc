@@ -198,6 +198,7 @@ data class Report(
     var reporterName: String = "",
     var targetType: String = "", // "post" | "comment" | "message" | "user"
     var targetId: String = "",
+    var targetPath: String = "", // المسار الكامل للوثيقة (باش الأدمين يمسحها)
     var targetOwnerUid: String = "",
     var targetOwnerName: String = "",
     var reason: String = "",

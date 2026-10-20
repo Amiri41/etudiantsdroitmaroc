@@ -21,7 +21,8 @@ class ModerationRepository {
         targetOwnerUid: String,
         targetOwnerName: String,
         reason: String,
-        extraDetails: String = ""
+        extraDetails: String = "",
+        targetPath: String = ""
     ): Result<Unit> {
         val user = auth.currentUser ?: return Result.failure(Exception("خاصك تسجل الدخول"))
         return try {
@@ -30,6 +31,7 @@ class ModerationRepository {
                 reporterName = user.displayName ?: "",
                 targetType = targetType,
                 targetId = targetId,
+                targetPath = targetPath,
                 targetOwnerUid = targetOwnerUid,
                 targetOwnerName = targetOwnerName,
                 reason = reason,

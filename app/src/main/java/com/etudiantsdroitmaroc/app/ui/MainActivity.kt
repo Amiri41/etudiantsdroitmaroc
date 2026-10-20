@@ -57,6 +57,28 @@ class MainActivity : AppCompatActivity() {
 
         requestNotificationPermissionIfNeeded()
         ensureFcmTokenSaved()
+        checkNotBanned()
+    }
+
+    /** إلا الأدمين وقف الحساب: كنخرجو المستعمل ونرجعوه لصفحة الدخول */
+    private fun checkNotBanned() {
+        val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser ?: return
+        com.google.firebase.firestore.FirebaseFirestore.getInstance()
+            .collection("users").document(user.uid)
+            .get(com.google.firebase.firestore.Source.SERVER)
+            .addOnSuccessListener { doc ->
+                if (doc.getBoolean("banned") == true) {
+                    com.google.firebase.auth.FirebaseAuth.getInstance().signOut()
+                    android.widget.Toast.makeText(
+                        this, "تم إيقاف حسابك بسبب مخالفة شروط الاستخدام.", android.widget.Toast.LENGTH_LONG
+                    ).show()
+                    startActivity(
+                        android.content.Intent(this, com.etudiantsdroitmaroc.app.ui.auth.LoginActivity::class.java)
+                            .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    )
+                    finish()
+                }
+            }
     }
 
     override fun onNewIntent(intent: android.content.Intent) {

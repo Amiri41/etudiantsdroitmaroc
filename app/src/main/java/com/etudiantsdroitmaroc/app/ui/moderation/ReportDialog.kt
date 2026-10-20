@@ -35,7 +35,8 @@ object ReportDialog {
         targetType: String,
         targetId: String,
         targetOwnerUid: String,
-        targetOwnerName: String
+        targetOwnerName: String,
+        targetPath: String = ""
     ) {
         val repository = ModerationRepository()
         val b = DialogReportBinding.inflate(LayoutInflater.from(context))
@@ -77,7 +78,7 @@ object ReportDialog {
             dialog.dismiss()
             scope.launch {
                 val result = repository.submitReport(
-                    targetType, targetId, targetOwnerUid, targetOwnerName, reason, details
+                    targetType, targetId, targetOwnerUid, targetOwnerName, reason, details, targetPath
                 )
                 if (result.isSuccess) {
                     Toast.makeText(context, "تم إرسال الإبلاغ، غادي نراجعوه ✅", Toast.LENGTH_SHORT).show()

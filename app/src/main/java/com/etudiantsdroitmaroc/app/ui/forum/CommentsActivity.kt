@@ -38,7 +38,8 @@ class CommentsActivity : AppCompatActivity() {
             ReportDialog.show(
                 this, lifecycleScope,
                 targetType = "comment", targetId = comment.id,
-                targetOwnerUid = comment.authorUid, targetOwnerName = comment.authorName
+                targetOwnerUid = comment.authorUid, targetOwnerName = comment.authorName,
+                targetPath = "posts/$postId/comments/${comment.id}"
             )
         }
         binding.rvComments.layoutManager = LinearLayoutManager(this)

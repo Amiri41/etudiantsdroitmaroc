@@ -64,7 +64,8 @@ class GroupChatActivity : AppCompatActivity() {
                 ReportDialog.show(
                     this, lifecycleScope,
                     targetType = "message", targetId = message.id,
-                    targetOwnerUid = message.senderUid, targetOwnerName = message.senderName
+                    targetOwnerUid = message.senderUid, targetOwnerName = message.senderName,
+                    targetPath = "forum_groups/$groupId/messages/${message.id}"
                 )
             }
         )

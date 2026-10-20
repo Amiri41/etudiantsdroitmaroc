@@ -77,7 +77,8 @@ class ChatActivity : AppCompatActivity() {
                 ReportDialog.show(
                     this, lifecycleScope,
                     targetType = "message", targetId = message.id,
-                    targetOwnerUid = otherUid, targetOwnerName = binding.tvOtherName.text.toString()
+                    targetOwnerUid = otherUid, targetOwnerName = binding.tvOtherName.text.toString(),
+                    targetPath = "chat_threads/$threadId/messages/${message.id}"
                 )
             },
             onInfoClick = { message -> showMessageInfo(message) }
