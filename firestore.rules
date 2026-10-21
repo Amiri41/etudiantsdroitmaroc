@@ -7,6 +7,17 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == "pndM3rNT9DRVCPxODaHFFnBO9jU2";
     }
 
+    // عداد (likes/comments) يقدر يتبدل غير بـ +1 ولا -1 من طرف شي واحد آخر
+    function counterOk(field) {
+      return !(field in request.resource.data.diff(resource.data).affectedKeys()) ||
+        math.abs(request.resource.data.get(field, 0) - resource.data.get(field, 0)) <= 1;
+    }
+
+    // الطرف التاني فـ محادثة خاصة (participantUids فيها جوج)
+    function otherParticipant(list) {
+      return list[0] == request.auth.uid ? list[1] : list[0];
+    }
+
     // المستخدم الموقوف (banned=true) ما يقدرش يكتب (منشور، تعليق، رسالة)
     function notBanned() {
       return request.auth != null &&
@@ -15,7 +26,10 @@ service cloud.firestore {
 
     match /debug_logs/{logId} {
       allow read: if request.auth != null && request.auth.uid == "pndM3rNT9DRVCPxODaHFFnBO9jU2";
-      allow create: if request.auth != null;
+      allow create: if request.auth != null &&
+        request.resource.data.uid == request.auth.uid &&
+        request.resource.data.keys().hasOnly(['uid', 'trace', 'timestamp', 'device']) &&
+        request.resource.data.trace.size() <= 5000;
     }
 
     match /pages/{pageId} {
@@ -38,7 +52,8 @@ service cloud.firestore {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.authorUid && notBanned();
       allow update: if request.auth != null && (
         request.auth.uid == resource.data.authorUid ||
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likesCount', 'commentsCount'])
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likesCount', 'commentsCount']) &&
+          counterOk('likesCount') && counterOk('commentsCount'))
       );
       allow delete: if request.auth != null && (request.auth.uid == resource.data.authorUid || isAdmin());
 
@@ -69,7 +84,13 @@ service cloud.firestore {
 
       match /friends/{friendUid} {
         allow read: if request.auth != null;
-        allow write: if request.auth != null && (request.auth.uid == uid || request.auth.uid == friendUid);
+        // الإضافة: صاحب القائمة، ولا الطرف الآخر غير إلا كان عندو طلب صداقة منو (قبل ما يتمسح الطلب)
+        allow create: if request.auth != null && (
+          request.auth.uid == uid ||
+          (request.auth.uid == friendUid &&
+            exists(/databases/$(database)/documents/users/$(friendUid)/incoming_requests/$(uid)))
+        );
+        allow update, delete: if request.auth != null && (request.auth.uid == uid || request.auth.uid == friendUid);
       }
 
       // طلبات الصداقة الواردة (بحال فيسبوك: طلب ثم قبول/رفض)
@@ -92,7 +113,8 @@ service cloud.firestore {
 
     match /chat_threads/{threadId} {
       allow read: if request.auth != null && (resource == null || request.auth.uid in resource.data.participantUids);
-      allow create: if request.auth != null && notBanned();
+      allow create: if request.auth != null && notBanned() &&
+        request.auth.uid in request.resource.data.participantUids;
       allow update, delete: if request.auth != null && request.auth.uid in resource.data.participantUids;
 
       match /messages/{messageId} {
@@ -100,7 +122,8 @@ service cloud.firestore {
           request.auth.uid in resource.data.participantUids;
         allow create: if request.auth != null &&
           request.auth.uid in request.resource.data.participantUids &&
-          request.auth.uid == request.resource.data.senderUid && notBanned();
+          request.auth.uid == request.resource.data.senderUid && notBanned() &&
+          !exists(/databases/$(database)/documents/users/$(otherParticipant(request.resource.data.participantUids))/blocked/$(request.auth.uid));
         // المستقبل فقط يقدر يحدث حقول الوصول/القراءة (وصلات ✓✓ / تقراات ✓✓ زرقاء) وبلا ما يبدل أي شي آخر
         allow update: if request.auth != null &&
           request.auth.uid in resource.data.participantUids &&
@@ -147,7 +170,7 @@ service cloud.firestore {
 
     // مجموعات المنتدى (بحال مجموعات واتساب) - كل واحد يقدر ينشئ، منشئها هو الأدمين ديالها
     match /forum_groups/{groupId} {
-      allow read: if true;
+      allow read: if request.auth != null;
       allow create: if request.auth != null && request.auth.uid == request.resource.data.creatorUid;
       allow update: if request.auth != null && (
         request.auth.uid == resource.data.creatorUid ||

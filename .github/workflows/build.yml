@@ -25,6 +25,13 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-key.json
         run: npx firebase-tools deploy --only firestore:rules --project etudiants-droit-maroc --non-interactive
 
+      # الفهارس: إلا فشلات (صلاحيات مثلا) ما كتوقفش نشر القواعد
+      - name: Deploy Firestore indexes
+        continue-on-error: true
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-key.json
+        run: npx firebase-tools deploy --only firestore:indexes --project etudiants-droit-maroc --non-interactive
+
   build:
     runs-on: ubuntu-latest
     needs: deploy-rules

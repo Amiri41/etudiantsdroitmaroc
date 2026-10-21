@@ -47,7 +47,7 @@ class AuthRepository(private val context: Context) {
             val profile = UserProfile(
                 uid = user.uid,
                 name = user.displayName ?: "",
-                email = user.email ?: "",
+                email = "", // ما كنخزنوش الإيميل فـ Firestore (مكشوف للمستعملين الآخرين)
                 photoUrl = photoToUse,
                 isOnline = true
             )
