@@ -58,6 +58,18 @@ class MainActivity : AppCompatActivity() {
         requestNotificationPermissionIfNeeded()
         ensureFcmTokenSaved()
         checkNotBanned()
+        cleanOldEmailField()
+    }
+
+    /** مرة وحدة: نمسحو الإيميل القديم من الوثيقة العامة ديال المستعمل */
+    private fun cleanOldEmailField() {
+        val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser ?: return
+        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        if (prefs.getBoolean("email_cleaned", false)) return
+        com.google.firebase.firestore.FirebaseFirestore.getInstance()
+            .collection("users").document(user.uid)
+            .update("email", com.google.firebase.firestore.FieldValue.delete())
+            .addOnSuccessListener { prefs.edit().putBoolean("email_cleaned", true).apply() }
     }
 
     /** إلا الأدمين وقف الحساب: كنخرجو المستعمل ونرجعوه لصفحة الدخول */

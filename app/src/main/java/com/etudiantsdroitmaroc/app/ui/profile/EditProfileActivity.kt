@@ -100,7 +100,7 @@ class EditProfileActivity : AppCompatActivity() {
                 val data = mutableMapOf<String, Any>(
                     "uid" to (user?.uid ?: ""),
                     "name" to name,
-                    "email" to (user?.email ?: ""),
+                    "email" to com.google.firebase.firestore.FieldValue.delete(),
                     "university" to university,
                     "level" to level
                 )

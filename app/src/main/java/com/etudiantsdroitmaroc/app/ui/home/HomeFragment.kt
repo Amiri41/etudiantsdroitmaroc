@@ -115,7 +115,12 @@ class HomeFragment : Fragment() {
         val frame = FrameLayout(ctx)
         frame.layoutParams = LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
-        ).apply { topMargin = (14 * resources.displayMetrics.density).toInt() }
+        ).apply {
+            // مسافة واضحة بين الإعلان والأزرار باش ما تتضغطش بالغلط (سياسة Google)
+            val d = resources.displayMetrics.density
+            topMargin = (24 * d).toInt()
+            bottomMargin = (14 * d).toInt()
+        }
         val adView = AdView(ctx)
         adView.setAdSize(AdSize.BANNER)
         adView.adUnitId = AdIds.BANNER
