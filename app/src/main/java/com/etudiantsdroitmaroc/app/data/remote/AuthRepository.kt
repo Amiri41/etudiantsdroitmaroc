@@ -77,6 +77,7 @@ class AuthRepository(private val context: Context) {
     }
 
     fun signOut() {
+        com.etudiantsdroitmaroc.app.data.local.ChatLocalDatabase.wipeAsync(context)
         auth.signOut()
         GoogleSignIn.getClient(
             context,

@@ -46,7 +46,7 @@ class NotificationService : FirebaseMessagingService() {
             val mid = message.data["messageId"].orEmpty()
             if (tid.isNotEmpty() && mid.isNotEmpty() && FirebaseAuth.getInstance().currentUser != null) {
                 kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
-                    com.etudiantsdroitmaroc.app.data.remote.ChatRepository().markMessageDelivered(tid, mid)
+                    com.etudiantsdroitmaroc.app.data.remote.ChatRepository().storeIncomingMessageLocally(applicationContext, tid, mid)
                 }
             }
             showChatNotification(

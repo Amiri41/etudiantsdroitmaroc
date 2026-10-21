@@ -14,6 +14,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.ktx.Firebase
+import com.etudiantsdroitmaroc.app.data.local.toLocal
 import com.etudiantsdroitmaroc.app.utils.getFast
 import com.etudiantsdroitmaroc.app.utils.getFastStrict
 import com.google.firebase.firestore.SetOptions
@@ -185,7 +186,9 @@ class ChatRepository {
 
     suspend fun clearChatMessages(threadId: String) {
         val messages = firestore.collection("chat_threads").document(threadId)
-            .collection("messages").get().await()
+            .collection("messages")
+            .whereArrayContains("participantUids", myUid)
+            .get().await()
         val batch = firestore.batch()
         messages.documents.forEach { batch.delete(it.reference) }
         batch.commit().await()
@@ -322,6 +325,29 @@ class ChatRepository {
         }
     }
 
+    /**
+     * رسالة وصلات عبر الإشعار: كنجيبوها من السيرفر ونخزنوها فالهاتف (بحال واتساب) وكنعلمو المرسل بـ "وصلات".
+     * كتخدم حتى إلا كان التطبيق مسدود (ما كاينش مستمع).
+     */
+    suspend fun storeIncomingMessageLocally(context: android.content.Context, threadId: String, messageId: String) {
+        if (threadId.isEmpty() || messageId.isEmpty()) return
+        try {
+            val doc = firestore.collection("chat_threads").document(threadId)
+                .collection("messages").document(messageId)
+                .get(com.google.firebase.firestore.Source.SERVER).await()
+            val message = doc.toObject<ChatMessage>()
+            if (message != null && message.senderUid != myUid) {
+                message.id = doc.id
+                com.etudiantsdroitmaroc.app.data.local.ChatLocalDatabase.getInstance(context).messageDao()
+                    .upsertAll(listOf(message.toLocal(threadId, pending = false)))
+            }
+        } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
+            android.util.Log.w("EDM", "store incoming message failed", e)
+        }
+        markMessageDelivered(threadId, messageId)
+    }
+
     /** وصلات الرسالة لتطبيق المستقبل (كيتنادى من استقبال الإشعار): ✓✓ رمادية عند المرسل */
     suspend fun markMessageDelivered(threadId: String, messageId: String) {
         if (threadId.isEmpty() || messageId.isEmpty()) return
@@ -371,9 +397,9 @@ class ChatRepository {
     suspend fun getMessages(threadId: String): List<ChatMessage> {
         val snapshot = firestore.collection("chat_threads").document(threadId)
             .collection("messages")
-            .orderBy("sentAt", Query.Direction.ASCENDING)
+            .whereArrayContains("participantUids", myUid) // القاعدة كتشترط participantUids: بلا هاد الفلتر الاستعلام كيتمنع
             .getFast()
-        return snapshot.toObjects()
+        return snapshot.toObjects<ChatMessage>().sortedBy { it.sentAt }
     }
 
     suspend fun getOnlineUsers(): List<UserProfile> {

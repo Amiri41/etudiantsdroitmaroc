@@ -68,6 +68,7 @@ class MainActivity : AppCompatActivity() {
             .get(com.google.firebase.firestore.Source.SERVER)
             .addOnSuccessListener { doc ->
                 if (doc.getBoolean("banned") == true) {
+                    com.etudiantsdroitmaroc.app.data.local.ChatLocalDatabase.wipeAsync(this)
                     com.google.firebase.auth.FirebaseAuth.getInstance().signOut()
                     android.widget.Toast.makeText(
                         this, "تم إيقاف حسابك بسبب مخالفة شروط الاستخدام.", android.widget.Toast.LENGTH_LONG

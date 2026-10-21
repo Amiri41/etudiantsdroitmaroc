@@ -1,6 +1,11 @@
 package com.etudiantsdroitmaroc.app.ui.chat
 
 import android.os.Bundle
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import com.etudiantsdroitmaroc.app.data.local.toChatMessage
+import com.etudiantsdroitmaroc.app.data.local.toLocal
+import kotlinx.coroutines.Dispatchers
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
@@ -92,28 +97,62 @@ class ChatActivity : AppCompatActivity() {
 
         applySavedBackground()
         listenOtherStatus()
+        observeLocalMessages()
         listenForMessages()
     }
 
-    /** Real-time listener - كل رسالة جديدة كتبان مباشرة بلا ما نعاود نطلب من جديد */
+    private val localDao by lazy {
+        com.etudiantsdroitmaroc.app.data.local.ChatLocalDatabase.getInstance(applicationContext).messageDao()
+    }
+    private var listenerErrorShown = false
+
+    /** الواجهة كتقرا الرسائل من التخزين المحلي (بحال واتساب): ما كتختافاش إلا فشل السيرفر */
+    private fun observeLocalMessages() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                localDao.observeThread(threadId).collect { rows ->
+                    val messages = rows.map { it.toChatMessage() }
+                    lastMessages = messages
+                    adapter.updateData(messages)
+                    if (messages.isNotEmpty()) {
+                        binding.rvMessages.scrollToPosition(messages.size - 1)
+                    }
+                    markSeenIfVisible()
+                }
+            }
+        }
+    }
+
+    /**
+     * Real-time listener: كيزيد/كيحدث الرسائل فالتخزين المحلي فقط.
+     * - الفلتر array-contains ضروري: القاعدة كتشترط participantUids، وبلا فلتر السيرفر كيرفض الاستعلام
+     *   (PERMISSION_DENIED) وكان كيمسح اللائحة: الرسائل كتبان من الكاش وتختافى.
+     * - ما كنمسحوش رسالة محلية غير بسبب غياب الرسالة فالسيرفر، إلا إلا كانت "قيد الإرسال" وفشلات.
+     */
     private fun listenForMessages() {
         messagesListener = Firebase.firestore.collection("chat_threads").document(threadId)
             .collection("messages")
-            .orderBy("sentAt")
+            .whereArrayContains("participantUids", currentUid())
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    // قبل، الخطأ كان كيتجاهل وكتبان محادثة فارغة (مثلا رفض صلاحية)
                     android.util.Log.e("EDM", "messages listener failed: ${error.code} - ${error.message}", error)
-                    Toast.makeText(this, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(error), Toast.LENGTH_LONG).show()
+                    if (!listenerErrorShown) {
+                        listenerErrorShown = true
+                        Toast.makeText(this, com.etudiantsdroitmaroc.app.utils.ErrorUtils.friendly(error), Toast.LENGTH_LONG).show()
+                    }
                     return@addSnapshotListener
                 }
-                val messages: List<ChatMessage> = snapshot?.toObjects() ?: emptyList()
-                lastMessages = messages
-                adapter.updateData(messages)
-                if (messages.isNotEmpty()) {
-                    binding.rvMessages.scrollToPosition(messages.size - 1)
+                val docs = snapshot ?: return@addSnapshotListener
+                val rows = docs.documents.mapNotNull { d ->
+                    val m = d.toObject(ChatMessage::class.java) ?: return@mapNotNull null
+                    m.id = d.id
+                    m.toLocal(threadId, pending = d.metadata.hasPendingWrites())
                 }
-                markSeenIfVisible()
+                val serverConfirmed = !docs.metadata.isFromCache
+                lifecycleScope.launch(Dispatchers.IO) {
+                    localDao.upsertAll(rows)
+                    if (serverConfirmed) localDao.deleteFailedPending(threadId, rows.map { it.id })
+                }
             }
     }
 
@@ -236,6 +275,7 @@ class ChatActivity : AppCompatActivity() {
             .setPositiveButton("مسح") { _, _ ->
                 lifecycleScope.launch {
                     repository.clearChatMessages(threadId)
+                    localDao.clearThread(threadId) // ومن الهاتف أيضا
                     Toast.makeText(this@ChatActivity, "تم مسح المحادثة", Toast.LENGTH_SHORT).show()
                 }
             }

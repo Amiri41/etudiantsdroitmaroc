@@ -96,7 +96,13 @@ class MessageAdapter(
             b.ivStatus.visibility = View.VISIBLE
             val seen = message.seen
             val delivered = message.deliveredAt > 0L
-            b.ivStatus.setImageResource(if (seen || delivered) R.drawable.ic_tick_double else R.drawable.ic_tick_single)
+            b.ivStatus.setImageResource(
+                when {
+                    message.pending -> R.drawable.ic_tick_pending
+                    seen || delivered -> R.drawable.ic_tick_double
+                    else -> R.drawable.ic_tick_single
+                }
+            )
             val tint = when {
                 seen -> if (dark) 0xFF7FD3FF.toInt() else 0xFF1E88E5.toInt()
                 else -> metaColor
