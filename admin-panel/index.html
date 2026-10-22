@@ -1044,7 +1044,7 @@ document.getElementById("broadcastImageInput").addEventListener("change", (e) =>
 });
 
 const NOTIFY_WORKER_URL = "https://etudiants-notify.wamiri459.workers.dev";
-const NOTIFY_APP_SECRET = "etudiants-x9k2m4p7-secret-2026";
+// ما بقاش كاين سر ثابت: كنصيفطو Firebase ID token ديال الأدمين
 
 async function sendBroadcast() {
   const progressText = document.getElementById("broadcastProgressText");
@@ -1068,11 +1068,12 @@ async function sendBroadcast() {
 
   progressText.textContent = "كنبعتو الإشعار...";
   try {
+    const idToken = await firebase.auth().currentUser.getIdToken();
     const res = await fetch(NOTIFY_WORKER_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-App-Secret": NOTIFY_APP_SECRET
+        "Authorization": "Bearer " + idToken
       },
       body: JSON.stringify({
         topic: "all_users",

@@ -74,12 +74,10 @@ class ChatRepository {
             .set(request).await()
 
         try {
-            val otherDoc = firestore.collection("users").document(otherUid).getFast()
-            val fcmToken = otherDoc.getString("fcmToken")
-            if (!fcmToken.isNullOrBlank()) {
-                PushNotifier.sendNotification(fcmToken, request.fromName, "بعث ليك طلب صداقة 👋")
-            }
-        } catch (_: Exception) { }
+            PushNotifier.sendFriendRequest(otherUid, request.fromName, "بعث ليك طلب صداقة 👋")
+        } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
+        }
     }
 
     /** واش كاين طلب صداقة معلق مني للشخص هادا */
@@ -211,21 +209,12 @@ class ChatRepository {
 
     private suspend fun notifyOtherParticipant(threadId: String, previewText: String, messageId: String = "") {
         try {
-            val threadDoc = firestore.collection("chat_threads").document(threadId).getFast()
-            val thread = threadDoc.toObject<ChatThread>() ?: return
-            val otherUid = thread.participantUids.firstOrNull { it != myUid } ?: return
-
-            val otherUserDoc = firestore.collection("users").document(otherUid).getFast()
-            val fcmToken = otherUserDoc.getString("fcmToken") ?: return
-
             val myName = auth.currentUser?.displayName ?: "رسالة جديدة"
-            PushNotifier.sendNotification(
-                fcmToken, myName, previewText,
-                mapOf("kind" to "chat", "threadId" to threadId, "otherUid" to myUid, "otherName" to myName, "messageId" to messageId)
-            )
+            // الـ Worker كيتحقق من المحادثة ويجيب توكن الطرف الآخر بنفسو
+            PushNotifier.sendChat(threadId, myName, previewText, messageId)
         } catch (e: Exception) {
             if (e is kotlinx.coroutines.CancellationException) throw e
-            // ما تكسرش الإرسال العادي إلا فشل الإشعار
+            // الإشعار ماشي ضروري: نتجاهلو الخطأ
         }
     }
 
