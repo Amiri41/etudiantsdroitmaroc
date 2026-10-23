@@ -1174,18 +1174,17 @@ document.getElementById("pdfCoverInput").addEventListener("change", (e) => {
   preview.classList.remove("hidden");
 });
 
-const IMGBB_API_KEY = "33ff99d34384ee94cc90e8465c8b5515";
-
 async function uploadCoverImage(file) {
-  const formData = new FormData();
-  formData.append("image", file);
-  const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+  // الصورة كتمشي عبر الـ Worker (مفتاح imgbb كيبقى فيه فقط)
+  const idToken = await firebase.auth().currentUser.getIdToken();
+  const res = await fetch(NOTIFY_WORKER_URL + "/upload", {
     method: "POST",
-    body: formData
+    headers: { "Authorization": "Bearer " + idToken, "Content-Type": file.type || "image/jpeg" },
+    body: file
   });
-  const json = await res.json();
-  if (!json.success) throw new Error("فشل رفع صورة الغلاف");
-  return json.data.url;
+  const json = await res.json().catch(() => ({}));
+  if (!json.url) throw new Error("فشل رفع صورة الغلاف");
+  return json.url;
 }
 
 async function addPdfLink() {

@@ -4,6 +4,7 @@
 //   APP_SECRET                (Secret)  : الكلمة السرية القديمة، فقط للنسخ القديمة من التطبيق (مؤقتا)
 //   LEGACY_OFF                (اختياري) : حطها "true" باش تقفل الكلمة السرية القديمة نهائيا
 //   ADMIN_UID                 (اختياري) : معرّف الأدمين (إلا ما تحطش، كنستعملو الثابت اللي تحت)
+//   IMGBB_API_KEY             (Secret)  : مفتاح imgbb ديال رفع الصور (كيبقى هنا فقط، ما كيدخلش فالتطبيق)
 
 const ADMIN_UID = "pndM3rNT9DRVCPxODaHFFnBO9jU2";
 const ALLOWED_ORIGIN = "https://etudiants-droit-maroc.netlify.app";
@@ -269,12 +270,70 @@ async function handleLegacy(body, sa) {
   return sendFcm(sa, fcm);
 }
 
+// حد رفع الصور: 20 صورة فالساعة لكل مستعمل (best effort)
+const uploadRate = new Map();
+function uploadLimited(uid) {
+  const now = Date.now();
+  const arr = (uploadRate.get(uid) || []).filter((t) => now - t < 3600000);
+  if (arr.length >= 20) {
+    uploadRate.set(uid, arr);
+    return true;
+  }
+  arr.push(now);
+  uploadRate.set(uid, arr);
+  return false;
+}
+
+const MAX_UPLOAD_BYTES = 8 * 1024 * 1024;
+
+// رفع صورة لـ imgbb: التطبيق كيصيفط الصورة + ID token، والمفتاح كيبقى فالـ Worker
+async function handleUpload(request, env) {
+  try {
+    if (!env.IMGBB_API_KEY) throw new HttpError(500, "upload_not_configured");
+    let sa;
+    try {
+      sa = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT);
+    } catch (e) {
+      throw new HttpError(500, "bad_service_account_config");
+    }
+    const auth = request.headers.get("Authorization") || "";
+    if (!auth.startsWith("Bearer ")) throw new HttpError(401, "unauthorized");
+    const caller = await verifyIdToken(auth.slice(7).trim(), sa.project_id);
+
+    const adminUid = env.ADMIN_UID || ADMIN_UID;
+    if (caller.uid !== adminUid && uploadLimited(caller.uid)) return json(request, 429, { error: "rate_limited" });
+
+    const ctype = (request.headers.get("Content-Type") || "").split(";")[0].trim().toLowerCase();
+    if (!ctype.startsWith("image/")) throw new HttpError(415, "unsupported_type");
+    const declared = parseInt(request.headers.get("Content-Length") || "0", 10);
+    if (declared > MAX_UPLOAD_BYTES) throw new HttpError(413, "too_large");
+    const buf = await request.arrayBuffer();
+    if (buf.byteLength === 0) throw new HttpError(400, "empty_body");
+    if (buf.byteLength > MAX_UPLOAD_BYTES) throw new HttpError(413, "too_large");
+
+    const form = new FormData();
+    form.append("image", new Blob([buf], { type: ctype }), "upload");
+    const res = await fetch("https://api.imgbb.com/1/upload?key=" + encodeURIComponent(env.IMGBB_API_KEY), {
+      method: "POST",
+      body: form
+    });
+    const out = await res.json().catch(() => null);
+    if (!res.ok || !out || !out.success || !out.data || !out.data.url) throw new HttpError(502, "upload_failed");
+    return json(request, 200, { url: out.data.url });
+  } catch (e) {
+    if (e instanceof HttpError) return json(request, e.status, { error: e.message });
+    return json(request, 500, { error: "server_error" });
+  }
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: corsHeaders(request) });
     }
     if (request.method !== "POST") return json(request, 405, { error: "method_not_allowed" });
+
+    if (new URL(request.url).pathname === "/upload") return handleUpload(request, env);
 
     let body;
     try {
