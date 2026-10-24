@@ -7,6 +7,10 @@
 //   IMGBB_API_KEY             (Secret)  : مفتاح imgbb ديال رفع الصور (كيبقى هنا فقط، ما كيدخلش فالتطبيق)
 
 const ADMIN_UID = "pndM3rNT9DRVCPxODaHFFnBO9jU2";
+// خيار سهل: إلا ما بغيتيش تزيد Secret، الصق مفتاح imgbb بين الجوج ديال "" هنا، مباشرة فـ Cloudflare.
+// (ما تصيفطوش فالمحادثة ولا فـ GitHub. الأفضل يكون Secret باسم IMGBB_API_KEY)
+const IMGBB_KEY_IN_CODE = "";
+
 const ALLOWED_ORIGIN = "https://etudiants-droit-maroc.netlify.app";
 const JWK_URL = "https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com";
 
@@ -289,7 +293,8 @@ const MAX_UPLOAD_BYTES = 8 * 1024 * 1024;
 // رفع صورة لـ imgbb: التطبيق كيصيفط الصورة + ID token، والمفتاح كيبقى فالـ Worker
 async function handleUpload(request, env) {
   try {
-    if (!env.IMGBB_API_KEY) throw new HttpError(500, "upload_not_configured");
+    const imgbbKey = env.IMGBB_API_KEY || IMGBB_KEY_IN_CODE;
+    if (!imgbbKey) throw new HttpError(500, "upload_not_configured");
     let sa;
     try {
       sa = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT);
@@ -313,7 +318,7 @@ async function handleUpload(request, env) {
 
     const form = new FormData();
     form.append("image", new Blob([buf], { type: ctype }), "upload");
-    const res = await fetch("https://api.imgbb.com/1/upload?key=" + encodeURIComponent(env.IMGBB_API_KEY), {
+    const res = await fetch("https://api.imgbb.com/1/upload?key=" + encodeURIComponent(imgbbKey), {
       method: "POST",
       body: form
     });
