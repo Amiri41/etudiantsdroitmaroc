@@ -61,12 +61,22 @@ class GroupChatActivity : AppCompatActivity() {
             onLongPressDelete = { message -> confirmDelete(message) },
             onClickAvatar = { message -> openSenderProfile(message) },
             onReportClick = { message ->
-                ReportDialog.show(
-                    this, lifecycleScope,
-                    targetType = "message", targetId = message.id,
-                    targetOwnerUid = message.senderUid, targetOwnerName = message.senderName,
-                    targetPath = "forum_groups/$groupId/messages/${message.id}"
-                )
+                androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setItems(arrayOf("إبلاغ عن الرسالة", "حظر ${message.senderName}")) { _, which ->
+                        if (which == 0) {
+                            ReportDialog.show(
+                                this, lifecycleScope,
+                                targetType = "message", targetId = message.id,
+                                targetOwnerUid = message.senderUid, targetOwnerName = message.senderName,
+                                targetPath = "forum_groups/$groupId/messages/${message.id}"
+                            )
+                        } else {
+                            ReportDialog.confirmBlock(this, lifecycleScope, message.senderUid, message.senderName) {
+                                loadMessages()
+                            }
+                        }
+                    }
+                    .show()
             }
         )
         binding.rvMessages.layoutManager = LinearLayoutManager(this)

@@ -35,12 +35,23 @@ class CommentsActivity : AppCompatActivity() {
         binding.toolbar.setNavigationOnClickListener { finish() }
 
         adapter = CommentAdapter(emptyList()) { comment ->
-            ReportDialog.show(
-                this, lifecycleScope,
-                targetType = "comment", targetId = comment.id,
-                targetOwnerUid = comment.authorUid, targetOwnerName = comment.authorName,
-                targetPath = "posts/$postId/comments/${comment.id}"
-            )
+            // خيارين: إبلاغ عن التعليق، ولا حظر صاحبو
+            androidx.appcompat.app.AlertDialog.Builder(this)
+                .setItems(arrayOf("إبلاغ عن التعليق", "حظر ${comment.authorName}")) { _, which ->
+                    if (which == 0) {
+                        ReportDialog.show(
+                            this, lifecycleScope,
+                            targetType = "comment", targetId = comment.id,
+                            targetOwnerUid = comment.authorUid, targetOwnerName = comment.authorName,
+                            targetPath = "posts/$postId/comments/${comment.id}"
+                        )
+                    } else {
+                        ReportDialog.confirmBlock(this, lifecycleScope, comment.authorUid, comment.authorName) {
+                            loadComments()
+                        }
+                    }
+                }
+                .show()
         }
         binding.rvComments.layoutManager = LinearLayoutManager(this)
         binding.rvComments.adapter = adapter
