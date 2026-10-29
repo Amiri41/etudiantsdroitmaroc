@@ -134,6 +134,14 @@ service cloud.firestore {
       }
     }
 
+    // collectionGroup: المستعمل يقدر يقرا غير التعليقات/الرسائل ديالو (باش يتمسحو ملي يحذف حسابو)
+    match /{path=**}/comments/{commentId} {
+      allow read: if request.auth != null && resource.data.authorUid == request.auth.uid;
+    }
+    match /{path=**}/messages/{messageId} {
+      allow read: if request.auth != null && resource.data.senderUid == request.auth.uid;
+    }
+
     // بانر/إعلان تحكم من الأدمين، يبان للمستخدمين ملي يحلو التطبيق
     match /app_announcement/{docId} {
       allow read: if true;

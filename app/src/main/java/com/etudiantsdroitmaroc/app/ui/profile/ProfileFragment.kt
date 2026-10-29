@@ -132,7 +132,7 @@ class ProfileFragment : Fragment() {
     private fun confirmDeleteAccount() {
         com.etudiantsdroitmaroc.app.ui.common.AppDialog.Builder(requireContext())
             .setTitle("حذف الحساب نهائيا")
-            .setMessage("هاد العملية ماغاديش ترجع فيها. غادي يتحذف حسابك، البروفايل، الأصدقاء والمنشورات ديالك. التعليقات والرسائل الخاصة اللي بعتي كتبقى، وتقدر تطلب مسحها بالإيميل. متأكد بغيتي تكمل؟")
+            .setMessage("هاد العملية ماغاديش ترجع فيها. غادي يتحذف حسابك، البروفايل، الأصدقاء، المنشورات، التعليقات والرسائل اللي بعتي. الصور المرفوعة عند خدمة imgbb كتبقى، وتقدر تطلب مسحها بالإيميل. متأكد بغيتي تكمل؟")
             .setPositiveButton("حذف نهائيا") { _, _ -> deleteAccount() }
             .setNegativeButton("إلغاء", null)
             .show()
@@ -154,22 +154,16 @@ class ProfileFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val db = Firebase.firestore
-                // المنشورات ديال المستعمل
-                db.collection("posts").whereEqualTo("authorUid", uid).get().await()
-                    .documents.forEach { it.reference.delete().await() }
-                // الأصدقاء والطلبات والحظر
-                for (sub in listOf("friends", "incoming_requests", "blocked")) {
-                    try {
-                        db.collection("users").document(uid).collection(sub).get().await()
-                            .documents.forEach { it.reference.delete().await() }
-                    } catch (e: Exception) {
-                        if (e is kotlinx.coroutines.CancellationException) throw e
-                    }
-                }
+                // المنشورات، التعليقات، الرسائل، الأصدقاء، الحظر، المجموعات
+                val allErased = com.etudiantsdroitmaroc.app.data.remote.AccountDataEraser(db).eraseAll(uid)
                 // البروفايل من Firestore قبل حذف الحساب
                 db.collection("users").document(uid).delete().await()
                 user.delete().await()
-                android.widget.Toast.makeText(context, "تم حذف الحساب", android.widget.Toast.LENGTH_SHORT).show()
+                android.widget.Toast.makeText(
+                    context,
+                    if (allErased) "تم حذف الحساب" else "تم حذف الحساب. بعض التعليقات أو الرسائل ما تمسحوش، صيفط لينا إيميل باش نمسحوها.",
+                    android.widget.Toast.LENGTH_LONG
+                ).show()
                 AuthRepository(requireContext()).signOut()
                 startActivity(Intent(requireContext(), LoginActivity::class.java))
                 requireActivity().finish()
