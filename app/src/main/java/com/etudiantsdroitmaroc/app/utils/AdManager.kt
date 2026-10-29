@@ -53,6 +53,7 @@ object AdManager {
     }
 
     fun loadInterstitial(context: Context) {
+        if (!ConsentManager.canRequestAds(context)) return
         if (interstitialAd != null || interstitialLoading) return
         val app = context.applicationContext
         interstitialLoading = true
@@ -123,6 +124,7 @@ object AdManager {
     // ---------- Rewarded ----------
 
     fun loadRewarded(context: Context) {
+        if (!ConsentManager.canRequestAds(context)) return
         if (rewardedAd != null || rewardedLoading) return
         val app = context.applicationContext
         rewardedLoading = true
@@ -170,6 +172,7 @@ object AdManager {
     // ---------- Rewarded Interstitial ----------
 
     fun loadRewardedInterstitial(context: Context) {
+        if (!ConsentManager.canRequestAds(context)) return
         if (rewardedInterstitialAd != null) return
         RewardedInterstitialAd.load(
             context, AdIds.REWARDED_INTERSTITIAL, AdRequest.Builder().build(),
@@ -187,6 +190,7 @@ object AdManager {
     // ---------- App Open ----------
 
     fun loadAppOpenAd(context: Context) {
+        if (!ConsentManager.canRequestAds(context)) return
         if (appOpenAd != null) return
         AppOpenAd.load(
             context, AdIds.APP_OPEN, AdRequest.Builder().build(),

@@ -116,11 +116,7 @@ class EtudiantsApp : Application() {
         } catch (_: Exception) {
         }
 
-        // AdMob
-        MobileAds.initialize(this)
-        com.etudiantsdroitmaroc.app.utils.AdManager.loadInterstitial(this)
-        com.etudiantsdroitmaroc.app.utils.AdManager.loadRewarded(this)
-        com.etudiantsdroitmaroc.app.utils.AdManager.loadAppOpenAd(this)
+        // AdMob: ما كيبداش هنا. ConsentManager.gather (فـ SplashActivity) كيبدا الإعلانات بعد الموافقة.
 
         // تتبع حالة "متصل الآن" بدقة (كيتحدث ملي التطبيق يبان/يخبى، مع نبضة كل 30 ثانية)
         androidx.lifecycle.ProcessLifecycleOwner.get().lifecycle

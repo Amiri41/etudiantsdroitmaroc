@@ -100,6 +100,8 @@ dependencies {
 
     // AdMob
     implementation 'com.google.android.gms:play-services-ads:23.0.0'
+    // Google UMP: نافذة الموافقة على الإعلانات (مطلوبة لمستعملي أوروبا والمملكة المتحدة)
+    implementation 'com.google.android.ump:user-messaging-platform:2.2.0'
 
     // Room (Local DB - كاش أوفلاين)
     implementation 'androidx.room:room-runtime:2.6.1'

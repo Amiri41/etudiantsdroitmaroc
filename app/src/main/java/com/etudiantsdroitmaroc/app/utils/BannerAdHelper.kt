@@ -10,6 +10,7 @@ import com.google.android.gms.ads.AdView
 object BannerAdHelper {
     fun attach(context: Context, container: FrameLayout) {
         container.removeAllViews()
+        if (!ConsentManager.canRequestAds(context)) return
         val adView = AdView(context)
         adView.setAdSize(AdSize.BANNER)
         adView.adUnitId = AdIds.BANNER

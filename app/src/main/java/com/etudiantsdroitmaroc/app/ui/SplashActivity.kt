@@ -23,6 +23,9 @@ import com.google.firebase.auth.FirebaseAuth
 class SplashActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySplashBinding
+    private var consentDone = false
+    private var animationDone = false
+    private var navigated = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +48,12 @@ class SplashActivity : AppCompatActivity() {
 
         com.etudiantsdroitmaroc.app.utils.IntroSound.play(this)
         playLogoAnimation()
+
+        // موافقة الإعلانات (UMP): النافذة كتبان فوق الـ splash ملي كتكون خاصة
+        com.etudiantsdroitmaroc.app.utils.ConsentManager.gather(this) {
+            consentDone = true
+            maybeNavigate()
+        }
     }
 
     override fun onDestroy() {
@@ -92,8 +101,16 @@ class SplashActivity : AppCompatActivity() {
         }
 
         Handler(Looper.getMainLooper()).postDelayed({
-            navigateNext()
+            animationDone = true
+            maybeNavigate()
         }, 1400)
+    }
+
+    private fun maybeNavigate() {
+        if (!consentDone || !animationDone || navigated) return
+        if (isFinishing || isDestroyed) return
+        navigated = true
+        navigateNext()
     }
 
     private fun navigateNext() {

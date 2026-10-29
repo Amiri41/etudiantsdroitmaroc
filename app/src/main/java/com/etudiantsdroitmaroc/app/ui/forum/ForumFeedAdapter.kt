@@ -177,7 +177,9 @@ class ForumFeedAdapter(
                 populateNativeAdView(nativeAd, holder)
             }
             .build()
-        adLoader.loadAd(AdRequest.Builder().build())
+        if (com.etudiantsdroitmaroc.app.utils.ConsentManager.canRequestAds(context)) {
+            adLoader.loadAd(AdRequest.Builder().build())
+        }
     }
 
     private fun populateNativeAdView(nativeAd: NativeAd, holder: AdVH) {

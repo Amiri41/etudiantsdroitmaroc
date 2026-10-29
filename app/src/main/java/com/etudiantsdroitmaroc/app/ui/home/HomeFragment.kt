@@ -128,7 +128,9 @@ class HomeFragment : Fragment() {
             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER_HORIZONTAL
         ))
         adViews.add(adView)
-        adView.loadAd(AdRequest.Builder().build())
+        if (com.etudiantsdroitmaroc.app.utils.ConsentManager.canRequestAds(ctx)) {
+            adView.loadAd(AdRequest.Builder().build())
+        }
         frame
     }
 
