@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "600987420246",
+    "firebase_url": "https://etudiants-droit-maroc-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "etudiants-droit-maroc",
     "storage_bucket": "etudiants-droit-maroc.firebasestorage.app"
   },
@@ -13,6 +14,22 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "600987420246-eemqvvd463r2b2mftdq6t06r7l3o5jbt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.etudiantsdroitmaroc.app",
+            "certificate_hash": "79d427aa1bc607e75aff5b7d84a9cd5818868954"
+          }
+        },
+        {
+          "client_id": "600987420246-h9lh4572nshh1tcp0bg38n02b3ikcdqo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.etudiantsdroitmaroc.app",
+            "certificate_hash": "57c2c5720ad00aa2f8f79ad7fb3f3bb3004330f5"
+          }
+        },
         {
           "client_id": "600987420246-o6356d1mcv1gsiqcirv29kgmpe11il31.apps.googleusercontent.com",
           "client_type": 1,
