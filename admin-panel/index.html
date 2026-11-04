@@ -624,11 +624,29 @@ async function loadAnnouncement() {
   }
 }
 
+function previewAnnHtml() {
+  document.getElementById("annHtmlPreview").srcdoc = document.getElementById("annHtml").value;
+}
+
+function insertAdTemplate() {
+  const t = `<div style="font-family:Arial,sans-serif;text-align:center;direction:rtl;background:#fff;min-height:100vh;box-sizing:border-box;padding:96px 28px 40px;">
+  <img src="https://RABT-SOURA/logo.png" width="150" height="150" style="border-radius:34px;" alt="">
+  <h1 style="font-size:28px;color:#1f1f1f;margin:28px 0 10px;">عنوان الإعلان</h1>
+  <p style="font-size:17px;color:#5f6368;line-height:1.8;margin:0;">جملة قصيرة تشرح العرض أو الخدمة.</p>
+  <a href="https://RABT-ALMAWQI3" style="display:block;margin-top:34px;padding:16px;border-radius:32px;background:#0b57d0;color:#fff;font-size:18px;font-weight:bold;text-decoration:none;">اكتشف المزيد</a>
+</div>`;
+  const ta = document.getElementById("annHtml");
+  if (ta.value.trim() && !confirm("غادي نعوضو الكود الحالي بالقالب. متأكد؟")) return;
+  ta.value = t; previewAnnHtml();
+}
+
 async function saveAnnouncement() {
   const progressText = document.getElementById("annProgressText");
   const title = document.getElementById("annTitle").value.trim();
   const message = document.getElementById("annMessage").value.trim();
-  if (!title || !message) return alert("دخل العنوان والنص");
+  const htmlContent = document.getElementById("annHtml").value.trim();
+  if (htmlContent.length > 400000) return alert("كود HTML كبير بزاف (أكثر من 400 ألف حرف). صغّرو.");
+  if (!htmlContent && (!title || !message)) return alert("دخل العنوان والنص، ولا كود HTML");
 
   let imageUrl = document.getElementById("annImagePreview").src || "";
   if (imageUrl.startsWith("blob:")) imageUrl = "";
@@ -648,6 +666,8 @@ async function saveAnnouncement() {
     message,
     imageUrl,
     linkUrl: document.getElementById("annLink").value.trim(),
+    buttonText: document.getElementById("annButton").value.trim(),
+    htmlContent,
     intervalMinutes: parseInt(document.getElementById("annInterval").value) || 0,
     active: document.getElementById("annActive").checked,
     updatedAt: Date.now()
