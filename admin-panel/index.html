@@ -400,6 +400,11 @@ html, body { overflow-x:hidden; }
     <input id="annImageInput" type="file" accept="image/*">
     <img id="annImagePreview" class="hidden" style="max-width:120px;border-radius:8px;margin-bottom:10px;" />
     <input id="annLink" placeholder="رابط (اختياري) - يفتح ملي يضغط المستخدم على البانر">
+    <input id="annButton" placeholder="نص الزر (مثلا: تثبيت، اكتشف المزيد). فارغ = اكتشف المزيد">
+    <label style="font-size:12px;color:#666;">كود HTML + CSS (اختياري، بلا JavaScript). إلا عمرتيه كيعوض التصميم الجاهز، وتقدر تستعمل القالب:</label>
+    <button type="button" onclick="insertAdTemplate()" style="background:#e8f0fe;color:#0b57d0;margin-bottom:8px;">📄 إدراج قالب جاهز</button>
+    <textarea id="annHtml" placeholder="&lt;div&gt;...&lt;/div&gt;" rows="8" dir="ltr" style="font-family:monospace;font-size:12px;" oninput="previewAnnHtml()"></textarea>
+    <iframe id="annHtmlPreview" sandbox style="width:100%;height:380px;border:1px solid #ddd;border-radius:12px;background:#fff;margin-bottom:10px;"></iframe>
     <label style="font-size:12px;color:#666;">كل شحال من دقيقة يتكرر البانر (0 = مرة وحدة بس)</label>
     <input id="annInterval" type="number" placeholder="مثلا: 15" value="0" min="0">
     <label style="display:flex;align-items:center;gap:8px;font-size:13px;">
@@ -607,6 +612,9 @@ async function loadAnnouncement() {
   document.getElementById("annTitle").value = d.title || "";
   document.getElementById("annMessage").value = d.message || "";
   document.getElementById("annLink").value = d.linkUrl || "";
+  document.getElementById("annButton").value = d.buttonText || "";
+  document.getElementById("annHtml").value = d.htmlContent || "";
+  previewAnnHtml();
   document.getElementById("annInterval").value = d.intervalMinutes || 0;
   document.getElementById("annActive").checked = !!d.active;
   if (d.imageUrl) {

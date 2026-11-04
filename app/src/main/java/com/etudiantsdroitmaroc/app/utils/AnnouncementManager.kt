@@ -51,7 +51,7 @@ object AnnouncementManager : DefaultLifecycleObserver, Application.ActivityLifec
             val prefs = activity.getSharedPreferences("app_prefs", Activity.MODE_PRIVATE)
             val lastShown = prefs.getLong("last_announcement_seen", 0L)
             if (ann.updatedAt <= lastShown) return
-            launchFullscreen(ann.type, ann.title, ann.message, ann.imageUrl, ann.linkUrl)
+            launchFullscreen(ann)
             prefs.edit().putLong("last_announcement_seen", ann.updatedAt).apply()
         } else {
             targetElapsedTime = SystemClock.elapsedRealtime() + (ann.intervalMinutes * 60_000L)
@@ -71,21 +71,24 @@ object AnnouncementManager : DefaultLifecycleObserver, Application.ActivityLifec
         CoroutineScope(Dispatchers.Main).launch {
             val ann = AnnouncementRepository.getCurrentAnnouncement()
             if (ann != null && ann.active && ann.intervalMinutes > 0) {
-                launchFullscreen(ann.type, ann.title, ann.message, ann.imageUrl, ann.linkUrl)
+                launchFullscreen(ann)
                 targetElapsedTime = SystemClock.elapsedRealtime() + (ann.intervalMinutes * 60_000L)
                 scheduleTimer()
             }
         }
     }
 
-    private fun launchFullscreen(type: String, title: String, message: String, imageUrl: String, linkUrl: String) {
+    private fun launchFullscreen(ann: com.etudiantsdroitmaroc.app.data.model.AppAnnouncement) {
         val activity = currentActivity ?: return
         val intent = Intent(activity, AnnouncementFullscreenActivity::class.java)
-        intent.putExtra("type", type)
-        intent.putExtra("title", title)
-        intent.putExtra("message", message)
-        intent.putExtra("imageUrl", imageUrl)
-        intent.putExtra("linkUrl", linkUrl)
+        intent.putExtra("type", ann.type)
+        intent.putExtra("title", ann.title)
+        intent.putExtra("message", ann.message)
+        intent.putExtra("imageUrl", ann.imageUrl)
+        intent.putExtra("linkUrl", ann.linkUrl)
+        intent.putExtra("buttonText", ann.buttonText)
+        // الـ HTML ما كنمرروهوش فالـ Intent (حد الحجم)، الشاشة كتجيبو بوحدها
+        intent.putExtra("hasHtml", ann.htmlContent.isNotBlank())
         activity.startActivity(intent)
     }
 

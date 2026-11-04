@@ -131,7 +131,9 @@ data class AppAnnouncement(
     var linkUrl: String = "",
     var active: Boolean = false,
     var intervalMinutes: Int = 0, // 0 = مرة وحدة بس، >0 = يتكرر كل X دقيقة مادام التطبيق نشيط
-    var updatedAt: Long = 0
+    var updatedAt: Long = 0,
+    var buttonText: String = "",   // نص الزر (فارغ = "اكتشف المزيد")
+    var htmlContent: String = ""   // كود HTML+CSS اختياري (بلا JavaScript): إلا كان موجود كيعوض التصميم الجاهز
 )
 
 /** طلب صداقة معلق (بحال فيسبوك: طلب → قبول/رفض) */
