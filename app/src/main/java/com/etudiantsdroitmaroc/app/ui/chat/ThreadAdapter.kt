@@ -62,7 +62,7 @@ class ThreadAdapter(
                 if (doc.exists()) {
                     val info = UserCache(
                         photoUrl = doc.getString("photoUrl") ?: "",
-                        isOnline = doc.getBoolean("isOnline") ?: false
+                        isOnline = userCache[otherUid]?.isOnline ?: false
                     )
                     userCache[otherUid] = info
                     if (holder.bindingAdapterPosition == position) {
@@ -73,6 +73,16 @@ class ThreadAdapter(
             // الكاش أولا (فوري)، ومن بعد السيرفر (تحديث)
             ref.get(com.google.firebase.firestore.Source.CACHE).addOnSuccessListener { onDoc(it) }
             ref.get(com.google.firebase.firestore.Source.SERVER).addOnSuccessListener { onDoc(it) }
+            // حالة الاتصال: كتبان غير للأصدقاء (القواعد كترفض غيرهم، وكنتجاهلو الفشل)
+            Firebase.firestore.collection("presence").document(otherUid).get()
+                .addOnSuccessListener { d ->
+                    if (!d.exists()) return@addOnSuccessListener
+                    val online = d.getBoolean("isOnline") == true &&
+                        System.currentTimeMillis() - (d.getLong("lastSeen") ?: 0L) < 2 * 60 * 1000L
+                    val updated = (userCache[otherUid] ?: UserCache("", false)).copy(isOnline = online)
+                    userCache[otherUid] = updated
+                    if (holder.bindingAdapterPosition == position) applyUserInfo(holder, updated)
+                }
         }
     }
 

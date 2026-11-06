@@ -118,8 +118,8 @@ data class UserProfile(
     var photoUrl: String = "",
     var university: String = "",
     var level: String = "",
-    var isOnline: Boolean = false,
-    var lastSeen: Long = System.currentTimeMillis()
+    var isOnline: Boolean = false,   // قديم: الحالة دابا فـ presence/{uid}
+    var lastSeen: Long = 0L
 )
 
 /** بانر/إعلان كيتحكم فيه الأدمين، كيبان للمستخدم ملي يحل التطبيق */

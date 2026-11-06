@@ -391,15 +391,42 @@ class ChatRepository {
         return snapshot.toObjects<ChatMessage>().sortedBy { it.sentAt }
     }
 
+    /** الأصدقاء المتصلين فقط (حالة الاتصال خاصة بالأصدقاء) */
     suspend fun getOnlineUsers(): List<UserProfile> {
         // فحالة انهيار التطبيق (بلا onStop)، isOnline يقدر يبقى true غلط -
         // فنزيدو فلترة زيادة بـ lastSeen (آخر 90 ثانية) كحماية إضافية
         val recentThreshold = System.currentTimeMillis() - 90_000L
         val blocked = getBlockedUids()
-        val snapshot = firestore.collection("users")
-            .whereEqualTo("isOnline", true)
-            .getFast()
-        return snapshot.toObjects<UserProfile>()
-            .filter { it.uid != myUid && it.lastSeen >= recentThreshold && !blocked.contains(it.uid) }
+        val friendIds = firestore.collection("users").document(myUid).collection("friends")
+            .get().await().documents.map { it.id }
+            .filter { !blocked.contains(it) }
+            .take(60)
+        val onlineIds = kotlinx.coroutines.coroutineScope {
+            friendIds.map { id ->
+                async {
+                    try {
+                        val d = firestore.collection("presence").document(id).get().await()
+                        val online = d.getBoolean("isOnline") == true &&
+                            (d.getLong("lastSeen") ?: 0L) >= recentThreshold
+                        if (online) id else null
+                    } catch (e: Exception) {
+                        if (e is kotlinx.coroutines.CancellationException) throw e
+                        null
+                    }
+                }
+            }.awaitAll().filterNotNull()
+        }
+        return kotlinx.coroutines.coroutineScope {
+            onlineIds.map { id ->
+                async {
+                    try {
+                        firestore.collection("users").document(id).get().await().toObject<UserProfile>()
+                    } catch (e: Exception) {
+                        if (e is kotlinx.coroutines.CancellationException) throw e
+                        null
+                    }
+                }
+            }.awaitAll().filterNotNull()
+        }
     }
 }

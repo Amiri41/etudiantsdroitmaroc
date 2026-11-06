@@ -24,7 +24,7 @@ class CommentAdapter(
     override fun onBindViewHolder(holder: VH, position: Int) {
         val comment = comments[position]
         holder.binding.tvAuthorName.text = comment.authorName
-        holder.binding.tvContent.text = comment.content
+        com.etudiantsdroitmaroc.app.utils.LinkifyHelper.setText(holder.binding.tvContent, comment.content)
 
         if (comment.authorPhotoUrl.isNotEmpty()) {
             Glide.with(holder.itemView).load(comment.authorPhotoUrl).into(holder.binding.ivAuthorPhoto)

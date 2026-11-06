@@ -169,9 +169,13 @@ class ChatActivity : AppCompatActivity() {
     /** حالة الطرف الآخر فالهيدر: "متصل الآن" ولا "آخر ظهور ..." */
     private fun listenOtherStatus() {
         if (otherUid.isEmpty()) return
-        statusListener = Firebase.firestore.collection("users").document(otherUid)
-            .addSnapshotListener { doc, _ ->
-                if (doc == null || !doc.exists()) return@addSnapshotListener
+        // كتبان غير إلا كنتو أصدقاء وما خباهاش صاحبها (القواعد كترفض غيرهم)
+        statusListener = Firebase.firestore.collection("presence").document(otherUid)
+            .addSnapshotListener { doc, error ->
+                if (error != null || doc == null || !doc.exists()) {
+                    binding.tvOtherStatus.visibility = View.GONE
+                    return@addSnapshotListener
+                }
                 val online = doc.getBoolean("isOnline") == true
                 val lastSeen = doc.getLong("lastSeen") ?: 0L
                 val text = statusText(online, lastSeen)

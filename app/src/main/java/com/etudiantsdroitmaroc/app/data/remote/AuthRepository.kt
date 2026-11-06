@@ -49,7 +49,7 @@ class AuthRepository(private val context: Context) {
                 name = user.displayName ?: "",
                 email = "", // ما كنخزنوش الإيميل فـ Firestore (مكشوف للمستعملين الآخرين)
                 photoUrl = photoToUse,
-                isOnline = true
+                isOnline = false // الحالة كتخزن فـ presence/{uid} (خاصة بالأصدقاء)
             )
             // merge() ضروري: بلا merge، set() كان كيمسح fcmToken (ومعلومات أخرى بحال الجامعة/المستوى)
             // كل مرة يدخل فيها المستخدم من جديد، لأن UserProfile ماعندهاش هاد الحقول

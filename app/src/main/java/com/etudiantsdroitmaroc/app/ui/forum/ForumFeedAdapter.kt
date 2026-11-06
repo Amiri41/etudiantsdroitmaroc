@@ -133,7 +133,7 @@ class ForumFeedAdapter(
             val stripped = HASHTAG.replace(content, "").replace(Regex("[ \\t]{2,}"), " ").trim()
             if (stripped.isEmpty()) content else stripped
         }
-        binding.tvContent.text = body
+        com.etudiantsdroitmaroc.app.utils.LinkifyHelper.setText(binding.tvContent, body)
         binding.llTags.removeAllViews()
         if (tags.isEmpty()) {
             binding.llTags.visibility = android.view.View.GONE

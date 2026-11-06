@@ -119,6 +119,7 @@ class EtudiantsApp : Application() {
         // AdMob: ما كيبداش هنا. ConsentManager.gather (فـ SplashActivity) كيبدا الإعلانات بعد الموافقة.
 
         // تتبع حالة "متصل الآن" بدقة (كيتحدث ملي التطبيق يبان/يخبى، مع نبضة كل 30 ثانية)
+        com.etudiantsdroitmaroc.app.utils.PresenceManager.init(this)
         androidx.lifecycle.ProcessLifecycleOwner.get().lifecycle
             .addObserver(com.etudiantsdroitmaroc.app.utils.PresenceManager)
 

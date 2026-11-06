@@ -77,11 +77,29 @@ class ProfileFragment : Fragment() {
             updateIntroSoundButton()
         }
 
+        updatePresenceButton()
+        binding.btnPresence.setOnClickListener {
+            val ctx = requireContext()
+            val now = com.etudiantsdroitmaroc.app.utils.PresenceManager.isVisible(ctx)
+            com.etudiantsdroitmaroc.app.utils.PresenceManager.setVisible(ctx, !now)
+            updatePresenceButton()
+            android.widget.Toast.makeText(
+                ctx,
+                if (now) "تخباو حالة الاتصال وآخر ظهور" else "حالة الاتصال كتبان لأصدقائك",
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
+        }
+
         binding.btnDeleteAccount.setOnClickListener {
             confirmDeleteAccount()
         }
 
         loadProfile()
+    }
+
+    private fun updatePresenceButton() {
+        val on = com.etudiantsdroitmaroc.app.utils.PresenceManager.isVisible(requireContext())
+        binding.tvPresenceState.text = if (on) "كتبان للأصدقاء" else "مخبية"
     }
 
     private fun updateIntroSoundButton() {

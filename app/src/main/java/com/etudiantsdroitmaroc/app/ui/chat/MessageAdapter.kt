@@ -85,7 +85,7 @@ class MessageAdapter(
         } else {
             b.ivMessageImage.visibility = View.GONE
             b.tvMessageText.visibility = View.VISIBLE
-            b.tvMessageText.text = message.text
+            com.etudiantsdroitmaroc.app.utils.LinkifyHelper.setText(b.tvMessageText, message.text)
             b.tvMessageText.setTextColor(textColor)
         }
 

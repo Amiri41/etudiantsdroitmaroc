@@ -57,7 +57,7 @@ class GroupMessageAdapter(
         } else {
             holder.binding.ivMessageImage.visibility = View.GONE
             holder.binding.tvMessageText.visibility = View.VISIBLE
-            holder.binding.tvMessageText.text = message.text
+            com.etudiantsdroitmaroc.app.utils.LinkifyHelper.setText(holder.binding.tvMessageText, message.text)
         }
 
         // الأدمين (منشئ المجموعة) يقدر يحيد أي رسالة؛ العضو يقدر يحيد رسالته هو فقط

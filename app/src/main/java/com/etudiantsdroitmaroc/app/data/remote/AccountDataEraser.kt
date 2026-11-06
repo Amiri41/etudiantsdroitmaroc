@@ -31,6 +31,7 @@ class AccountDataEraser(private val db: FirebaseFirestore = FirebaseFirestore.ge
         step { leaveGroups(uid) }
         step { deleteMyPosts(uid) }
         step { deleteFriendLinks(uid) }
+        step { db.collection("presence").document(uid).delete().await() }
         step { deleteOwnLists(uid) }
         return complete
     }

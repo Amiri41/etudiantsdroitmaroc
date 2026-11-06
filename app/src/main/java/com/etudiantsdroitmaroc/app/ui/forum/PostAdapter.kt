@@ -21,7 +21,7 @@ class PostAdapter(private var posts: List<Post>) :
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val post = posts[position]
         holder.binding.tvAuthorName.text = post.authorName
-        holder.binding.tvContent.text = post.content
+        com.etudiantsdroitmaroc.app.utils.LinkifyHelper.setText(holder.binding.tvContent, post.content)
         val relativeTime = DateUtils.getRelativeTimeSpanString(post.createdAt)
         holder.binding.tvMeta.text = "$relativeTime · ${post.likesCount} إعجاب · ${post.commentsCount} تعليق"
 
