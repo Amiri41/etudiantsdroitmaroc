@@ -100,10 +100,12 @@ class ForumFeedAdapter(
                 val popup = android.widget.PopupMenu(context, anchor)
                 popup.menu.add("تعديل")
                 popup.menu.add("حذف")
+                popup.menu.add("مشاركة")
                 popup.setOnMenuItemClickListener { item ->
                     when (item.title) {
                         "تعديل" -> onEditClick(post)
                         "حذف" -> onDeleteClick(post)
+                        "مشاركة" -> sharePost(post)
                     }
                     true
                 }
@@ -112,10 +114,12 @@ class ForumFeedAdapter(
         } else {
             binding.btnPostMenu.setOnClickListener { anchor ->
                 val popup = android.widget.PopupMenu(context, anchor)
+                popup.menu.add("مشاركة")
                 popup.menu.add("إبلاغ")
                 popup.menu.add("حظر ${post.authorName}")
                 popup.setOnMenuItemClickListener { item ->
                     when (item.title) {
+                        "مشاركة" -> sharePost(post)
                         "إبلاغ" -> onReportClick(post)
                         else -> onBlockClick(post)
                     }
@@ -123,6 +127,25 @@ class ForumFeedAdapter(
                 }
                 popup.show()
             }
+        }
+    }
+
+    /** مشاركة خارج التطبيق: مقتطف قصير من النص + رابط التطبيق على Play (بلا اسم الكاتب) */
+    private fun sharePost(post: com.etudiantsdroitmaroc.app.data.model.Post) {
+        val body = post.content.trim()
+        val excerpt = if (body.length > 140) body.take(140).trimEnd() + "…" else body
+        val text = buildString {
+            if (excerpt.isNotEmpty()) append("«").append(excerpt).append("»\n\n")
+            append("من تطبيق طلبة القانون بالمغرب (Étudiants en Droit Maroc):\n")
+            append("https://play.google.com/store/apps/details?id=com.etudiantsdroitmaroc.app")
+        }
+        val send = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(android.content.Intent.EXTRA_TEXT, text)
+        }
+        try {
+            context.startActivity(android.content.Intent.createChooser(send, "مشاركة المنشور"))
+        } catch (_: Exception) {
         }
     }
 

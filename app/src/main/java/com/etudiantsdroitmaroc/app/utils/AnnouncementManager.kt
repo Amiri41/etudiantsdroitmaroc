@@ -87,6 +87,7 @@ object AnnouncementManager : DefaultLifecycleObserver, Application.ActivityLifec
         intent.putExtra("imageUrl", ann.imageUrl)
         intent.putExtra("linkUrl", ann.linkUrl)
         intent.putExtra("buttonText", ann.buttonText)
+        intent.putExtra("videoUrl", ann.videoUrl)
         // الـ HTML ما كنمرروهوش فالـ Intent (حد الحجم)، الشاشة كتجيبو بوحدها
         intent.putExtra("hasHtml", ann.htmlContent.isNotBlank())
         activity.startActivity(intent)

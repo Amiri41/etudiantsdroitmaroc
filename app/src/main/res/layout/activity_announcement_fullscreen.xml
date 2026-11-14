@@ -31,17 +31,38 @@
                 app:cardElevation="0dp"
                 app:strokeWidth="0dp">
 
-                <ImageView
-                    android:id="@+id/ivAnnouncementImage"
+                <FrameLayout
+                    android:id="@+id/mediaFrame"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:adjustViewBounds="true"
-                    android:maxWidth="300dp"
-                    android:maxHeight="280dp"
-                    android:minWidth="140dp"
-                    android:minHeight="140dp"
-                    android:scaleType="centerCrop"
-                    android:contentDescription="@null" />
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/ivAnnouncementImage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:maxWidth="300dp"
+                        android:maxHeight="280dp"
+                        android:minWidth="140dp"
+                        android:minHeight="140dp"
+                        android:scaleType="centerCrop"
+                        android:contentDescription="@null" />
+
+                    <VideoView
+                        android:id="@+id/videoView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:visibility="gone" />
+
+                    <ImageView
+                        android:id="@+id/ivPlay"
+                        android:layout_width="72dp"
+                        android:layout_height="72dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_play_circle"
+                        android:visibility="gone"
+                        android:contentDescription="تشغيل الفيديو" />
+                </FrameLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <TextView
