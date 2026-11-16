@@ -77,6 +77,15 @@ class ProfileFragment : Fragment() {
             updateIntroSoundButton()
         }
 
+        val openLink = { url: String ->
+            try {
+                startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url)))
+            } catch (_: Exception) {
+            }
+        }
+        binding.tvPolicyLink.setOnClickListener { openLink("https://amiri41.github.io/etudiantsdroitmaroc/privacy.html") }
+        binding.tvTermsLink.setOnClickListener { openLink("https://amiri41.github.io/etudiantsdroitmaroc/terms.html") }
+
         updatePresenceButton()
         binding.btnPresence.setOnClickListener {
             val ctx = requireContext()

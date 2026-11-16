@@ -44,6 +44,9 @@ object AdManager {
     private var lastInterstitialShownAt = 0L
 
     /** أقل مدة بين إعلانين Interstitial (دقيقتين) مهما كان السبب */
+    /** مقفول بسبب سياسة Google Play: ما كيبانش إعلان بشاشة كاملة مباشرة ملي يتفتح التطبيق */
+    private const val APP_OPEN_ENABLED = false
+
     private const val MIN_GAP_MS = 2 * 60 * 1000L
     private const val MAX_RETRIES = 3
 
@@ -190,6 +193,7 @@ object AdManager {
     // ---------- App Open ----------
 
     fun loadAppOpenAd(context: Context) {
+        if (!APP_OPEN_ENABLED) return
         if (!ConsentManager.canRequestAds(context)) return
         if (appOpenAd != null) return
         AppOpenAd.load(
@@ -206,6 +210,10 @@ object AdManager {
     }
 
     fun showAppOpenAdIfReady(activity: Activity, onDismissed: () -> Unit = {}) {
+        if (!APP_OPEN_ENABLED) {
+            onDismissed()
+            return
+        }
         val ad = appOpenAd
         if (ad == null) {
             onDismissed()

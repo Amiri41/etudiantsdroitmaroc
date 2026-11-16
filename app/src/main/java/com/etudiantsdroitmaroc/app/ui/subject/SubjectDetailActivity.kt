@@ -170,16 +170,15 @@ class SubjectDetailActivity : AppCompatActivity() {
     private fun openPdf(pdf: PdfDocument) {
         lifecycleScope.launch {
             val localPath = repository.getLocalPath(pdf.id)
-            AdManager.showInterstitialIfReady(this@SubjectDetailActivity) {
-                val intent = Intent(this@SubjectDetailActivity, PdfViewerActivity::class.java)
-                intent.putExtra("title", pdf.title)
-                if (localPath != null) {
-                    intent.putExtra("localPath", localPath)
-                } else {
-                    intent.putExtra("remoteUrl", pdf.storageUrl)
-                }
-                startActivity(intent)
+            // بلا إعلان قبل المحتوى (سياسة Google Play): الملف كيتحل مباشرة
+            val intent = Intent(this@SubjectDetailActivity, PdfViewerActivity::class.java)
+            intent.putExtra("title", pdf.title)
+            if (localPath != null) {
+                intent.putExtra("localPath", localPath)
+            } else {
+                intent.putExtra("remoteUrl", pdf.storageUrl)
             }
+            startActivity(intent)
         }
     }
 }

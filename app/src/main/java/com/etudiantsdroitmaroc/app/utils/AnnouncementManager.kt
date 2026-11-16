@@ -4,82 +4,62 @@ import android.app.Activity
 import android.app.Application
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.SystemClock
+import android.view.View
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import com.etudiantsdroitmaroc.app.data.model.AppAnnouncement
 import com.etudiantsdroitmaroc.app.data.remote.AnnouncementRepository
 import com.etudiantsdroitmaroc.app.ui.AnnouncementFullscreenActivity
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
- * كيتحكم فظهور البانر الإعلاني بشاشة كاملة:
- * - intervalMinutes = 0 فـ Firestore → كيبان مرة وحدة بس (لكل محتوى جديد كيبدلو الأدمين)
- * - intervalMinutes > 0 → كيتكرر كل X دقيقة مادام التطبيق نشيط (بحال PeriodicAdManager)
+ * إعلانات الأدمن داخل التطبيق، حسب سياسة Google Play (الإعلانات المزعجة):
+ * - ما كيبانش أبدا إعلان بشاشة كاملة بوحدو (لا ملي يحل التطبيق، لا وسط الاستعمال، لا بالتكرار).
+ * - كيبان إشعار صغير (Snackbar) مكتوب فيه "إعلان" أو "تحديث جديد" مع زر "عرض".
+ * - الشاشة الكاملة كتحل غير ملي المستخدم يضغط على "عرض" (وفيها زر إغلاق واضح من الأول).
+ * - كيبان مرة وحدة لكل محتوى جديد.
  */
 object AnnouncementManager : DefaultLifecycleObserver, Application.ActivityLifecycleCallbacks {
 
-    private val handler = Handler(Looper.getMainLooper())
     private var currentActivity: Activity? = null
-    private var targetElapsedTime = 0L
-    private var isScheduled = false
-
-    private val fireRunnable = Runnable { showNowAndReschedule() }
 
     fun init(application: Application) {
         application.registerActivityLifecycleCallbacks(this)
     }
 
     override fun onStart(owner: LifecycleOwner) {
-        CoroutineScope(Dispatchers.Main).launch { checkAndSchedule() }
+        CoroutineScope(Dispatchers.Main).launch { checkAndNotify() }
     }
 
-    override fun onStop(owner: LifecycleOwner) {
-        isScheduled = false
-        handler.removeCallbacks(fireRunnable)
-    }
-
-    private suspend fun checkAndSchedule() {
+    private suspend fun checkAndNotify() {
         val ann = AnnouncementRepository.getCurrentAnnouncement() ?: return
         if (!ann.active) return
-
-        if (ann.intervalMinutes <= 0) {
-            val activity = currentActivity ?: return
-            val prefs = activity.getSharedPreferences("app_prefs", Activity.MODE_PRIVATE)
-            val lastShown = prefs.getLong("last_announcement_seen", 0L)
-            if (ann.updatedAt <= lastShown) return
-            launchFullscreen(ann)
-            prefs.edit().putLong("last_announcement_seen", ann.updatedAt).apply()
-        } else {
-            targetElapsedTime = SystemClock.elapsedRealtime() + (ann.intervalMinutes * 60_000L)
-            scheduleTimer()
-        }
-    }
-
-    private fun scheduleTimer() {
-        if (isScheduled) return
-        isScheduled = true
-        val delay = (targetElapsedTime - SystemClock.elapsedRealtime()).coerceAtLeast(0L)
-        handler.postDelayed(fireRunnable, delay)
-    }
-
-    private fun showNowAndReschedule() {
-        isScheduled = false
-        CoroutineScope(Dispatchers.Main).launch {
-            val ann = AnnouncementRepository.getCurrentAnnouncement()
-            if (ann != null && ann.active && ann.intervalMinutes > 0) {
-                launchFullscreen(ann)
-                targetElapsedTime = SystemClock.elapsedRealtime() + (ann.intervalMinutes * 60_000L)
-                scheduleTimer()
-            }
-        }
-    }
-
-    private fun launchFullscreen(ann: com.etudiantsdroitmaroc.app.data.model.AppAnnouncement) {
         val activity = currentActivity ?: return
+        val prefs = activity.getSharedPreferences("app_prefs", Activity.MODE_PRIVATE)
+        val lastShown = prefs.getLong("last_announcement_seen", 0L)
+        if (ann.updatedAt <= lastShown) return
+        if (showNotice(activity, ann)) {
+            prefs.edit().putLong("last_announcement_seen", ann.updatedAt).apply()
+        }
+    }
+
+    /** كيرجع true إلا بانت الإشعار فعلا */
+    private fun showNotice(activity: Activity, ann: AppAnnouncement): Boolean {
+        // كنبينوها غير فالشاشة الرئيسية ديال التطبيق، ماشي وسط شاشة أخرى
+        if (activity.javaClass.simpleName != "MainActivity") return false
+        val root: View = activity.findViewById(android.R.id.content) ?: return false
+        val label = if (ann.type == "update") "🚀 تحديث جديد" else "إعلان"
+        val subject = ann.title.ifBlank { ann.message }.trim().take(60).ifBlank { "جديد" }
+        Snackbar.make(root, "$label: $subject", 10_000)
+            .setAction("عرض") { openFullscreen(activity, ann) }
+            .show()
+        return true
+    }
+
+    private fun openFullscreen(activity: Activity, ann: AppAnnouncement) {
         val intent = Intent(activity, AnnouncementFullscreenActivity::class.java)
         intent.putExtra("type", ann.type)
         intent.putExtra("title", ann.title)
