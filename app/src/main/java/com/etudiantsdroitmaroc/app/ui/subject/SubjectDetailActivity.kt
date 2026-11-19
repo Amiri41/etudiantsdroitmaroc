@@ -173,6 +173,8 @@ class SubjectDetailActivity : AppCompatActivity() {
             // بلا إعلان قبل المحتوى (سياسة Google Play): الملف كيتحل مباشرة
             val intent = Intent(this@SubjectDetailActivity, PdfViewerActivity::class.java)
             intent.putExtra("title", pdf.title)
+            intent.putExtra("pdfId", pdf.id)
+            intent.putExtra("subjectId", pdf.subjectId)
             if (localPath != null) {
                 intent.putExtra("localPath", localPath)
             } else {

@@ -134,7 +134,11 @@ data class AppAnnouncement(
     var updatedAt: Long = 0,
     var buttonText: String = "",   // نص الزر (فارغ = "اكتشف المزيد")
     var htmlContent: String = "",  // كود HTML+CSS اختياري (بلا JavaScript): إلا كان موجود كيعوض التصميم الجاهز
-    var videoUrl: String = ""      // رابط فيديو: يوتيوب (مشغل التطبيق) أو mp4 مباشر (داخل الإعلان)؛ غير ذلك كيتحل كرابط
+    var videoUrl: String = "",     // رابط فيديو: يوتيوب (مشغل التطبيق) أو mp4 مباشر (داخل الإعلان)؛ غير ذلك كيتحل كرابط
+    var minGapMinutes: Int = 15,   // الفاصل بين ظهورين (الحد الأدنى 5 فالتطبيق)
+    var maxPerDay: Int = 3,        // أقصى عدد مرات فاليوم لكل مستعمل (1..10)
+    var showAfterPdf: Boolean = true,    // يبان بعد ما يسد المستخدم ملف PDF
+    var showAfterVideo: Boolean = true   // يبان بعد ما يسد المستخدم فيديو
 )
 
 /** طلب صداقة معلق (بحال فيسبوك: طلب → قبول/رفض) */

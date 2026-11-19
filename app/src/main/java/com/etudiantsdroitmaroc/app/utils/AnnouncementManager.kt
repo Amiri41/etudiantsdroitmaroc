@@ -32,17 +32,17 @@ object AnnouncementManager : DefaultLifecycleObserver, Application.ActivityLifec
     private const val K_AD_LAST_AT = "ad_last_shown_at"
     private const val K_AD_DAY = "ad_day"
     private const val K_AD_COUNT = "ad_count_today"
-    private const val MIN_GAP_MIN = 15
-    private const val MAX_PER_DAY = 3
+    private const val FLOOR_GAP_MIN = 5   // حماية للحساب: الفاصل ما ينزلش تحت 5 دقائق مهما كتب الأدمن
+    private const val CEIL_PER_DAY = 10    // حماية: أقصى 10 مرات فاليوم
 
-    private val CONTENT = setOf("PdfViewerActivity", "VideoPlayerActivity")
+    private val CONTENT = mapOf("PdfViewerActivity" to "pdf", "VideoPlayerActivity" to "video")
     private val NO_AD_ON = setOf(
         "PdfViewerActivity", "VideoPlayerActivity", "AnnouncementFullscreenActivity",
         "SplashActivity", "LoginActivity"
     )
 
     private var currentActivity: Activity? = null
-    private var pendingBreak = false
+    private var pendingKind: String? = null   // "pdf" ولا "video": شنو سد المستخدم
 
     fun init(application: Application) {
         application.registerActivityLifecycleCallbacks(this)
@@ -73,19 +73,22 @@ object AnnouncementManager : DefaultLifecycleObserver, Application.ActivityLifec
     }
 
     /** لحظة طبيعية: رجع المستخدم من ملف/فيديو للشاشة اللي قبلها */
-    private suspend fun maybeShowAd(activity: Activity) {
+    private suspend fun maybeShowAd(activity: Activity, kind: String) {
         val ann = AnnouncementRepository.getCurrentAnnouncement() ?: return
         if (!ann.active || ann.type == "update") return
+        // الأدمن كيختار فين يبان
+        if (kind == "pdf" && !ann.showAfterPdf) return
+        if (kind == "video" && !ann.showAfterVideo) return
         if (currentActivity !== activity || activity.isFinishing) return
 
         val prefs = activity.getSharedPreferences(PREFS, Activity.MODE_PRIVATE)
         val now = System.currentTimeMillis()
-        val minGapMs = maxOf(MIN_GAP_MIN, ann.intervalMinutes) * 60_000L
+        val minGapMs = maxOf(ann.minGapMinutes.coerceAtLeast(FLOOR_GAP_MIN), ann.intervalMinutes) * 60_000L
         if (now - prefs.getLong(K_AD_LAST_AT, 0L) < minGapMs) return
 
         val day = now / 86_400_000L
         val count = if (prefs.getLong(K_AD_DAY, -1L) == day) prefs.getInt(K_AD_COUNT, 0) else 0
-        if (count >= MAX_PER_DAY) return
+        if (count >= ann.maxPerDay.coerceIn(1, CEIL_PER_DAY)) return
 
         val isNew = ann.updatedAt > prefs.getLong(K_AD_SEEN, 0L)
         if (!isNew && ann.intervalMinutes <= 0) return   // مرة وحدة لكل إعلان
@@ -115,15 +118,16 @@ object AnnouncementManager : DefaultLifecycleObserver, Application.ActivityLifec
 
     override fun onActivityResumed(activity: Activity) {
         currentActivity = activity
-        if (pendingBreak && activity.javaClass.simpleName !in NO_AD_ON) {
-            pendingBreak = false
-            CoroutineScope(Dispatchers.Main).launch { maybeShowAd(activity) }
+        val kind = pendingKind
+        if (kind != null && activity.javaClass.simpleName !in NO_AD_ON) {
+            pendingKind = null
+            CoroutineScope(Dispatchers.Main).launch { maybeShowAd(activity, kind) }
         }
     }
 
     override fun onActivityPaused(activity: Activity) {
         // المستخدم سد ملف/فيديو (finish) => الشاشة اللي كترجع هي لحظة طبيعية
-        if (activity.isFinishing && activity.javaClass.simpleName in CONTENT) pendingBreak = true
+        if (activity.isFinishing) CONTENT[activity.javaClass.simpleName]?.let { pendingKind = it }
         if (currentActivity === activity) currentActivity = null
     }
 

@@ -9,7 +9,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.etudiantsdroitmaroc.app.R
+import com.etudiantsdroitmaroc.app.data.model.PdfDocument
+import com.etudiantsdroitmaroc.app.data.remote.PdfRepository
 import com.etudiantsdroitmaroc.app.databinding.ActivityPdfViewerBinding
+import com.etudiantsdroitmaroc.app.ui.common.AppDialog
+import com.etudiantsdroitmaroc.app.utils.AdManager
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -39,6 +44,27 @@ class PdfViewerActivity : AppCompatActivity() {
         val localPath = intent.getStringExtra("localPath")
         val remoteUrl = intent.getStringExtra("remoteUrl")
 
+        // زر التحميل: كيبان غير ملي الملف مازال ما تحملش، وكيدوز بإعلان مكافأة (اختياري من المستخدم)
+        val pdfId = intent.getStringExtra("pdfId")
+        binding.toolbar.inflateMenu(R.menu.menu_pdf_viewer)
+        val downloadItem = binding.toolbar.menu.findItem(R.id.action_download)
+        downloadItem.icon?.mutate()?.setTint(android.graphics.Color.WHITE)
+        downloadItem.isVisible = remoteUrl != null && !pdfId.isNullOrEmpty()
+        binding.toolbar.setOnMenuItemClickListener { item ->
+            if (item.itemId == R.id.action_download && remoteUrl != null && !pdfId.isNullOrEmpty()) {
+                confirmDownload(
+                    PdfDocument(
+                        id = pdfId,
+                        subjectId = intent.getStringExtra("subjectId") ?: "",
+                        title = intent.getStringExtra("title") ?: "",
+                        storageUrl = remoteUrl
+                    ),
+                    downloadItem
+                )
+                true
+            } else false
+        }
+
         if (localPath != null) {
             // مسار أوفلاين - كيتفتح مباشرة من الهاتف بلا انترنت
             openFile(File(localPath))
@@ -48,6 +74,34 @@ class PdfViewerActivity : AppCompatActivity() {
         } else {
             Toast.makeText(this, "تعذر فتح الملف", Toast.LENGTH_SHORT).show()
             finish()
+        }
+    }
+
+    private fun confirmDownload(pdf: PdfDocument, item: android.view.MenuItem) {
+        AppDialog.Builder(this)
+            .setTitle("تحميل الملف")
+            .setMessage("شوف إعلان قصير باش تحمل هاد الملف وتقدر تقراه بلا أنترنت")
+            .setPositiveButton("شوف الإعلان وحمل") { _, _ ->
+                AdManager.showRewarded(
+                    this,
+                    onReward = { doDownload(pdf, item) },
+                    onUnavailable = { doDownload(pdf, item) }   // إلا ما كاين حتى إعلان، ما كنبلوكيوش المستخدم
+                )
+            }
+            .setNegativeButton("إلغاء", null)
+            .show()
+    }
+
+    private fun doDownload(pdf: PdfDocument, item: android.view.MenuItem) {
+        lifecycleScope.launch {
+            Toast.makeText(this@PdfViewerActivity, "جاري التحميل…", Toast.LENGTH_SHORT).show()
+            val result = PdfRepository(applicationContext).downloadForOffline(pdf)
+            if (result.isSuccess) {
+                item.isVisible = false
+                Toast.makeText(this@PdfViewerActivity, "تم التحميل ✅", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this@PdfViewerActivity, "فشل التحميل، تأكد من الانترنت", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
